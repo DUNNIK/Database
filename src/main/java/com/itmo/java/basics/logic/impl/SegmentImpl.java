@@ -8,8 +8,22 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public class SegmentImpl implements Segment {
+
+    private String _segmentName;
+    private Path _segmentPath;
+
+
+    private SegmentImpl(String segmentName, Path tableRootPath){
+        _segmentName = segmentName;
+        _segmentPath = createSegmentPathFromRootPath(tableRootPath);
+    }
+
+    private Path createSegmentPathFromRootPath(Path segmentRoot){
+        return Path.of(segmentRoot + "\\" + _segmentName);
+    }
+
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
-        throw new UnsupportedOperationException(); // todo implement
+        return new SegmentImpl(segmentName, tableRootPath);
     }
 
     static String createSegmentName(String tableName) {
@@ -18,7 +32,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public String getName() {
-        return null;
+        return _segmentName;
     }
 
     @Override

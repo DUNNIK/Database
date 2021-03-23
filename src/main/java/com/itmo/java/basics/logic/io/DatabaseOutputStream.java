@@ -3,6 +3,7 @@ package com.itmo.java.basics.logic.io;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -31,6 +32,7 @@ public class DatabaseOutputStream extends DataOutputStream {
      * @throws IOException если запись не удалась
      */
     public int write(WritableDatabaseRecord databaseRecord) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\Username\\Desktop\\test.txt", true);
         return 0;
     }
 }
