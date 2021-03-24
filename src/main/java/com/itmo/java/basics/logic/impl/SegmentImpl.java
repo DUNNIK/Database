@@ -85,7 +85,7 @@ public class SegmentImpl implements Segment {
 
     private boolean isWritePossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize > _finalOffset;
+        return maxSegmentSize >= _finalOffset;
     }
 
     @Override
