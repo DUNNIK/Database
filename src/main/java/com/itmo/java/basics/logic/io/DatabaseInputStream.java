@@ -34,7 +34,7 @@ public class DatabaseInputStream extends DataInputStream {
         if (valueLength != REMOVED_OBJECT_SIZE) {
             value = readNBytes(valueLength);
             dbUnit = new SetDatabaseRecord(key, value);
-        }else {
+        } else {
             dbUnit = new RemoveDatabaseRecord(key);
         }
 

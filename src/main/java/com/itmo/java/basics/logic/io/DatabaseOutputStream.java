@@ -42,6 +42,6 @@ public class DatabaseOutputStream extends DataOutputStream {
         } catch (IOException e) {
             throw new IOException();
         }
-        return (int)databaseRecord.size();
+        return (int) databaseRecord.size();
     }
 }

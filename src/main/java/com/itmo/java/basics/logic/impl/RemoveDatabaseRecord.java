@@ -8,10 +8,11 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
     private final byte[] _key;
     int _keySize;
 
-    public RemoveDatabaseRecord(byte[] objectKey){
+    public RemoveDatabaseRecord(byte[] objectKey) {
         _key = objectKey;
         _keySize = _key.length;
     }
+
     @Override
     public byte[] getKey() {
         return _key;
