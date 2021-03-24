@@ -19,7 +19,7 @@ public class SegmentImpl implements Segment {
     private final String _segmentName;
     private final Path _segmentPath;
     private final SegmentIndex _segmentIndex;
-    private DatabaseOutputStream _outputStream;
+    private final DatabaseOutputStream _outputStream;
     private long _finalOffset;
     private boolean _readonly;
 
