@@ -12,6 +12,8 @@ import java.io.OutputStream;
  */
 public class DatabaseOutputStream extends DataOutputStream {
 
+    private final int INT_BYTES = 4;
+
     public DatabaseOutputStream(OutputStream outputStream) {
         super(outputStream);
     }
@@ -32,7 +34,10 @@ public class DatabaseOutputStream extends DataOutputStream {
      * @throws IOException если запись не удалась
      */
     public int write(WritableDatabaseRecord databaseRecord) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\Username\\Desktop\\test.txt", true);
-        return 0;
+        writeInt(databaseRecord.getKeySize());
+        write(databaseRecord.getKey());
+        writeInt(databaseRecord.getValueSize());
+        write(databaseRecord.getValue());
+        return (int)databaseRecord.size();
     }
 }

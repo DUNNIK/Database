@@ -2,6 +2,8 @@ package com.itmo.java.basics.logic.io;
 
 import com.itmo.java.basics.logic.DatabaseRecord;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
+import com.itmo.java.basics.logic.impl.RemoveDatabaseRecord;
+import com.itmo.java.basics.logic.impl.SetDatabaseRecord;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -24,6 +26,19 @@ public class DatabaseInputStream extends DataInputStream {
      * @return следующую запись, если она существует. {@link Optional#empty()} - если конец файла достигнут
      */
     public Optional<DatabaseRecord> readDbUnit() throws IOException {
-        return null;
+        int keyLength = readInt();
+        byte[] key = readNBytes(keyLength);
+        int valueLength = readInt();
+        byte[] value;
+        DatabaseRecord dbUnit;
+        if (valueLength != REMOVED_OBJECT_SIZE) {
+            value = readNBytes(valueLength);
+            dbUnit = new SetDatabaseRecord(key, value);
+        }
+        else {
+            dbUnit = new RemoveDatabaseRecord(key);
+        }
+
+        return Optional.of(dbUnit);
     }
 }

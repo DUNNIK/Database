@@ -13,9 +13,9 @@ import java.util.Optional;
 
 public class DatabaseImpl implements Database {
 
-    private static String _dbName;
-    private static Path _databasePath;
-    private static HashMap<String, Table> _tables;
+    private final String _dbName;
+    private final Path _databasePath;
+    private final HashMap<String, Table> _tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
         _dbName = dbName;
@@ -24,7 +24,7 @@ public class DatabaseImpl implements Database {
         makeDatabaseDir();
     }
 
-    private static Path createDatabasePathFromRootPath(Path databaseRoot){
+    private Path createDatabasePathFromRootPath(Path databaseRoot) {
         return Path.of(databaseRoot + "\\" + _dbName);
     }
 
@@ -44,29 +44,39 @@ public class DatabaseImpl implements Database {
         }
     }
 
-    private static Table createTable(String tableName) throws DatabaseException{
+    private Table createTable(String tableName) throws DatabaseException {
         return TableImpl.create(tableName, _databasePath, new TableIndex());
     }
+
     private void makeDatabaseDir() throws DatabaseException {
         try {
             Files.createDirectory(_databasePath);
         } catch (IOException e) {
-            throw new DatabaseException("Directory creation error!");
+            throw new DatabaseException("Message", e);
         }
     }
+
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
+        createTableIfNotExists(tableName);
+        var table = searchTable(tableName);
+        table.write(objectKey, objectValue);
+    }
 
+    private Table searchTable(String tableName) {
+        return _tables.get(tableName);
     }
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
-        return Optional.empty();
+        Table table = searchTable(tableName);
+        return table.read(objectKey);
     }
 
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
-
+        Table table = searchTable(tableName);
+        table.delete(objectKey);
     }
 
 }
