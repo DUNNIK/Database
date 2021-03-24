@@ -15,7 +15,8 @@ public class Main {
             database.createTableIfNotExists("Table1");
             database.getName();
             database.write("Table1", "Segment1", "Hello".getBytes(StandardCharsets.UTF_8));
-            System.out.print(database.read("Table1", "Segment1").toString());
+            var readTest = database.read("Table1", "Segment1");
+            readTest.ifPresent(bytes -> System.out.print(new String(bytes)));
             database.delete("Table1", "Segment1");
 
         } catch (DatabaseException | IOException e) {
