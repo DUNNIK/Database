@@ -36,7 +36,7 @@ public class TableImpl implements Table {
         try {
             Files.createDirectory(_tablePath);
         } catch (IOException e) {
-            throw new DatabaseException("Message", e);
+            throw new DatabaseException("IO: Directory creation error.", e);
         }
     }
 
@@ -80,6 +80,7 @@ public class TableImpl implements Table {
     }
 
     private Optional<Segment> searchSegment(String objectKey) {
+
         return _tableIndex.searchForKey(objectKey);
     }
 
@@ -88,7 +89,11 @@ public class TableImpl implements Table {
         var segment = searchSegment(objectKey);
         Optional<byte[]> value = Optional.empty();
         try {
-            if (segment.isPresent()) value = segment.get().read(objectKey);
+            if (segment.isPresent()) {
+                value = segment.get().read(objectKey);
+            } else{
+                return Optional.empty();
+            }
         } catch (IOException e) {
             throw new DatabaseException(e);
         }
@@ -98,10 +103,13 @@ public class TableImpl implements Table {
     @Override
     public void delete(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
+
         boolean isDelete = false;
         try {
-            if (segment.isPresent()){
+            if (segment.isPresent()) {
                 isDelete = segment.get().delete(objectKey);
+            } else {
+                throw new DatabaseException("The table does not have a segment for the specified key");
             }
         } catch (IOException e) {
             throw new DatabaseException(e);

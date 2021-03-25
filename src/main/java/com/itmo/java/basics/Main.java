@@ -17,7 +17,9 @@ public class Main {
             Database database = DatabaseImpl.create("FindMePlease", dbPath);
             database.createTableIfNotExists("table1");
             database.createTableIfNotExists("table2");
-            database.write("table1", "1", "фв".getBytes(StandardCharsets.UTF_8));
+            database.write("table1", "1", null);
+            System.out.println(database.read("table1", "1"));
+            System.out.println(database.read("table1", "4563"));
             database.write("table1", "2", "1_валью".getBytes(StandardCharsets.UTF_8));
             database.write("table1", "3", "1_валью2d3".getBytes(StandardCharsets.UTF_8));
             database.write("table2", "Hel__123lo", "25ю.фыафы1241лдаара132134512".getBytes(StandardCharsets.UTF_8));
@@ -73,6 +75,13 @@ public class Main {
                 var c = new String(b, StandardCharsets.UTF_8);
                 System.out.println(c);
             }
+            a = database.read("table1", veryLongText);
+            if (a.isPresent()) {
+                var b = a.get();
+                var c = new String(b, StandardCharsets.UTF_8);
+                System.out.println(c);
+            }
+            database.delete("table1", veryLongText);
             a = database.read("table1", veryLongText);
             if (a.isPresent()) {
                 var b = a.get();

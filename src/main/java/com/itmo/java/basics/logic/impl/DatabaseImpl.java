@@ -18,7 +18,7 @@ public class DatabaseImpl implements Database {
     private final HashMap<String, Table> _tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
-        if (dbName == null || databaseRoot == null) throw new DatabaseException("Message");
+        if (dbName == null || databaseRoot == null) throw new DatabaseException("Error assigning the name and path to the database.");
         _dbName = dbName;
         _databasePath = createDatabasePathFromRootPath(databaseRoot);
         _tables = new HashMap<>();
@@ -42,7 +42,7 @@ public class DatabaseImpl implements Database {
     public void createTableIfNotExists(String tableName) throws DatabaseException {
         if (!_tables.containsKey(tableName)) {
             _tables.put(tableName, createTable(tableName));
-        } else throw new DatabaseException("Message");
+        } else throw new DatabaseException("The specified key is not in the database.");
     }
 
     private Table createTable(String tableName) throws DatabaseException {
@@ -53,7 +53,7 @@ public class DatabaseImpl implements Database {
         try {
             Files.createDirectory(_databasePath);
         } catch (IOException e) {
-            throw new DatabaseException("Message", e);
+            throw new DatabaseException("IO: Directory creation error.", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class DatabaseImpl implements Database {
     private Table searchTable(String tableName) throws DatabaseException {
         if (_tables.containsKey(tableName)){
             return _tables.get(tableName);
-        } else throw new DatabaseException("Message");
+        } else throw new DatabaseException("The table for the specified key does not exist.");
     }
 
     @Override
@@ -80,7 +80,7 @@ public class DatabaseImpl implements Database {
         if (tableName != null) {
             table = searchTable(tableName);
         } else {
-            throw new DatabaseException("Message");
+            throw new DatabaseException("The value of the table cannot be null.");
         }
         return table.read(objectKey);
     }
@@ -91,7 +91,7 @@ public class DatabaseImpl implements Database {
         if (tableName != null) {
             table = searchTable(tableName);
         } else {
-            throw new DatabaseException("Message");
+            throw new DatabaseException("The value of the table cannot be null.");
         }
         table.delete(objectKey);
     }
