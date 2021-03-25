@@ -47,7 +47,7 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
-        createSegmentIfNull(objectKey);
+        createSegmentIfNull();
         boolean isWrite;
         try {
             isWrite = _lastSegment.write(objectKey, objectValue);
@@ -60,7 +60,7 @@ public class TableImpl implements Table {
 
     private void writeIfFull(String objectKey, byte[] objectValue, boolean isWrite) throws DatabaseException {
         if (!isWrite) {
-            createSegmentIfFull(objectKey);
+            createSegmentIfFull();
             try {
                 _lastSegment.write(objectKey, objectValue);
             } catch (IOException e) {
@@ -69,11 +69,11 @@ public class TableImpl implements Table {
         }
     }
 
-    private void createSegmentIfFull(String objectKey) throws DatabaseException {
+    private void createSegmentIfFull() throws DatabaseException {
         _lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(_tableName), _tablePath);
     }
 
-    private void createSegmentIfNull(String objectKey) throws DatabaseException {
+    private void createSegmentIfNull() throws DatabaseException {
         if (_lastSegment == null) {
             _lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(_tableName), _tablePath);
         }
@@ -111,7 +111,7 @@ public class TableImpl implements Table {
 
     private void deleteIfFull(String objectKey, boolean isDelete) throws DatabaseException {
         if (!isDelete) {
-            createSegmentIfFull(objectKey);
+            createSegmentIfFull();
             try {
                 _lastSegment.delete(objectKey);
             } catch (IOException e) {

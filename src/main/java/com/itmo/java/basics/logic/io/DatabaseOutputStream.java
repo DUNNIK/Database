@@ -3,7 +3,6 @@ package com.itmo.java.basics.logic.io;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
 import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -11,8 +10,6 @@ import java.io.OutputStream;
  * Записывает данные в БД
  */
 public class DatabaseOutputStream extends DataOutputStream {
-
-    private final int INT_BYTES = 4;
 
     public DatabaseOutputStream(OutputStream outputStream) {
         super(outputStream);

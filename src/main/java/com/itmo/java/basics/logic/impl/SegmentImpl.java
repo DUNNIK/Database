@@ -116,7 +116,7 @@ public class SegmentImpl implements Segment {
 
         byte[] value;
         var unit = inputStream.readDbUnit();
-        if (unit.isPresent()) {
+        if (unit.isPresent() && unit.get().getValue() != null) {
             value = unit.get().getValue();
         } else {
             inputStream.close();
