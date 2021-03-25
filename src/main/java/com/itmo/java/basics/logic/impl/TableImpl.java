@@ -56,7 +56,7 @@ public class TableImpl implements Table {
         }
         writeIfFull(objectKey, objectValue, isWrite);
         _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);*/
-        if (_lastSegment.isReadOnly()){
+        if (_lastSegment.isReadOnly()) {
             createSegmentIfFull();
         }
         try {
@@ -96,14 +96,14 @@ public class TableImpl implements Table {
     @Override
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
-        try {
-            if (segment.isPresent()) {
+        if (segment.isPresent()) {
+            try {
                 return segment.get().read(objectKey);
-            } else{
-                return Optional.empty();
+            } catch (IOException e) {
+                throw new DatabaseException(e);
             }
-        } catch (IOException e) {
-            throw new DatabaseException(e);
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -111,7 +111,23 @@ public class TableImpl implements Table {
     public void delete(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
 
-        boolean isDelete;
+        if (segment.isEmpty()){
+            throw new DatabaseException("Segment not found.");
+        }
+
+        createSegmentIfNull();
+
+        if (_lastSegment.isReadOnly()) {
+            createSegmentIfFull();
+        }
+        try {
+            _lastSegment.delete(objectKey);
+        } catch (IOException e) {
+            throw new DatabaseException(e);
+        }
+        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
+
+        /*boolean isDelete;
         try {
             if (segment.isPresent()) {
                 isDelete = segment.get().delete(objectKey);
@@ -121,7 +137,8 @@ public class TableImpl implements Table {
         } catch (IOException e) {
             throw new DatabaseException(e);
         }
-        deleteIfFull(objectKey, isDelete);
+        deleteIfFull(objectKey, isDelete);*/
+
     }
 
     private void deleteIfFull(String objectKey, boolean isDelete) throws DatabaseException {
