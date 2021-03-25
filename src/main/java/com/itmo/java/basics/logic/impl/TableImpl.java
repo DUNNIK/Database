@@ -17,6 +17,7 @@ public class TableImpl implements Table {
     private Segment _lastSegment;
 
     private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
+        if (tableName == null || pathToDatabaseRoot == null) throw new DatabaseException("Message");
         _tableName = tableName;
         _tablePath = createTablePathFromRootPath(pathToDatabaseRoot);
         _tableIndex = tableIndex;

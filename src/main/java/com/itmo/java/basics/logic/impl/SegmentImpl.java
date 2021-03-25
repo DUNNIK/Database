@@ -23,11 +23,16 @@ public class SegmentImpl implements Segment {
     private long _finalOffset;
     private boolean _readonly;
 
-    private SegmentImpl(String segmentName, Path tableRootPath) throws FileNotFoundException {
+    private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
+        if (segmentName == null || tableRootPath == null) throw new DatabaseException("Message");
         _segmentName = segmentName;
         _segmentPath = createSegmentPathFromRootPath(tableRootPath);
         _segmentIndex = new SegmentIndex();
-        _outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
+        try {
+            _outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
+        } catch (FileNotFoundException e) {
+            throw new DatabaseException("Message");
+        }
         _finalOffset = 0;
         _readonly = false;
     }
@@ -41,11 +46,7 @@ public class SegmentImpl implements Segment {
     }
 
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
-        try {
-            return new SegmentImpl(segmentName, tableRootPath);
-        } catch (FileNotFoundException e) {
-            throw new DatabaseException(e);
-        }
+        return new SegmentImpl(segmentName, tableRootPath);
     }
 
     static String createSegmentName(String tableName) {
@@ -59,7 +60,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean write(String objectKey, byte[] objectValue) throws IOException {
-        if (!isWritePossible()) {
+        if (isWritePossible()) {
             closeFileForWriting();
             return false;
         }
@@ -85,7 +86,7 @@ public class SegmentImpl implements Segment {
 
     private boolean isWritePossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize >= _finalOffset;
+        return maxSegmentSize <= _finalOffset;
     }
 
     @Override
@@ -132,6 +133,10 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
+        if (isWritePossible()) {
+            closeFileForWriting();
+            return false;
+        }
         AddSegmentIndex(objectKey);
         WritableDatabaseRecord record = new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
         var recordSize = _outputStream.write(record);

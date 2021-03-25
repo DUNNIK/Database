@@ -18,6 +18,7 @@ public class DatabaseImpl implements Database {
     private final HashMap<String, Table> _tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) throws DatabaseException {
+        if (dbName == null || databaseRoot == null) throw new DatabaseException("Message");
         _dbName = dbName;
         _databasePath = createDatabasePathFromRootPath(databaseRoot);
         _tables = new HashMap<>();
@@ -69,13 +70,23 @@ public class DatabaseImpl implements Database {
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
-        Table table = searchTable(tableName);
+        Table table;
+        try {
+            table = searchTable(tableName);
+        } catch (Exception e) {
+            throw new DatabaseException("Message");
+        }
         return table.read(objectKey);
     }
 
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
-        Table table = searchTable(tableName);
+        Table table;
+        try {
+            table = searchTable(tableName);
+        } catch (Exception e) {
+            throw new DatabaseException("Message");
+        }
         table.delete(objectKey);
     }
 

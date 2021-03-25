@@ -2,13 +2,11 @@ package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
-import java.nio.charset.StandardCharsets;
 
 public class SetDatabaseRecord implements WritableDatabaseRecord {
 
-    private final int INT_BYTES = 4;
-    private byte[] _key;
-    private byte[] _value;
+    private final byte[] _key;
+    private final byte[] _value;
     int _keySize;
     int _valueSize;
 
@@ -31,6 +29,7 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public long size() {
+        int INT_BYTES = 4;
         return INT_BYTES + _keySize + INT_BYTES + _valueSize;
     }
 
