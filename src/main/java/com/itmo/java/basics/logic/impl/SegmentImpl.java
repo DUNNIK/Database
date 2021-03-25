@@ -42,7 +42,7 @@ public class SegmentImpl implements Segment {
     }
 
     private Path createSegmentPathFromRootPath(Path segmentRoot) {
-        return Path.of(segmentRoot + "\\" + _segmentName);
+        return Path.of(segmentRoot + "/" + _segmentName);
     }
 
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {

@@ -26,7 +26,7 @@ public class DatabaseImpl implements Database {
     }
 
     private Path createDatabasePathFromRootPath(Path databaseRoot) {
-        return Path.of(databaseRoot + "\\" + _dbName);
+        return Path.of(databaseRoot + "/" + _dbName);
     }
 
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException{

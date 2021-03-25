@@ -29,7 +29,7 @@ public class TableImpl implements Table {
     }
 
     private Path createTablePathFromRootPath(Path tableRoot) {
-        return Path.of(tableRoot + "\\" + _tableName);
+        return Path.of(tableRoot + "/" + _tableName);
     }
 
     private void makeTableDir() throws DatabaseException {
