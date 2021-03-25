@@ -101,10 +101,10 @@ public class SegmentImpl implements Segment {
 
     @Override
     public Optional<byte[]> read(String objectKey) throws IOException {
-        DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDataBase());
 
         long offset;
         if (searchOffsetByKey(objectKey).isPresent()) {
+            DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDataBase());
             offset = searchOffsetByKey(objectKey).get().getOffset();
             long skip = inputStream.skip(offset);
             if (!isSkipWasCorrect(offset, skip)) throw new IOException();
@@ -113,8 +113,8 @@ public class SegmentImpl implements Segment {
             if (unit.isPresent() && unit.get().getValue() != null) {
                 return  Optional.ofNullable(unit.get().getValue());
             }
+            inputStream.close();
         }
-        inputStream.close();
         return Optional.empty();
     }
 
