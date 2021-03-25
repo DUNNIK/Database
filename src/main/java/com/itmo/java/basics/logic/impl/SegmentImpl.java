@@ -31,7 +31,7 @@ public class SegmentImpl implements Segment {
         try {
             _outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
         } catch (FileNotFoundException e) {
-            throw new DatabaseException("Message");
+            throw new DatabaseException("Unable to create segment file.");
         }
         _finalOffset = 0;
         _readonly = false;
@@ -107,24 +107,17 @@ public class SegmentImpl implements Segment {
         long offset;
         if (searchOffsetByKey(objectKey).isPresent()) {
             offset = searchOffsetByKey(objectKey).get().getOffset();
-        } else{
-            return Optional.empty();
+            long skip = inputStream.skip(offset);
+            if (!isSkipWasCorrect(offset, skip)) throw new IOException();
+
+            byte[] value;
+            var unit = inputStream.readDbUnit();
+            if (unit.isPresent() && unit.get().getValue() != null) {
+                return  Optional.ofNullable(unit.get().getValue());
+            }
         }
-
-        long skip = inputStream.skip(offset);
-        if (!isSkipWasCorrect(offset, skip)) throw new IOException();
-
-        byte[] value;
-        var unit = inputStream.readDbUnit();
-        if (unit.isPresent() && unit.get().getValue() != null) {
-            value = unit.get().getValue();
-        } else {
-            inputStream.close();
-            return Optional.empty();
-        }
-
         inputStream.close();
-        return Optional.ofNullable(value);
+        return Optional.empty();
     }
 
     private boolean isSkipWasCorrect(long offset, long skip) {
