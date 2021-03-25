@@ -57,7 +57,7 @@ public class TableImpl implements Table {
         try {
             _lastSegment.write(objectKey, objectValue);
         } catch (IOException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseException("Error writing record.", e);
         }
         _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
     }
@@ -84,7 +84,7 @@ public class TableImpl implements Table {
             try {
                 return segment.get().read(objectKey);
             } catch (IOException e) {
-                throw new DatabaseException(e);
+                throw new DatabaseException("Read Write error.", e);
             }
         } else {
             return Optional.empty();
@@ -107,7 +107,7 @@ public class TableImpl implements Table {
         try {
             _lastSegment.delete(objectKey);
         } catch (IOException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseException("Error deleting a record.", e);
         }
         _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
 
