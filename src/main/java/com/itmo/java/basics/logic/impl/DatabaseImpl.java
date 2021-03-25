@@ -29,7 +29,7 @@ public class DatabaseImpl implements Database {
         return Path.of(databaseRoot + "\\" + _dbName);
     }
 
-    public static Database create(String dbName, Path databaseRoot) throws DatabaseException, IOException {
+    public static Database create(String dbName, Path databaseRoot) throws DatabaseException{
         return new DatabaseImpl(dbName, databaseRoot);
     }
 

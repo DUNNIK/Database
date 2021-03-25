@@ -55,6 +55,7 @@ public class TableImpl implements Table {
             throw new DatabaseException(e);
         }
         writeIfFull(objectKey, objectValue, isWrite);
+        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
     }
 
     private void writeIfFull(String objectKey, byte[] objectValue, boolean isWrite) throws DatabaseException {
@@ -70,13 +71,11 @@ public class TableImpl implements Table {
 
     private void createSegmentIfFull(String objectKey) throws DatabaseException {
         _lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(_tableName), _tablePath);
-        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
     }
 
     private void createSegmentIfNull(String objectKey) throws DatabaseException {
         if (_lastSegment == null) {
             _lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(_tableName), _tablePath);
-            _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
         }
     }
 
