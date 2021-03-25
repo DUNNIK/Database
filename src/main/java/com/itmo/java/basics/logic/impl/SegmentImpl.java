@@ -1,5 +1,6 @@
 package com.itmo.java.basics.logic.impl;
 
+import com.itmo.java.basics.index.SegmentOffsetInfo;
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.logic.Segment;
@@ -11,7 +12,6 @@ import com.itmo.java.basics.logic.io.DatabaseOutputStream;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.security.KeyException;
 import java.util.Optional;
 
 public class SegmentImpl implements Segment {
@@ -60,7 +60,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean write(String objectKey, byte[] objectValue) throws IOException {
-        if (isWritePossible()) {
+        if (isWriteNotPossible()) {
             closeFileForWriting();
             return false;
         }
@@ -68,6 +68,10 @@ public class SegmentImpl implements Segment {
         WritableDatabaseRecord record = new SetDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8), objectValue);
         var recordSize = _outputStream.write(record);
         updateFinalOffset(recordSize);
+
+        if (isWriteNotPossible()){
+            _readonly = true;
+        }
         return true;
     }
 
@@ -84,22 +88,25 @@ public class SegmentImpl implements Segment {
         _segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(_finalOffset));
     }
 
-    private boolean isWritePossible() {
+    private boolean isWriteNotPossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize <= _finalOffset;
+        return maxSegmentSize <= _finalOffset || _readonly;
     }
 
     @Override
     public Optional<byte[]> read(String objectKey) throws IOException {
         DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDataBase());
+
         long offset;
-        try {
-            offset = searchOffsetByKey(objectKey);
-        } catch (KeyException e) {
+        if (searchOffsetByKey(objectKey).isPresent()) {
+            offset = searchOffsetByKey(objectKey).get().getOffset();
+        } else{
             return Optional.empty();
         }
+
         long skip = inputStream.skip(offset);
         if (!isSkipWasCorrect(offset, skip)) throw new IOException();
+
         byte[] value;
         var unit = inputStream.readDbUnit();
         if (unit.isPresent()) {
@@ -108,16 +115,17 @@ public class SegmentImpl implements Segment {
             inputStream.close();
             return Optional.empty();
         }
+
         inputStream.close();
-        return Optional.ofNullable(value);
+        return Optional.of(value);
     }
 
     private boolean isSkipWasCorrect(long offset, long skip) {
         return skip == offset;
     }
 
-    private long searchOffsetByKey(String objectKey) throws KeyException {
-        return _segmentIndex.searchForKey(objectKey).orElseThrow(KeyException::new).getOffset();
+    private Optional<SegmentOffsetInfo> searchOffsetByKey(String objectKey) {
+        return _segmentIndex.searchForKey(objectKey);
     }
 
     private DataInputStream createInputStreamForDataBase() throws FileNotFoundException {
@@ -133,7 +141,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        if (isWritePossible()) {
+        if (isWriteNotPossible()) {
             closeFileForWriting();
             return false;
         }
