@@ -48,14 +48,6 @@ public class TableImpl implements Table {
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
         createSegmentIfNull();
-        /*boolean isWrite;
-        try {
-            isWrite = _lastSegment.write(objectKey, objectValue);
-        } catch (IOException e) {
-            throw new DatabaseException(e);
-        }
-        writeIfFull(objectKey, objectValue, isWrite);
-        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);*/
         if (_lastSegment.isReadOnly()) {
             createSegmentIfFull();
         }
@@ -65,17 +57,6 @@ public class TableImpl implements Table {
             throw new DatabaseException(e);
         }
         _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
-    }
-
-    private void writeIfFull(String objectKey, byte[] objectValue, boolean isWrite) throws DatabaseException {
-        if (!isWrite) {
-            createSegmentIfFull();
-            try {
-                _lastSegment.write(objectKey, objectValue);
-            } catch (IOException e) {
-                throw new DatabaseException(e);
-            }
-        }
     }
 
     private void createSegmentIfFull() throws DatabaseException {
@@ -127,28 +108,5 @@ public class TableImpl implements Table {
         }
         _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
 
-        /*boolean isDelete;
-        try {
-            if (segment.isPresent()) {
-                isDelete = segment.get().delete(objectKey);
-            } else {
-                throw new DatabaseException("The table does not have a segment for the specified key");
-            }
-        } catch (IOException e) {
-            throw new DatabaseException(e);
-        }
-        deleteIfFull(objectKey, isDelete);*/
-
-    }
-
-    private void deleteIfFull(String objectKey, boolean isDelete) throws DatabaseException {
-        if (!isDelete) {
-            createSegmentIfFull();
-            try {
-                _lastSegment.delete(objectKey);
-            } catch (IOException e) {
-                throw new DatabaseException(e);
-            }
-        }
     }
 }

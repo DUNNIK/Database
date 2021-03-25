@@ -2,7 +2,6 @@ package com.itmo.java.basics.logic.io;
 
 import com.itmo.java.basics.logic.DatabaseRecord;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
-import com.itmo.java.basics.logic.impl.RemoveDatabaseRecord;
 import com.itmo.java.basics.logic.impl.SetDatabaseRecord;
 
 import java.io.DataInputStream;
