@@ -143,4 +143,5 @@ public class SegmentImpl implements Segment {
     public boolean delete(String objectKey) throws IOException {
         return write(objectKey, null);
     }
+
 }

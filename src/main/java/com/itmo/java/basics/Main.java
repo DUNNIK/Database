@@ -69,6 +69,12 @@ public class Main {
             }
 
 
+            a1 = database.read("table2", "1");
+            if (a1.isPresent()) {
+                b1 = a1.get();
+                c1 = new String(b1, StandardCharsets.UTF_8);
+                System.out.println(c1);
+            }
             var a = database.read("table1", "2");
             if (a.isPresent()) {
                 var b = a.get();
