@@ -26,10 +26,8 @@ public class DatabaseImpl implements Database {
     }
 
     private Path createDatabasePathFromRootPath(Path databaseRoot) {
-        StringBuilder sb = new StringBuilder(databaseRoot.toString());
-        sb.append("/");
-        sb.append(_dbName);
-        return Path.of(sb.toString());
+        return Path.of(databaseRoot.toString() + "/" +
+                _dbName);
     }
 
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException{
