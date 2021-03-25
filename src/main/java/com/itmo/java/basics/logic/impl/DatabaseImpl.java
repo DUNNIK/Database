@@ -68,16 +68,18 @@ public class DatabaseImpl implements Database {
         table.write(objectKey, objectValue);
     }
 
-    private Table searchTable(String tableName) {
-        return _tables.get(tableName);
+    private Table searchTable(String tableName) throws DatabaseException {
+        if (_tables.containsKey(tableName)){
+            return _tables.get(tableName);
+        } else throw new DatabaseException("Message");
     }
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
         Table table;
-        try {
+        if (tableName != null) {
             table = searchTable(tableName);
-        } catch (Exception e) {
+        } else {
             throw new DatabaseException("Message");
         }
         return table.read(objectKey);
@@ -86,9 +88,9 @@ public class DatabaseImpl implements Database {
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
         Table table;
-        try {
+        if (tableName != null) {
             table = searchTable(tableName);
-        } catch (Exception e) {
+        } else {
             throw new DatabaseException("Message");
         }
         table.delete(objectKey);
