@@ -65,7 +65,7 @@ public class SegmentImpl implements Segment {
             return false;
         }
         AddSegmentIndex(objectKey);
-        WritableDatabaseRecord record = new SetDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8), objectValue);
+        WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
         var recordSize = _outputStream.write(record);
         updateFinalOffset(recordSize);
 

@@ -7,14 +7,14 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     private final byte[] _key;
     private final byte[] _value;
-    int _keySize = 0;
-    int _valueSize = 0;
+    int _keySize;
+    int _valueSize;
 
     public SetDatabaseRecord(byte[] objectKey, byte[] objectValue) {
         _key = objectKey;
         _value = objectValue;
         _keySize = _key.length;
-        if (_value != null) _valueSize = _value.length;
+        _valueSize = _value.length;
     }
 
     @Override
