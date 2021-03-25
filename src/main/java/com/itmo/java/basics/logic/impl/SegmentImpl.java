@@ -96,7 +96,7 @@ public class SegmentImpl implements Segment {
         try {
             offset = searchOffsetByKey(objectKey);
         } catch (KeyException e) {
-            throw new IOException(e);
+            return Optional.empty();
         }
         long skip = inputStream.skip(offset);
         if (!isSkipWasCorrect(offset, skip)) throw new IOException();
