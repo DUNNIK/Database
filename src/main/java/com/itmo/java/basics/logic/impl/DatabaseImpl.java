@@ -42,7 +42,7 @@ public class DatabaseImpl implements Database {
     public void createTableIfNotExists(String tableName) throws DatabaseException {
         if (!_tables.containsKey(tableName)) {
             _tables.put(tableName, createTable(tableName));
-        }
+        } else throw new DatabaseException("Message");
     }
 
     private Table createTable(String tableName) throws DatabaseException {
@@ -59,8 +59,12 @@ public class DatabaseImpl implements Database {
 
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
-        createTableIfNotExists(tableName);
-        var table = searchTable(tableName);
+        Table table;
+        try {
+            table = searchTable(tableName);
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
         table.write(objectKey, objectValue);
     }
 

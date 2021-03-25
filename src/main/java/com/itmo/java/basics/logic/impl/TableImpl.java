@@ -55,7 +55,6 @@ public class TableImpl implements Table {
             throw new DatabaseException(e);
         }
         writeIfFull(objectKey, objectValue, isWrite);
-
     }
 
     private void writeIfFull(String objectKey, byte[] objectValue, boolean isWrite) throws DatabaseException {
