@@ -14,7 +14,7 @@ public class Main {
             Database database = DatabaseImpl.create("TestPath", Path.of("C:\\Users\\NIKITOS"));
             database.createTableIfNotExists("Table1");
             database.getName();
-
+            database.write("Table1", "Segment1", "Hi".getBytes(StandardCharsets.UTF_8));
             var readTest = database.read("Table1", "Segment1");
             readTest.ifPresent(bytes -> System.out.print(new String(bytes)));
             database.delete("Table1", "Segment1");

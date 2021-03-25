@@ -65,7 +65,7 @@ public class SegmentImpl implements Segment {
             return false;
         }
         AddSegmentIndex(objectKey);
-        WritableDatabaseRecord record = new SetDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8), objectValue);
+        WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
         var recordSize = _outputStream.write(record);
         updateFinalOffset(recordSize);
 
@@ -75,6 +75,13 @@ public class SegmentImpl implements Segment {
         return true;
     }
 
+    private WritableDatabaseRecord createNewRecord(String objectKey, byte[] objectValue){
+        if (objectValue == null){
+            return new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
+        } else{
+            return new SetDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8), objectValue);
+        }
+    }
     private void closeFileForWriting() throws IOException {
         _outputStream.close();
         _readonly = true;
@@ -90,7 +97,7 @@ public class SegmentImpl implements Segment {
 
     private boolean isWriteNotPossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize <= _finalOffset || _readonly;
+        return maxSegmentSize <= _finalOffset;
     }
 
     @Override
@@ -117,7 +124,7 @@ public class SegmentImpl implements Segment {
         }
 
         inputStream.close();
-        return Optional.of(value);
+        return Optional.ofNullable(value);
     }
 
     private boolean isSkipWasCorrect(long offset, long skip) {
@@ -141,14 +148,6 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        if (isWriteNotPossible()) {
-            closeFileForWriting();
-            return false;
-        }
-        AddSegmentIndex(objectKey);
-        WritableDatabaseRecord record = new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
-        var recordSize = _outputStream.write(record);
-        updateFinalOffset(recordSize);
-        return false;
+        return write(objectKey, null);
     }
 }

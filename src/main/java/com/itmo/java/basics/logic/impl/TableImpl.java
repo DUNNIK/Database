@@ -99,10 +99,25 @@ public class TableImpl implements Table {
     @Override
     public void delete(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
+        boolean isDelete = false;
         try {
-            if (segment.isPresent()) segment.get().delete(objectKey);
+            if (segment.isPresent()){
+                isDelete = segment.get().delete(objectKey);
+            }
         } catch (IOException e) {
             throw new DatabaseException(e);
+        }
+        deleteIfFull(objectKey, isDelete);
+    }
+
+    private void deleteIfFull(String objectKey, boolean isDelete) throws DatabaseException {
+        if (!isDelete) {
+            createSegmentIfFull(objectKey);
+            try {
+                _lastSegment.delete(objectKey);
+            } catch (IOException e) {
+                throw new DatabaseException(e);
+            }
         }
     }
 }
