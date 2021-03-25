@@ -48,13 +48,22 @@ public class TableImpl implements Table {
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
         createSegmentIfNull();
-        boolean isWrite;
+        /*boolean isWrite;
         try {
             isWrite = _lastSegment.write(objectKey, objectValue);
         } catch (IOException e) {
             throw new DatabaseException(e);
         }
         writeIfFull(objectKey, objectValue, isWrite);
+        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);*/
+        if (_lastSegment.isReadOnly()){
+            createSegmentIfFull();
+        }
+        try {
+            _lastSegment.write(objectKey, objectValue);
+        } catch (IOException e) {
+            throw new DatabaseException(e);
+        }
         _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
     }
 

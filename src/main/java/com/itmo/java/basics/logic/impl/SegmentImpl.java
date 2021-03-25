@@ -24,7 +24,7 @@ public class SegmentImpl implements Segment {
     private boolean _readonly;
 
     private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
-        if (segmentName == null || tableRootPath == null) throw new DatabaseException("Message");
+        if (segmentName == null || tableRootPath == null) throw new DatabaseException("Error assigning the name and path to the segment.");
         _segmentName = segmentName;
         _segmentPath = createSegmentPathFromRootPath(tableRootPath);
         _segmentIndex = new SegmentIndex();
@@ -60,8 +60,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean write(String objectKey, byte[] objectValue) throws IOException {
-        if (isWriteNotPossible()) {
-            closeFileForWriting();
+        if (isReadOnly()) {
             return false;
         }
         AddSegmentIndex(objectKey);
@@ -70,9 +69,9 @@ public class SegmentImpl implements Segment {
         updateFinalOffset(recordSize);
 
         if (isWriteNotPossible()){
-            _readonly = true;
+            closeFileForWriting();
         }
-        return true;
+        return !isReadOnly();
     }
 
     private WritableDatabaseRecord createNewRecord(String objectKey, byte[] objectValue){
@@ -97,7 +96,7 @@ public class SegmentImpl implements Segment {
 
     private boolean isWriteNotPossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize < _finalOffset;
+        return maxSegmentSize <= _finalOffset;
     }
 
     @Override
@@ -140,18 +139,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        if (isWriteNotPossible()) {
-            closeFileForWriting();
-            return false;
-        }
-        AddSegmentIndex(objectKey);
-        WritableDatabaseRecord record = new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
-        var recordSize = _outputStream.write(record);
-        updateFinalOffset(recordSize);
-
-        if (isWriteNotPossible()){
-            _readonly = true;
-        }
+        write(objectKey, null);
         return true;
     }
 
