@@ -24,7 +24,8 @@ public class SegmentImpl implements Segment {
     private boolean _readonly;
 
     private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
-        if (segmentName == null || tableRootPath == null) throw new DatabaseException("Error assigning the name and path to the segment.");
+        if (segmentName == null || tableRootPath == null)
+            throw new DatabaseException("Error assigning the name and path to the segment.");
         _segmentName = segmentName;
         _segmentPath = createSegmentPathFromRootPath(tableRootPath);
         _segmentIndex = new SegmentIndex();
@@ -68,19 +69,20 @@ public class SegmentImpl implements Segment {
         var recordSize = _outputStream.write(record);
         updateFinalOffset(recordSize);
 
-        if (isWriteNotPossible()){
+        if (isWriteNotPossible()) {
             closeFileForWriting();
         }
         return !isReadOnly();
     }
 
-    private WritableDatabaseRecord createNewRecord(String objectKey, byte[] objectValue){
-        if (objectValue == null){
+    private WritableDatabaseRecord createNewRecord(String objectKey, byte[] objectValue) {
+        if (objectValue == null) {
             return new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
-        } else{
+        } else {
             return new SetDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8), objectValue);
         }
     }
+
     private void closeFileForWriting() throws IOException {
         _outputStream.close();
         _readonly = true;
@@ -111,7 +113,7 @@ public class SegmentImpl implements Segment {
 
             var unit = inputStream.readDbUnit();
             if (unit.isPresent() && unit.get().getValue() != null) {
-                return  Optional.ofNullable(unit.get().getValue());
+                return Optional.ofNullable(unit.get().getValue());
             }
             inputStream.close();
         }

@@ -17,7 +17,8 @@ public class TableImpl implements Table {
     private Segment _lastSegment;
 
     private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
-        if (tableName == null || pathToDatabaseRoot == null) throw new DatabaseException("Error assigning the name and path to the table.");
+        if (tableName == null || pathToDatabaseRoot == null)
+            throw new DatabaseException("Error assigning the name and path to the table.");
         _tableName = tableName;
         _tablePath = createTablePathFromRootPath(pathToDatabaseRoot);
         _tableIndex = tableIndex;
@@ -48,9 +49,11 @@ public class TableImpl implements Table {
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
         createSegmentIfNull();
+
         if (_lastSegment.isReadOnly()) {
             createSegmentIfFull();
         }
+
         try {
             _lastSegment.write(objectKey, objectValue);
         } catch (IOException e) {
@@ -92,7 +95,7 @@ public class TableImpl implements Table {
     public void delete(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
 
-        if (segment.isEmpty()){
+        if (segment.isEmpty()) {
             throw new DatabaseException("Segment not found.");
         }
 
