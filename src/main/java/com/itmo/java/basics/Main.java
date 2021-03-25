@@ -20,8 +20,8 @@ public class Main {
             database.write("table1", "1", null);
             System.out.println(database.read("table1", "1"));
             System.out.println(database.read("table1", "4563"));
-            database.write("table1", "2", "1_валью".getBytes(StandardCharsets.UTF_8));
-            database.write("table1", "3", "1_валью2d3".getBytes(StandardCharsets.UTF_8));
+            database.write("table1", "2", "1".getBytes(StandardCharsets.UTF_8));
+            database.write("table1", "3", "1".getBytes(StandardCharsets.UTF_8));
             database.write("table2", "Hel__123lo", "25ю.фыафы1241лдаара132134512".getBytes(StandardCharsets.UTF_8));
             database.write("table2", "Hel__123lo", "2132134512".getBytes(StandardCharsets.UTF_8));
             database.write("table2", "Hel1lo", "2a1s2ффодпрфрююфа.ю.ю._d3".getBytes(StandardCharsets.UTF_8));

@@ -65,7 +65,7 @@ public class SegmentImpl implements Segment {
             return false;
         }
         AddSegmentIndex(objectKey);
-        WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
+        WritableDatabaseRecord record = new SetDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8), objectValue);
         var recordSize = _outputStream.write(record);
         updateFinalOffset(recordSize);
 
@@ -97,7 +97,7 @@ public class SegmentImpl implements Segment {
 
     private boolean isWriteNotPossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize <= _finalOffset;
+        return maxSegmentSize < _finalOffset;
     }
 
     @Override
@@ -141,7 +141,19 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        return write(objectKey, null);
+        if (isWriteNotPossible()) {
+            closeFileForWriting();
+            return false;
+        }
+        AddSegmentIndex(objectKey);
+        WritableDatabaseRecord record = new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
+        var recordSize = _outputStream.write(record);
+        updateFinalOffset(recordSize);
+
+        if (isWriteNotPossible()){
+            _readonly = true;
+        }
+        return true;
     }
 
 }
