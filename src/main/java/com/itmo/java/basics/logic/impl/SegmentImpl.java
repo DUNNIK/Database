@@ -110,7 +110,6 @@ public class SegmentImpl implements Segment {
             long skip = inputStream.skip(offset);
             if (!isSkipWasCorrect(offset, skip)) throw new IOException();
 
-            byte[] value;
             var unit = inputStream.readDbUnit();
             if (unit.isPresent() && unit.get().getValue() != null) {
                 return  Optional.ofNullable(unit.get().getValue());
