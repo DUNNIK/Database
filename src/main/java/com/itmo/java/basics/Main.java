@@ -31,7 +31,7 @@ public class Main {
             database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
 
 
-            var a1 = database.read("table1", "1");
+            var a1 = database.read("table1", "2");
             var b1 = a1.get();
             var c1 = new String(b1, StandardCharsets.UTF_8);
             System.out.println(c1);

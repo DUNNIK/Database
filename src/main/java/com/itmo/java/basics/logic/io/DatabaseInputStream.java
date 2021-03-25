@@ -29,14 +29,13 @@ public class DatabaseInputStream extends DataInputStream {
         int keyLength = readInt();
         byte[] key = readNBytes(keyLength);
         int valueLength = readInt();
-        byte[] value;
-        DatabaseRecord dbUnit;
-        if (valueLength != REMOVED_OBJECT_SIZE) {
-            value = readNBytes(valueLength);
-            dbUnit = new SetDatabaseRecord(key, value);
-        } else {
+
+        if (valueLength == REMOVED_OBJECT_SIZE){
             return Optional.empty();
         }
+
+        byte[] value = readNBytes(valueLength);
+        DatabaseRecord dbUnit = new SetDatabaseRecord(key, value);
 
         return Optional.of(dbUnit);
     }

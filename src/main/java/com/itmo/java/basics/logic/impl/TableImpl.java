@@ -87,24 +87,22 @@ public class TableImpl implements Table {
     @Override
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
-        Optional<byte[]> value = Optional.empty();
         try {
             if (segment.isPresent()) {
-                value = segment.get().read(objectKey);
+                return segment.get().read(objectKey);
             } else{
                 return Optional.empty();
             }
         } catch (IOException e) {
             throw new DatabaseException(e);
         }
-        return value;
     }
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
 
-        boolean isDelete = false;
+        boolean isDelete;
         try {
             if (segment.isPresent()) {
                 isDelete = segment.get().delete(objectKey);
