@@ -82,14 +82,14 @@ public class TableImpl implements Table {
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
 
-        if (segment.isEmpty()) {
+        if (segment.isPresent()) {
+            try {
+                return segment.get().read(objectKey);
+            } catch (IOException e) {
+                throw new DatabaseException("Read Write error.", e);
+            }
+        } else {
             return Optional.empty();
-        }
-
-        try {
-            return segment.get().read(objectKey);
-        } catch (IOException e) {
-            throw new DatabaseException("Read Write error.", e);
         }
     }
 
