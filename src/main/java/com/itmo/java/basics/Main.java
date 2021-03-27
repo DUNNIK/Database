@@ -2,7 +2,6 @@ package com.itmo.java.basics;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.Database;
-import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
 import java.nio.charset.StandardCharsets;
@@ -31,64 +30,64 @@ public class Main {
             database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
 
 
-            var a1 = database.read("table1", "2");
-            var b1 = a1.get();
-            var c1 = new String(b1, StandardCharsets.UTF_8);
-            System.out.println(c1);
-
-            a1 = database.read("table1", "2");
-            b1 = a1.get();
-            c1 = new String(b1, StandardCharsets.UTF_8);
-            System.out.println(c1);
-
-            database.delete("table1", "1");
-
-            a1 = database.read("table1", "1");
-            if (a1.isPresent()) {
-                b1 = a1.get();
-                c1 = new String(b1, StandardCharsets.UTF_8);
-                System.out.println(c1);
-            } else {
-                System.out.println("Bad");
-            }
-
-            database.write("table1", "1", "132134512".getBytes(StandardCharsets.UTF_8));
-
-            a1 = database.read("table1", "1");
-            if (a1.isPresent()) {
-                b1 = a1.get();
-                c1 = new String(b1, StandardCharsets.UTF_8);
-                System.out.println(c1);
-            }
-
-            a1 = database.read("table1", "3");
-            if (a1.isPresent()) {
-                b1 = a1.get();
-                c1 = new String(b1, StandardCharsets.UTF_8);
-                System.out.println(c1);
-            }
-
-
-            a1 = database.read("table2", "1");
-            if (a1.isPresent()) {
-                b1 = a1.get();
-                c1 = new String(b1, StandardCharsets.UTF_8);
-                System.out.println(c1);
-            }
-            var a = database.read("table1", "2");
-            if (a.isPresent()) {
-                var b = a.get();
-                var c = new String(b, StandardCharsets.UTF_8);
-                System.out.println(c);
-            }
-            a = database.read("table1", veryLongText);
-            if (a.isPresent()) {
-                var b = a.get();
-                var c = new String(b, StandardCharsets.UTF_8);
-                System.out.println(c);
-            }
+//            var a1 = database.read("table1", "2");
+//            var b1 = a1.get();
+//            var c1 = new String(b1, StandardCharsets.UTF_8);
+//            System.out.println(c1);
+//
+//            a1 = database.read("table1", "2");
+//            b1 = a1.get();
+//            c1 = new String(b1, StandardCharsets.UTF_8);
+//            System.out.println(c1);
+//
+//            database.delete("table1", "1");
+//
+//            a1 = database.read("table1", "1");
+//            if (a1.isPresent()) {
+//                b1 = a1.get();
+//                c1 = new String(b1, StandardCharsets.UTF_8);
+//                System.out.println(c1);
+//            } else {
+//                System.out.println("Bad");
+//            }
+//
+//            database.write("table1", "1", "132134512".getBytes(StandardCharsets.UTF_8));
+//
+//            a1 = database.read("table1", "1");
+//            if (a1.isPresent()) {
+//                b1 = a1.get();
+//                c1 = new String(b1, StandardCharsets.UTF_8);
+//                System.out.println(c1);
+//            }
+//
+//            a1 = database.read("table1", "3");
+//            if (a1.isPresent()) {
+//                b1 = a1.get();
+//                c1 = new String(b1, StandardCharsets.UTF_8);
+//                System.out.println(c1);
+//            }
+//
+//
+//            a1 = database.read("table2", "1");
+//            if (a1.isPresent()) {
+//                b1 = a1.get();
+//                c1 = new String(b1, StandardCharsets.UTF_8);
+//                System.out.println(c1);
+//            }
+//            var a = database.read("table1", "2");
+//            if (a.isPresent()) {
+//                var b = a.get();
+//                var c = new String(b, StandardCharsets.UTF_8);
+//                System.out.println(c);
+//            }
+//            a = database.read("table1", veryLongText);
+//            if (a.isPresent()) {
+//                var b = a.get();
+//                var c = new String(b, StandardCharsets.UTF_8);
+//                System.out.println(c);
+//            }
             database.delete("table1", veryLongText);
-            a = database.read("table1", veryLongText);
+            var a = database.read("table1", veryLongText);
             if (a.isPresent()) {
                 var b = a.get();
                 var c = new String(b, StandardCharsets.UTF_8);

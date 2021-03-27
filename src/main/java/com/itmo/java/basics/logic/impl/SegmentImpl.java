@@ -122,10 +122,11 @@ public class SegmentImpl implements Segment {
             var unit = inputStream.readDbUnit();
 
             if (unit.isPresent() && unit.get().getValue() != null) {
-                return Optional.ofNullable(unit.get().getValue());
+                return Optional.of(unit.get().getValue());
             }
             inputStream.close();
         }
+
         return Optional.empty();
     }
 
