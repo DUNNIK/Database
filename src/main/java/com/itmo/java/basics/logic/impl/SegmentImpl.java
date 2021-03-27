@@ -16,37 +16,42 @@ import java.util.Optional;
 
 public class SegmentImpl implements Segment {
 
-    private final String _segmentName;
-    private final Path _segmentPath;
-    private final SegmentIndex _segmentIndex;
-    private final DatabaseOutputStream _outputStream;
-    private long _finalOffset;
-    private boolean _readonly;
+    private final String segmentName;
+    private final Path segmentPath;
+    private final SegmentIndex segmentIndex;
+    private static DatabaseOutputStream outputStream;
+    private long finalOffset;
+    private boolean readonly;
 
-    private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
-        if (segmentName == null || tableRootPath == null)
-            throw new DatabaseException("Error assigning the name and path to the segment.");
-        _segmentName = segmentName;
-        _segmentPath = createSegmentPathFromRootPath(tableRootPath);
-        _segmentIndex = new SegmentIndex();
-        try {
-            _outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
-        } catch (FileNotFoundException e) {
-            throw new DatabaseException("Unable to create segment file.");
-        }
-        _finalOffset = 0;
-        _readonly = false;
+    private SegmentImpl(String segmentName, Path tableRootPath) {
+        this.segmentName = segmentName;
+        segmentPath = createSegmentPathFromRootPath(tableRootPath, segmentName);
+        segmentIndex = new SegmentIndex();
+        finalOffset = 0;
+        readonly = false;
     }
 
-    private DataOutputStream createOutputStreamForDataBase() throws FileNotFoundException {
-        return new DataOutputStream(new FileOutputStream(_segmentPath.toString(), true));
+    private static DataOutputStream createOutputStreamForDataBase(Path segmentPath) throws FileNotFoundException {
+        return new DataOutputStream(new FileOutputStream(segmentPath.toString(), true));
     }
 
-    private Path createSegmentPathFromRootPath(Path segmentRoot) {
-        return Path.of(segmentRoot + "/" + _segmentName);
+    private static Path createSegmentPathFromRootPath(Path segmentRoot, String segmentName) {
+        return Path.of(segmentRoot + File.separator + segmentName);
     }
 
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
+        if (segmentName == null || tableRootPath == null) {
+            throw new DatabaseException("Error assigning the name and path to the segment.");
+        }
+        try {
+            outputStream = new DatabaseOutputStream(
+                    createOutputStreamForDataBase(
+                            createSegmentPathFromRootPath(tableRootPath, segmentName)
+                    )
+            );
+        } catch (FileNotFoundException e) {
+            throw new DatabaseException("Unable to create segment file.");
+        }
         return new SegmentImpl(segmentName, tableRootPath);
     }
 
@@ -56,7 +61,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public String getName() {
-        return _segmentName;
+        return segmentName;
     }
 
     @Override
@@ -66,7 +71,7 @@ public class SegmentImpl implements Segment {
         }
         AddSegmentIndex(objectKey);
         WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
-        var recordSize = _outputStream.write(record);
+        var recordSize = outputStream.write(record);
         updateFinalOffset(recordSize);
 
         if (isWriteNotPossible()) {
@@ -84,21 +89,21 @@ public class SegmentImpl implements Segment {
     }
 
     private void closeFileForWriting() throws IOException {
-        _outputStream.close();
-        _readonly = true;
+        outputStream.close();
+        readonly = true;
     }
 
     private void updateFinalOffset(int recordSize) {
-        _finalOffset += recordSize;
+        finalOffset += recordSize;
     }
 
     private void AddSegmentIndex(String objectKey) {
-        _segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(_finalOffset));
+        segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(finalOffset));
     }
 
     private boolean isWriteNotPossible() {
         var maxSegmentSize = 100_000;
-        return maxSegmentSize <= _finalOffset;
+        return maxSegmentSize <= finalOffset;
     }
 
     @Override
@@ -109,9 +114,13 @@ public class SegmentImpl implements Segment {
             DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDataBase());
             offset = searchOffsetByKey(objectKey).get().getOffset();
             long skip = inputStream.skip(offset);
-            if (!isSkipWasCorrect(offset, skip)) throw new IOException();
+
+            if (!isSkipWasCorrect(offset, skip)) {
+                throw new IOException();
+            }
 
             var unit = inputStream.readDbUnit();
+
             if (unit.isPresent() && unit.get().getValue() != null) {
                 return Optional.ofNullable(unit.get().getValue());
             }
@@ -125,18 +134,18 @@ public class SegmentImpl implements Segment {
     }
 
     private Optional<SegmentOffsetInfo> searchOffsetByKey(String objectKey) {
-        return _segmentIndex.searchForKey(objectKey);
+        return segmentIndex.searchForKey(objectKey);
     }
 
     private DataInputStream createInputStreamForDataBase() throws FileNotFoundException {
-        FileInputStream fileInputStream = new FileInputStream(_segmentPath.toString());
+        FileInputStream fileInputStream = new FileInputStream(segmentPath.toString());
 
         return new DataInputStream(fileInputStream);
     }
 
     @Override
     public boolean isReadOnly() {
-        return _readonly;
+        return readonly;
     }
 
     @Override

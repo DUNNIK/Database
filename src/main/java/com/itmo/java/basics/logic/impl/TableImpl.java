@@ -5,37 +5,39 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.logic.Table;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
 public class TableImpl implements Table {
-    private final String _tableName;
-    private final Path _tablePath;
-    private final TableIndex _tableIndex;
-    private Segment _lastSegment;
+    private final String tableName;
+    private final Path tablePath;
+    private final TableIndex tableIndex;
+    private Segment lastSegment;
 
-    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
-        if (tableName == null || pathToDatabaseRoot == null)
-            throw new DatabaseException("Error assigning the name and path to the table.");
-        _tableName = tableName;
-        _tablePath = createTablePathFromRootPath(pathToDatabaseRoot);
-        _tableIndex = tableIndex;
-        makeTableDir();
+    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) {
+        this.tableName = tableName;
+        tablePath = createTablePathFromRootPath(pathToDatabaseRoot, tableName);
+        this.tableIndex = tableIndex;
     }
 
     static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
+        if (tableName == null || pathToDatabaseRoot == null) {
+            throw new DatabaseException("Error assigning the name and path to the table.");
+        }
+        makeTableDir(createTablePathFromRootPath(pathToDatabaseRoot, tableName));
         return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
     }
 
-    private Path createTablePathFromRootPath(Path tableRoot) {
-        return Path.of(tableRoot + "/" + _tableName);
+    private static Path createTablePathFromRootPath(Path tableRoot, String tableName) {
+        return Path.of(tableRoot + File.separator + tableName);
     }
 
-    private void makeTableDir() throws DatabaseException {
+    private static void makeTableDir(Path tablePath) throws DatabaseException {
         try {
-            Files.createDirectory(_tablePath);
+            Files.createDirectory(tablePath);
         } catch (IOException e) {
             throw new DatabaseException("IO: Directory creation error.", e);
         }
@@ -43,51 +45,51 @@ public class TableImpl implements Table {
 
     @Override
     public String getName() {
-        return _tableName;
+        return tableName;
     }
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
         createSegmentIfNull();
 
-        if (_lastSegment.isReadOnly()) {
+        if (lastSegment.isReadOnly()) {
             createSegmentIfFull();
         }
 
         try {
-            _lastSegment.write(objectKey, objectValue);
+            lastSegment.write(objectKey, objectValue);
         } catch (IOException e) {
             throw new DatabaseException("Error writing record.", e);
         }
-        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
+        tableIndex.onIndexedEntityUpdated(objectKey, lastSegment);
     }
 
     private void createSegmentIfFull() throws DatabaseException {
-        _lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(_tableName), _tablePath);
+        lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tablePath);
     }
 
     private void createSegmentIfNull() throws DatabaseException {
-        if (_lastSegment == null) {
-            _lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(_tableName), _tablePath);
+        if (lastSegment == null) {
+            lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tablePath);
         }
     }
 
     private Optional<Segment> searchSegment(String objectKey) {
-
-        return _tableIndex.searchForKey(objectKey);
+        return tableIndex.searchForKey(objectKey);
     }
 
     @Override
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         var segment = searchSegment(objectKey);
-        if (segment.isPresent()) {
-            try {
-                return segment.get().read(objectKey);
-            } catch (IOException e) {
-                throw new DatabaseException("Read Write error.", e);
-            }
-        } else {
+
+        if (segment.isEmpty()) {
             return Optional.empty();
+        }
+
+        try {
+            return segment.get().read(objectKey);
+        } catch (IOException e) {
+            throw new DatabaseException("Read Write error.", e);
         }
     }
 
@@ -101,15 +103,16 @@ public class TableImpl implements Table {
 
         createSegmentIfNull();
 
-        if (_lastSegment.isReadOnly()) {
+        if (lastSegment.isReadOnly()) {
             createSegmentIfFull();
         }
+
         try {
-            _lastSegment.delete(objectKey);
+            lastSegment.delete(objectKey);
         } catch (IOException e) {
             throw new DatabaseException("Error deleting a record.", e);
         }
-        _tableIndex.onIndexedEntityUpdated(objectKey, _lastSegment);
 
+        tableIndex.onIndexedEntityUpdated(objectKey, lastSegment);
     }
 }
