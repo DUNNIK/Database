@@ -66,7 +66,7 @@ public class SegmentImpl implements Segment {
 
         outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
         var recordSize = outputStream.write(record);
-
+        outputStream.close();
         updateFinalOffset(recordSize);
 
         if (isWriteNotPossible()) {
