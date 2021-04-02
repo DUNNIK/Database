@@ -2,35 +2,49 @@ package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
+
 public class SetDatabaseRecord implements WritableDatabaseRecord {
+
+    private final byte[] _key;
+    private final byte[] _value;
+    int _keySize;
+    int _valueSize;
+
+    public SetDatabaseRecord(byte[] objectKey, byte[] objectValue) {
+        _key = objectKey;
+        _value = objectValue;
+        _keySize = _key.length;
+        _valueSize = _value.length;
+    }
 
     @Override
     public byte[] getKey() {
-        return new byte[0];
+        return _key;
     }
 
     @Override
     public byte[] getValue() {
-        return new byte[0];
+        return _value;
     }
 
     @Override
     public long size() {
-        return 0;
+        int INT_BYTES = 4;
+        return INT_BYTES + _keySize + INT_BYTES + _valueSize;
     }
 
     @Override
     public boolean isValuePresented() {
-        return false;
+        return _value != null;
     }
 
     @Override
     public int getKeySize() {
-        return 0;
+        return _keySize;
     }
 
     @Override
     public int getValueSize() {
-        return 0;
+        return _valueSize;
     }
 }
