@@ -9,6 +9,8 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import com.itmo.java.basics.logic.io.DatabaseInputStream;
 import com.itmo.java.basics.logic.io.DatabaseOutputStream;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class SegmentImpl implements Segment {
 
     private final String segmentName;
@@ -54,7 +58,11 @@ public class SegmentImpl implements Segment {
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
-        return null;
+        return SegmentImpl.builder()
+                .segmentName(context.getSegmentName())
+                .segmentPath(context.getSegmentPath())
+                .segmentIndex(context.getIndex())
+                .build();
     }
 
     static String createSegmentName(String tableName) {

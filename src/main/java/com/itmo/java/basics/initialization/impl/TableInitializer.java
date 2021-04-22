@@ -4,9 +4,14 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 
+import java.io.File;
+
 public class TableInitializer implements Initializer {
 
+    private final SegmentInitializer segmentInitializer;
+
     public TableInitializer(SegmentInitializer segmentInitializer) {
+        this.segmentInitializer = segmentInitializer;
     }
 
     /**
@@ -19,5 +24,7 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        var tablePath = context.currentTableContext().getTablePath();
+        var segmentFiles =
     }
 }

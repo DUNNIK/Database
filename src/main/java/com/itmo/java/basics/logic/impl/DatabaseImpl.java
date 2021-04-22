@@ -5,19 +5,24 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class DatabaseImpl implements Database {
 
     private final String dbName;
     private final Path databasePath;
-    private final HashMap<String, Table> tables;
+    private final Map<String, Table> tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) {
         this.dbName = dbName;
@@ -39,7 +44,12 @@ public class DatabaseImpl implements Database {
     }
 
     public static Database initializeFromContext(DatabaseInitializationContext context) {
-        return null;
+
+        return DatabaseImpl.builder()
+                .dbName(context.getDbName())
+                .databasePath(context.getDatabasePath())
+                .tables(context.getTables())
+                .build();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.itmo.java.basics;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
+import com.itmo.java.basics.initialization.Initializer;
+import com.itmo.java.basics.initialization.impl.*;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
@@ -13,6 +15,13 @@ public class Main {
         Path dbPath = Paths.get("C:/Users/NIKITOS");
 
         try {
+            Initializer initializer =
+                    new DatabaseServerInitializer(
+                            new DatabaseInitializer(
+                                    new TableInitializer(
+                                            new SegmentInitializer())));
+            initializer.perform();
+
             Database database = DatabaseImpl.create("FindMePlease", dbPath);
             database.createTableIfNotExists("table1");
             database.createTableIfNotExists("table2");
@@ -286,4 +295,6 @@ public class Main {
             "\n" +
             "Бесплатный фрагмент закончился.\n" +
             "Купите книгу, чтобы продолжить чтение.";
+
+
 }

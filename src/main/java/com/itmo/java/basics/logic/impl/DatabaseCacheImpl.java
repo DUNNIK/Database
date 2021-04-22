@@ -1,6 +1,7 @@
 package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.logic.DatabaseCache;
+import lombok.Data;
 
 public class DatabaseCacheImpl implements DatabaseCache {
     @Override
@@ -9,6 +10,7 @@ public class DatabaseCacheImpl implements DatabaseCache {
     }
 
     @Override
+
     public void set(String key, byte[] value) {
 
     }
