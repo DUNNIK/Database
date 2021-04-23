@@ -1,9 +1,8 @@
 package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
-import com.itmo.java.basics.initialization.InitializationContext;
-import com.itmo.java.basics.initialization.Initializer;
-import com.itmo.java.basics.initialization.SegmentInitializationContext;
+import com.itmo.java.basics.initialization.*;
+import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,10 +45,19 @@ public class TableInitializer implements Initializer {
                     createInitializationContextWithSegmentContext(
                             context,
                             segmentContext));
-
         }
+        var databaseContext = context.currentDbContext();
+        var tableContext = context.currentTableContext();
+        addTableToDatabaseContext(databaseContext, tableContext);
     }
 
+    private void addTableToDatabaseContext
+            (DatabaseInitializationContext databaseInitializationContext,
+             TableInitializationContext tableInitializationContext){
+
+        databaseInitializationContext.addTable
+                (TableImpl.initializeFromContext(tableInitializationContext));
+    }
     private InitializationContext createInitializationContextWithSegmentContext
             (InitializationContext context, SegmentInitializationContext segmentInitializationContext){
 

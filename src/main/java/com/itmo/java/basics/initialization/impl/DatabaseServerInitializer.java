@@ -50,8 +50,6 @@ public class DatabaseServerInitializer implements Initializer {
                     CreateInitializationContextWithDatabaseContext(
                             executionEnvironment,
                             databaseContext));
-
-            addDatabaseToExecutionEnvironment(executionEnvironment, databaseContext);
         }
     }
 

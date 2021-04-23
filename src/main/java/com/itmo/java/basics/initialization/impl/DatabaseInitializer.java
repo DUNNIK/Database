@@ -1,11 +1,13 @@
 package com.itmo.java.basics.initialization.impl;
 
+import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.initialization.TableInitializationContext;
+import com.itmo.java.basics.logic.impl.DatabaseImpl;
 import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
@@ -38,6 +40,7 @@ public class DatabaseInitializer implements Initializer {
         }
 
         var tableDirectories = findTableDirs(databasePath);
+        var databaseContext = context.currentDbContext();
 
         for (File tableDirectory : tableDirectories) {
             var tableContext
@@ -47,13 +50,16 @@ public class DatabaseInitializer implements Initializer {
                     createInitializationContextWithTableContext(
                             context,
                             tableContext));
-
-            var databaseContext = context.currentDbContext();
-            addTableToDatabaseContext(databaseContext, tableContext);
         }
-
+        addDatabaseToExecutionEnvironment(context.executionEnvironment(), databaseContext);
     }
 
+    private void addDatabaseToExecutionEnvironment
+            (ExecutionEnvironment executionEnvironment,
+             DatabaseInitializationContext databaseInitializationContext){
+        executionEnvironment.addDatabase
+                (DatabaseImpl.initializeFromContext(databaseInitializationContext));
+    }
     private void addTableToDatabaseContext
             (DatabaseInitializationContext databaseInitializationContext,
              TableInitializationContext tableInitializationContext){
