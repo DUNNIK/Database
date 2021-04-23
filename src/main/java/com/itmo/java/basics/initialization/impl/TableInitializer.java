@@ -28,7 +28,14 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        var tablePath = context.currentTableContext().getTablePath();
+
+        Path tablePath;
+        try {
+            tablePath = context.currentTableContext().getTablePath();
+        } catch (Exception e){
+            throw new DatabaseException("Invalid TableContext", e);
+        }
+
         var segmentFiles = findSegmentFiles(tablePath);
 
         for (File segmentFile : segmentFiles) {
@@ -44,8 +51,7 @@ public class TableInitializer implements Initializer {
     }
 
     private InitializationContext createInitializationContextWithSegmentContext
-            (InitializationContext context,
-            SegmentInitializationContext segmentInitializationContext){
+            (InitializationContext context, SegmentInitializationContext segmentInitializationContext){
 
         return InitializationContextImpl.builder()
                 .executionEnvironment(context.executionEnvironment())

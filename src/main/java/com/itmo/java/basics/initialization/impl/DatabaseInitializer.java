@@ -30,7 +30,13 @@ public class DatabaseInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
 
-        var databasePath = context.currentDbContext().getDatabasePath();
+        Path databasePath;
+        try {
+            databasePath = context.currentDbContext().getDatabasePath();
+        } catch (Exception e){
+            throw new DatabaseException("Invalid DbContext", e);
+        }
+
         var tableDirectories = findTableDirs(databasePath);
 
         for (File tableDirectory : tableDirectories) {

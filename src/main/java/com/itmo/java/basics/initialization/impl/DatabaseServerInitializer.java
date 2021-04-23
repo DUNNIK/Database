@@ -31,7 +31,12 @@ public class DatabaseServerInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
         makeEnvironmentDirIfNotExist(context);
 
-        var environmentPath = context.executionEnvironment().getWorkingPath();
+        Path environmentPath;
+        try {
+            environmentPath = context.executionEnvironment().getWorkingPath();
+        } catch (Exception e){
+            throw new DatabaseException("Invalid execution environment.", e);
+        }
         var databaseDirectories = findDatabasesDir(environmentPath);
 
         for (File databaseDirectory : databaseDirectories) {
@@ -73,7 +78,12 @@ public class DatabaseServerInitializer implements Initializer {
         return new File(environmentPath.toString()).listFiles(File::isDirectory);
     }
     private void makeEnvironmentDirIfNotExist(InitializationContext context) throws DatabaseException {
-        var environmentPath = context.executionEnvironment().getWorkingPath();
+        Path environmentPath;
+        try {
+            environmentPath = context.executionEnvironment().getWorkingPath();
+        } catch (Exception e){
+            throw new DatabaseException("Invalid execution environment.", e);
+        }
         if (!Files.exists(environmentPath)){
             makeEnvironmentDir(environmentPath);
         }
