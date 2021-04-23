@@ -5,46 +5,46 @@ import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
 public class SetDatabaseRecord implements WritableDatabaseRecord {
 
-    private final byte[] _key;
-    private final byte[] _value;
-    int _keySize;
-    int _valueSize;
+    private final byte[] key;
+    private final byte[] value;
+    int keySize;
+    int valueSize;
 
     public SetDatabaseRecord(byte[] objectKey, byte[] objectValue) {
-        _key = objectKey;
-        _value = objectValue;
-        _keySize = _key.length;
-        _valueSize = _value.length;
+        this.key = objectKey.clone();
+        this.value = objectValue.clone();
+        this.keySize = key.length;
+        this.valueSize = value.length;
     }
 
     @Override
     public byte[] getKey() {
-        return _key;
+        return key.clone();
     }
 
     @Override
     public byte[] getValue() {
-        return _value;
+        return value.clone();
     }
 
     @Override
     public long size() {
         int INT_BYTES = 4;
-        return INT_BYTES + _keySize + INT_BYTES + _valueSize;
+        return INT_BYTES + keySize + INT_BYTES + valueSize;
     }
 
     @Override
     public boolean isValuePresented() {
-        return _value != null;
+        return value != null;
     }
 
     @Override
     public int getKeySize() {
-        return _keySize;
+        return keySize;
     }
 
     @Override
     public int getValueSize() {
-        return _valueSize;
+        return valueSize;
     }
 }

@@ -4,6 +4,8 @@ import com.itmo.java.basics.logic.DatabaseCache;
 import lombok.Data;
 
 public class DatabaseCacheImpl implements DatabaseCache {
+    //Приоритетная очередь
+
     @Override
     public byte[] get(String key) {
         return new byte[0];

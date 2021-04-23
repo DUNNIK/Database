@@ -125,22 +125,21 @@ public class SegmentImpl implements Segment {
 
         long offset;
         if (searchOffsetByKey(objectKey).isPresent()) {
-            DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDatabase());
-            offset = searchOffsetByKey(objectKey).get().getOffset();
-            long skip = inputStream.skip(offset);
-            if (!isSkipWasCorrect(offset, skip)) throw new IOException();
-
-            var unit = inputStream.readDbUnit();
-            if (unit.isPresent() && unit.get().getValue() != null) {
-                return Optional.ofNullable(unit.get().getValue());
+            try (DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
+                offset = searchOffsetByKey(objectKey).get().getOffset();
+                long skip = inputStream.skip(offset);
+                if (SkipIsNotCorrect(offset, skip)) throw new IOException("Unable to indent the file");
+                var unit = inputStream.readDbUnit();
+                if (unit.isPresent() && unit.get().getValue() != null) {
+                    return Optional.ofNullable(unit.get().getValue());
+                }
             }
-            inputStream.close();
         }
         return Optional.empty();
     }
 
-    private boolean isSkipWasCorrect(long offset, long skip) {
-        return skip == offset;
+    private boolean SkipIsNotCorrect(long offset, long skip) {
+        return skip != offset;
     }
 
     private Optional<SegmentOffsetInfo> searchOffsetByKey(String objectKey) {

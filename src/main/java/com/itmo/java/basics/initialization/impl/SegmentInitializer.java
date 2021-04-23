@@ -14,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Optional;
 
@@ -65,7 +66,8 @@ public class SegmentInitializer implements Initializer {
                 .build();
     }
     private void addInfoInSegmentIndex(SegmentIndex segmentIndex, DatabaseRecord databaseRecord) {
-        var objectKey = new String(databaseRecord.getKey());
+
+        var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
         var offset = databaseRecord.size();
         segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(offset));
     }
@@ -74,16 +76,9 @@ public class SegmentInitializer implements Initializer {
         context.currentTableContext().updateCurrentSegment(SegmentImpl.initializeFromContext(segmentInitializationContext));
     }
     private Optional<DatabaseRecord> readDatabaseRecord(DatabaseInputStream inputStream) throws DatabaseException {
-
-        long skip, currentSize = segmentInitializationContext.getCurrentSize();
         Optional<DatabaseRecord> unit;
 
         try {
-//            skip = inputStream.skip(currentSize);
-//
-//            if (!isSkipWasCorrect(currentSize, skip)){
-//                throw new DatabaseException("It is not possible to retreat to the specified distance");
-//            }
 
             unit = inputStream.readDbUnit();
 
@@ -91,9 +86,6 @@ public class SegmentInitializer implements Initializer {
             throw new DatabaseException("Error reading the record", e);
         }
         return unit;
-    }
-    private boolean isSkipWasCorrect(long currentSize, long skip) {
-        return skip == currentSize;
     }
 
     private DataInputStream createInputStreamForDatabase() throws DatabaseException {
