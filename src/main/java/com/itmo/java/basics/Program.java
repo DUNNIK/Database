@@ -5,8 +5,6 @@ import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.initialization.impl.*;
-import com.itmo.java.basics.logic.Database;
-import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +28,6 @@ public class Program {
                     .build());
 
 
-            Database database = DatabaseImpl.create("database2", executionEnvironmentPath);
             initializer.perform(InitializationContextImpl.builder()
                     .executionEnvironment(executionEnvironment)
                     .build());
