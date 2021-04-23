@@ -66,7 +66,7 @@ public class SegmentInitializer implements Initializer {
                 .build();
     }
     private void addInfoInSegmentIndex(SegmentIndex segmentIndex, DatabaseRecord databaseRecord) {
-
+        if (databaseRecord.getValue() == null) return;
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
         var offset = databaseRecord.size();
         segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(offset));
