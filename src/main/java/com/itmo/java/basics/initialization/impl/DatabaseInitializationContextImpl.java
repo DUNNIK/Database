@@ -5,16 +5,18 @@ import com.itmo.java.basics.logic.Table;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseInitializationContextImpl implements DatabaseInitializationContext {
     private final String dbName;
     private final Path databasePath;
-    private Map<String, Table> tables;
+    private final Map<String, Table> tables;
 
     public DatabaseInitializationContextImpl(String dbName, Path databaseRoot) {
         this.dbName = dbName;
         this.databasePath = createDatabasePathFromRootPath(databaseRoot);
+        tables = new HashMap<>();
     }
 
     private Path createDatabasePathFromRootPath(Path databaseRoot) {

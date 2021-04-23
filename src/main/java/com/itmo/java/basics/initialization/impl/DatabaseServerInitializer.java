@@ -36,7 +36,7 @@ public class DatabaseServerInitializer implements Initializer {
 
         for (File databaseDirectory : databaseDirectories) {
             var databaseContext = createDatabaseContextFromDir(
-                    databaseDirectory);
+                    databaseDirectory, environmentPath);
 
             var executionEnvironment = context.executionEnvironment();
 
@@ -65,9 +65,9 @@ public class DatabaseServerInitializer implements Initializer {
                 .currentDatabaseContext(databaseInitializationContext)
                 .build();
     }
-    private DatabaseInitializationContext createDatabaseContextFromDir(File directory){
+    private DatabaseInitializationContext createDatabaseContextFromDir(File directory, Path environmentPath){
         return new DatabaseInitializationContextImpl
-                (directory.getName(), directory.toPath());
+                (directory.getName(), environmentPath);
     }
     private File[] findDatabasesDir(Path environmentPath){
         return new File(environmentPath.toString()).listFiles(File::isDirectory);

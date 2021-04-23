@@ -19,7 +19,9 @@ import java.util.Optional;
 
 
 public class SegmentInitializer implements Initializer {
+
     private SegmentInitializationContext segmentInitializationContext;
+
     /**
      * Добавляет в контекст информацию об инициализируемом сегменте.
      * Составляет индекс сегмента
@@ -32,18 +34,28 @@ public class SegmentInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
         segmentInitializationContext = context.currentSegmentContext();
         SegmentIndex segmentIndex = new SegmentIndex();
+        DatabaseInputStream inputStream =
+                new DatabaseInputStream(createInputStreamForDatabase());
 
         while (isNotFileEnd((int)segmentInitializationContext.getCurrentSize())){
-            var databaseRecord = readDatabaseRecord();
+            var databaseRecord = readDatabaseRecord(inputStream);
 
             databaseRecord.ifPresent(record -> addInfoInSegmentIndex(segmentIndex, record));
 
-            databaseRecord.ifPresent(record -> updateSegmentContextInformation((int) record.size(), segmentIndex));
+            databaseRecord.ifPresent(record -> updateSegmentContextInformation(currentSize(record.size()), segmentIndex));
 
             updateTableIndexInformation(context);
         }
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            throw new DatabaseException("Error when closing the segment file", e);
+        }
     }
 
+    private int currentSize(long recordSize){
+        return (int) (recordSize + segmentInitializationContext.getCurrentSize());
+    }
     private void updateSegmentContextInformation(int currentSize, SegmentIndex index){
         segmentInitializationContext = SegmentInitializationContextImpl.builder()
                 .segmentName(segmentInitializationContext.getSegmentName())
@@ -61,21 +73,21 @@ public class SegmentInitializer implements Initializer {
     private void updateTableIndexInformation(InitializationContext context){
         context.currentTableContext().updateCurrentSegment(SegmentImpl.initializeFromContext(segmentInitializationContext));
     }
-    private Optional<DatabaseRecord> readDatabaseRecord() throws DatabaseException {
-        DatabaseInputStream inputStream =
-                new DatabaseInputStream(createInputStreamForDatabase());
+    private Optional<DatabaseRecord> readDatabaseRecord(DatabaseInputStream inputStream) throws DatabaseException {
+
         long skip, currentSize = segmentInitializationContext.getCurrentSize();
         Optional<DatabaseRecord> unit;
-        try {
-            skip = inputStream.skip(currentSize);
 
-            if (!isSkipWasCorrect(currentSize, skip)){
-                throw new DatabaseException("It is not possible to retreat to the specified distance");
-            }
+        try {
+//            skip = inputStream.skip(currentSize);
+//
+//            if (!isSkipWasCorrect(currentSize, skip)){
+//                throw new DatabaseException("It is not possible to retreat to the specified distance");
+//            }
 
             unit = inputStream.readDbUnit();
 
-        } catch (IOException | DatabaseException e) {
+        } catch (IOException e) {
             throw new DatabaseException("Error reading the record", e);
         }
         return unit;
@@ -97,7 +109,8 @@ public class SegmentInitializer implements Initializer {
     }
     private boolean isNotFileEnd(int currentSize) throws DatabaseException {
         try {
-            return currentSize < Files.size(segmentInitializationContext.getSegmentPath());
+            var fileSize = Files.size(segmentInitializationContext.getSegmentPath());
+            return currentSize < fileSize;
         } catch (IOException e) {
             throw new DatabaseException("File size detection error", e);
         }

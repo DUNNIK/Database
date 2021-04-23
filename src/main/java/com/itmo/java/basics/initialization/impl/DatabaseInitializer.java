@@ -35,7 +35,7 @@ public class DatabaseInitializer implements Initializer {
 
         for (File tableDirectory : tableDirectories) {
             var tableContext
-                    = createTableContextFromDir(tableDirectory);
+                    = createTableContextFromDir(tableDirectory, databasePath);
 
             tableInitializer.perform(
                     createInitializationContextWithTableContext(
@@ -65,10 +65,10 @@ public class DatabaseInitializer implements Initializer {
                 .currentTableContext(tableInitializationContext)
                 .build();
     }
-    private TableInitializationContext createTableContextFromDir(File directory){
+    private TableInitializationContext createTableContextFromDir(File directory, Path databasePath){
         return new TableInitializationContextImpl
                 (directory.getName(),
-                directory.toPath(),
+                databasePath,
                         new TableIndex()
                 );
     }

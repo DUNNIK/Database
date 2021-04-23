@@ -1,11 +1,9 @@
 package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
-import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.initialization.SegmentInitializationContext;
-import com.itmo.java.basics.initialization.TableInitializationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +29,11 @@ public class TableInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
         var tablePath = context.currentTableContext().getTablePath();
-        var segmentFiles = findSegmentFiles(context.currentTableContext().getTablePath());
+        var segmentFiles = findSegmentFiles(tablePath);
 
         for (File segmentFile : segmentFiles) {
             var segmentContext
-                    = createSegmentContextFromFile(segmentFile);
+                    = createSegmentContextFromFile(segmentFile, tablePath);
 
             segmentInitializer.perform(
                     createInitializationContextWithSegmentContext(
@@ -57,17 +55,11 @@ public class TableInitializer implements Initializer {
                 .build();
     }
 
-    private SegmentInitializationContext createSegmentContextFromFile(File segmentFile){
-        long size = 0;
-        try {
-            size = Files.size(segmentFile.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private SegmentInitializationContext createSegmentContextFromFile(File segmentFile, Path tablePath){
         return new SegmentInitializationContextImpl(
                 segmentFile.getName(),
-                segmentFile.toPath(),
-                (int)size
+                tablePath,
+                0
         );
     }
     private File[] findSegmentFiles(Path tablePath){

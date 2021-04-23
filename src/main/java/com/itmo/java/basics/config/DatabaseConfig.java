@@ -2,7 +2,7 @@ package com.itmo.java.basics.config;
 
 public class DatabaseConfig {
     public static final String DEFAULT_WORKING_PATH = "db_files";
-    private String workingPath;
+    private final String workingPath;
     public DatabaseConfig(String workingPath) {
         this.workingPath = workingPath;
     }
