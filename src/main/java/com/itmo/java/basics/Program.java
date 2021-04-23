@@ -5,6 +5,7 @@ import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.initialization.impl.*;
+import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,9 +29,11 @@ public class Program {
                     .build());
 
 
+
             initializer.perform(InitializationContextImpl.builder()
                     .executionEnvironment(executionEnvironment)
                     .build());
+
         } catch (DatabaseException e) {
             System.out.println(e.getMessage());
         }

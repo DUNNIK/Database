@@ -33,7 +33,10 @@ public class TableImpl implements Table {
             throw new DatabaseException("Error assigning the name and path to the table.");
         }
         makeTableDir(createTablePathFromRootPath(pathToDatabaseRoot, tableName));
-        return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
+
+        return CachingTable.builder()
+                .table(new TableImpl(tableName, pathToDatabaseRoot, tableIndex))
+                .build();
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
