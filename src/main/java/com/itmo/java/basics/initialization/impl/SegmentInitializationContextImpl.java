@@ -2,16 +2,22 @@ package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.initialization.SegmentInitializationContext;
+import com.itmo.java.basics.logic.io.DatabaseInputStream;
+import lombok.Builder;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
+@Builder
 public class SegmentInitializationContextImpl implements SegmentInitializationContext {
 
     private final String segmentName;
     private final Path segmentPath;
     private final int currentSize;
-    private SegmentIndex index;
+    private final SegmentIndex index;
 
     public SegmentInitializationContextImpl(String segmentName, Path segmentPath, int currentSize, SegmentIndex index) {
         this.segmentName = segmentName;
@@ -24,6 +30,7 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
         this.segmentName = segmentName;
         segmentPath = createSegmentPathFromRootPath(tablePath);
         this.currentSize = currentSize;
+        index = new SegmentIndex();
     }
 
     private Path createSegmentPathFromRootPath(Path segmentRoot) {

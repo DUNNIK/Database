@@ -20,7 +20,6 @@ public class Main {
                             new DatabaseInitializer(
                                     new TableInitializer(
                                             new SegmentInitializer())));
-            initializer.perform();
 
             Database database = DatabaseImpl.create("FindMePlease", dbPath);
             database.createTableIfNotExists("table1");

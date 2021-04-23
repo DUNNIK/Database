@@ -22,7 +22,7 @@ public class DatabaseServerInitializer implements Initializer {
 
     /**
      * Если заданная в окружении директория не существует - создает ее
-     * Добавляет информацию о существующих в директории базах, нацинает их инициалиализацию
+     * Добавляет информацию о существующих в директории базах, начинает их инициалиализацию
      *
      * @param context контекст, содержащий информацию об окружении
      * @throws DatabaseException если произошла ошибка при создании директории, ее обходе или ошибка инициализации бд
@@ -35,22 +35,23 @@ public class DatabaseServerInitializer implements Initializer {
         var databaseDirectories = findDatabasesDir(environmentPath);
 
         for (File databaseDirectory : databaseDirectories) {
-            var databaseContext = CreateDatabaseContextFromDir(
+            var databaseContext = createDatabaseContextFromDir(
                     databaseDirectory);
 
             var executionEnvironment = context.executionEnvironment();
+
 
             databaseInitializer.perform(
                     CreateInitializationContextWithDatabaseContext(
                             executionEnvironment,
                             databaseContext));
 
-            AddDatabaseToExecutionEnvironment(executionEnvironment, databaseContext);
+            addDatabaseToExecutionEnvironment(executionEnvironment, databaseContext);
         }
     }
 
 
-    private void AddDatabaseToExecutionEnvironment
+    private void addDatabaseToExecutionEnvironment
             (ExecutionEnvironment executionEnvironment,
              DatabaseInitializationContext databaseInitializationContext){
         executionEnvironment.addDatabase
@@ -64,7 +65,7 @@ public class DatabaseServerInitializer implements Initializer {
                 .currentDatabaseContext(databaseInitializationContext)
                 .build();
     }
-    private DatabaseInitializationContext CreateDatabaseContextFromDir(File directory){
+    private DatabaseInitializationContext createDatabaseContextFromDir(File directory){
         return new DatabaseInitializationContextImpl
                 (directory.getName(), directory.toPath());
     }

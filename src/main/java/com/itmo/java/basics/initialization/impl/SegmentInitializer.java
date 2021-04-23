@@ -1,12 +1,25 @@
 package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
+import com.itmo.java.basics.index.impl.SegmentIndex;
+import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
+import com.itmo.java.basics.initialization.SegmentInitializationContext;
+import com.itmo.java.basics.logic.DatabaseRecord;
+import com.itmo.java.basics.logic.impl.SegmentImpl;
+import com.itmo.java.basics.logic.io.DatabaseInputStream;
+
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Optional;
 
 
 public class SegmentInitializer implements Initializer {
-
+    private SegmentInitializationContext segmentInitializationContext;
     /**
      * Добавляет в контекст информацию об инициализируемом сегменте.
      * Составляет индекс сегмента
@@ -17,6 +30,76 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        segmentInitializationContext = context.currentSegmentContext();
+        SegmentIndex segmentIndex = new SegmentIndex();
 
+        while (isNotFileEnd((int)segmentInitializationContext.getCurrentSize())){
+            var databaseRecord = readDatabaseRecord();
+
+            databaseRecord.ifPresent(record -> addInfoInSegmentIndex(segmentIndex, record));
+
+            databaseRecord.ifPresent(record -> updateSegmentContextInformation((int) record.size(), segmentIndex));
+
+            updateTableIndexInformation(context);
+        }
+    }
+
+    private void updateSegmentContextInformation(int currentSize, SegmentIndex index){
+        segmentInitializationContext = SegmentInitializationContextImpl.builder()
+                .segmentName(segmentInitializationContext.getSegmentName())
+                .segmentPath(segmentInitializationContext.getSegmentPath())
+                .currentSize(currentSize)
+                .index(index)
+                .build();
+    }
+    private void addInfoInSegmentIndex(SegmentIndex segmentIndex, DatabaseRecord databaseRecord) {
+        var objectKey = new String(databaseRecord.getKey());
+        var offset = databaseRecord.size();
+        segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(offset));
+    }
+
+    private void updateTableIndexInformation(InitializationContext context){
+        context.currentTableContext().updateCurrentSegment(SegmentImpl.initializeFromContext(segmentInitializationContext));
+    }
+    private Optional<DatabaseRecord> readDatabaseRecord() throws DatabaseException {
+        DatabaseInputStream inputStream =
+                new DatabaseInputStream(createInputStreamForDatabase());
+        long skip, currentSize = segmentInitializationContext.getCurrentSize();
+        Optional<DatabaseRecord> unit;
+        try {
+            skip = inputStream.skip(currentSize);
+
+            if (!isSkipWasCorrect(currentSize, skip)){
+                throw new DatabaseException("It is not possible to retreat to the specified distance");
+            }
+
+            unit = inputStream.readDbUnit();
+
+        } catch (IOException | DatabaseException e) {
+            throw new DatabaseException("Error reading the record", e);
+        }
+        return unit;
+    }
+    private boolean isSkipWasCorrect(long currentSize, long skip) {
+        return skip == currentSize;
+    }
+
+    private DataInputStream createInputStreamForDatabase() throws DatabaseException {
+        FileInputStream fileInputStream;
+        var segmentPath = segmentInitializationContext.getSegmentPath();
+        try {
+            fileInputStream = new FileInputStream(segmentPath.toString());
+        } catch (FileNotFoundException e) {
+            throw new DatabaseException("Error reading the Database", e);
+        }
+
+        return new DataInputStream(fileInputStream);
+    }
+    private boolean isNotFileEnd(int currentSize) throws DatabaseException {
+        try {
+            return currentSize < Files.size(segmentInitializationContext.getSegmentPath());
+        } catch (IOException e) {
+            throw new DatabaseException("File size detection error", e);
+        }
     }
 }

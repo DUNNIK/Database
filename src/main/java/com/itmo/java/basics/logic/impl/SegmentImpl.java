@@ -125,7 +125,7 @@ public class SegmentImpl implements Segment {
 
         long offset;
         if (searchOffsetByKey(objectKey).isPresent()) {
-            DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDataBase());
+            DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDatabase());
             offset = searchOffsetByKey(objectKey).get().getOffset();
             long skip = inputStream.skip(offset);
             if (!isSkipWasCorrect(offset, skip)) throw new IOException();
@@ -147,7 +147,7 @@ public class SegmentImpl implements Segment {
         return segmentIndex.searchForKey(objectKey);
     }
 
-    private DataInputStream createInputStreamForDataBase() throws FileNotFoundException {
+    private DataInputStream createInputStreamForDatabase() throws FileNotFoundException {
         FileInputStream fileInputStream = new FileInputStream(segmentPath.toString());
 
         return new DataInputStream(fileInputStream);

@@ -1,6 +1,5 @@
 package com.itmo.java.basics.initialization.impl;
 
-import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
@@ -32,31 +31,31 @@ public class DatabaseInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
 
         var databasePath = context.currentDbContext().getDatabasePath();
-        var tableDirectories = findTableDir(databasePath);
+        var tableDirectories = findTableDirs(databasePath);
 
         for (File tableDirectory : tableDirectories) {
             var tableContext
-                    = CreateTableContextFromDir(tableDirectory);
+                    = createTableContextFromDir(tableDirectory);
 
             tableInitializer.perform(
-                    CreateInitializationContextWithTableContext(
+                    createInitializationContextWithTableContext(
                             context,
                             tableContext));
 
             var databaseContext = context.currentDbContext();
-            AddTableToDatabaseContext(databaseContext, tableContext);
+            addTableToDatabaseContext(databaseContext, tableContext);
         }
 
     }
 
-    private void AddTableToDatabaseContext
+    private void addTableToDatabaseContext
             (DatabaseInitializationContext databaseInitializationContext,
              TableInitializationContext tableInitializationContext){
 
         databaseInitializationContext.addTable
                 (TableImpl.initializeFromContext(tableInitializationContext));
     }
-    private InitializationContext CreateInitializationContextWithTableContext
+    private InitializationContext createInitializationContextWithTableContext
             (InitializationContext context,
              TableInitializationContext tableInitializationContext){
 
@@ -66,15 +65,15 @@ public class DatabaseInitializer implements Initializer {
                 .currentTableContext(tableInitializationContext)
                 .build();
     }
-    private TableInitializationContext CreateTableContextFromDir(File directory){
+    private TableInitializationContext createTableContextFromDir(File directory){
         return new TableInitializationContextImpl
                 (directory.getName(),
                 directory.toPath(),
                         new TableIndex()
                 );
     }
-    private File[] findTableDir(Path environmentPath){
-        return new File(environmentPath.toString()).listFiles(File::isDirectory);
+    private File[] findTableDirs(Path databasePath){
+        return new File(databasePath.toString()).listFiles(File::isDirectory);
     }
 
 }
