@@ -44,7 +44,6 @@ public class DatabaseImpl implements Database {
     }
 
     public static Database initializeFromContext(DatabaseInitializationContext context) {
-
         return DatabaseImpl.builder()
                 .dbName(context.getDbName())
                 .databasePath(context.getDatabasePath())

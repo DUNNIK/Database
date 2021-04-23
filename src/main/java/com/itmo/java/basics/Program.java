@@ -25,6 +25,7 @@ public class Program {
                     new DatabaseConfig(executionEnvironmentPath.toString()));
 
             initializer.perform(InitializationContextImpl.builder()
+                    .executionEnvironment(executionEnvironment)
                     .build());
 
 

@@ -26,7 +26,7 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor
 public class SegmentImpl implements Segment {
-
+    private static final int MAX_SEGMENT_SIZE = 100_000;
     private final String segmentName;
     private final Path segmentPath;
     private final SegmentIndex segmentIndex;
@@ -58,11 +58,18 @@ public class SegmentImpl implements Segment {
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
+
         return SegmentImpl.builder()
                 .segmentName(context.getSegmentName())
                 .segmentPath(context.getSegmentPath())
                 .segmentIndex(context.getIndex())
+                .readonly(isReadonly(context))
+                .finalOffset(context.getCurrentSize())
                 .build();
+    }
+
+    private static boolean isReadonly(SegmentInitializationContext context) {
+        return (int) context.getCurrentSize() > MAX_SEGMENT_SIZE;
     }
 
     static String createSegmentName(String tableName) {
@@ -116,8 +123,7 @@ public class SegmentImpl implements Segment {
     }
 
     private boolean isWriteNotPossible() {
-        var maxSegmentSize = 100_000;
-        return maxSegmentSize <= finalOffset;
+        return MAX_SEGMENT_SIZE <= finalOffset;
     }
 
     @Override
