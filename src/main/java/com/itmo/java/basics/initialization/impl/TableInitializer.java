@@ -36,7 +36,7 @@ public class TableInitializer implements Initializer {
 
             var segmentFiles = findSegmentFiles(tablePath);
             segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
-            sortFileArray(segmentFiles);
+            sortFileArrayByTime(segmentFiles, context);
 
             for (File segmentFile : segmentFiles) {
                 var segmentContext
@@ -56,6 +56,17 @@ public class TableInitializer implements Initializer {
         }
     }
 
+    private void sortFileArrayByTime(File[] files, InitializationContext context){
+        Arrays.sort(files, (firstFile, secondFile) -> {
+            var regexForSegmentName = createRegexForSegmentName(context);
+            var pattern = Pattern.compile(regexForSegmentName);
+            var matcher1 = pattern.matcher(firstFile.getName());
+            Long firstFileTime = Long.parseLong(matcher1.replaceFirst(""));
+            var matcher2 = pattern.matcher(secondFile.getName());
+            Long secondFileTime = Long.parseLong(matcher2.replaceFirst(""));
+            return firstFileTime.compareTo(secondFileTime);
+        });
+    }
     private File[] cleanSegmentFilesArray(File[] files, InitializationContext context){
 
         for (File segmentFile : files) {
