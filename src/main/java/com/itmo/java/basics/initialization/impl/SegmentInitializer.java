@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class SegmentInitializer implements Initializer {
@@ -34,23 +32,20 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        try {
-            segmentInitializationContext = context.currentSegmentContext();
-            SegmentIndex segmentIndex = new SegmentIndex();
-            DatabaseInputStream inputStream =
-                    new DatabaseInputStream(createInputStreamForDatabase());
-
-            while (isNotFileEnd((int)segmentInitializationContext.getCurrentSize())){
+        segmentInitializationContext = context.currentSegmentContext();
+        var segmentIndex = new SegmentIndex();
+        try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
+            while (isNotFileEnd((int) segmentInitializationContext.getCurrentSize())) {
                 var databaseRecord = readDatabaseRecord(inputStream);
 
-                databaseRecord.ifPresent(record -> addInfoInSegmentIndex(segmentIndex, record));
-
-                databaseRecord.ifPresent(record -> updateSegmentContextInformation(currentSize(record.size()), segmentIndex));
-
-                databaseRecord.ifPresent(record -> updateTableIndexInformation(context, record));
+                if (databaseRecord.isPresent()){
+                    addInfoInSegmentIndex(segmentIndex, databaseRecord.get());
+                    updateSegmentContextInformation(currentSize(databaseRecord.get().size()), segmentIndex);
+                    updateTableIndexInformation(context, databaseRecord.get());
+                }
             }
-            inputStream.close();
-        } catch (IOException e) {
+
+        } catch (Exception e) {
             throw new DatabaseException("Error when closing the segment file", e);
         }
     }

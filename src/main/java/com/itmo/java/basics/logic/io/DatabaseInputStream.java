@@ -26,9 +26,9 @@ public class DatabaseInputStream extends DataInputStream {
      * @return следующую запись, если она существует. {@link Optional#empty()} - если конец файла достигнут
      */
     public Optional<DatabaseRecord> readDbUnit() throws IOException {
-        int keyLength = readInt();
+        var keyLength = readInt();
         byte[] key = readNBytes(keyLength);
-        int valueLength = readInt();
+        var valueLength = readInt();
 
         if (valueLength == REMOVED_OBJECT_SIZE) {
             return Optional.of(new RemoveDatabaseRecord(key));

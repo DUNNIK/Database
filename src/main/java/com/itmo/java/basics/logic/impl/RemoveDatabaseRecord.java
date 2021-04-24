@@ -20,13 +20,13 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public byte[] getValue() {
-        return null;
+        return new byte[0];
     }
 
     @Override
     public long size() {
-        int INT_BYTES = 4;
-        return INT_BYTES + keySize + INT_BYTES;
+        long intBytes = 4;
+        return intBytes + keySize + intBytes;
     }
 
     @Override

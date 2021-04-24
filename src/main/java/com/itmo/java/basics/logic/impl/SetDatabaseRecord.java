@@ -29,8 +29,8 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public long size() {
-        int INT_BYTES = 4;
-        return INT_BYTES + keySize + INT_BYTES + valueSize;
+        long intBytes = 4;
+        return intBytes + keySize + intBytes + valueSize;
     }
 
     @Override

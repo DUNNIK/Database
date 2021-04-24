@@ -2,14 +2,12 @@ package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.*;
-import com.itmo.java.basics.logic.DatabaseRecord;
 import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TableInitializer implements Initializer {
@@ -32,7 +30,7 @@ public class TableInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
 
         try {
-            Path tablePath = context.currentTableContext().getTablePath();
+            var tablePath = context.currentTableContext().getTablePath();
 
             var segmentFiles = findSegmentFiles(tablePath);
             sortFileArray(segmentFiles);
@@ -61,8 +59,8 @@ public class TableInitializer implements Initializer {
     }
     private boolean isSegmentNameCorrect(String fileName, InitializationContext context){
         var regexForSegmentName = createRegexForSegmentName(context);
-        Pattern pattern = Pattern.compile(regexForSegmentName);
-        Matcher matcher = pattern.matcher(fileName);
+        var pattern = Pattern.compile(regexForSegmentName);
+        var matcher = pattern.matcher(fileName);
         return matcher.find();
     }
     private String createRegexForSegmentName(InitializationContext context){

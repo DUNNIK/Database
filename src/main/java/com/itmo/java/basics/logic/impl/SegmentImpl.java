@@ -63,12 +63,12 @@ public class SegmentImpl implements Segment {
                 .segmentName(context.getSegmentName())
                 .segmentPath(context.getSegmentPath())
                 .segmentIndex(context.getIndex())
-                .readonly(isReadonly(context))
+                .readonly(readonly(context))
                 .finalOffset(context.getCurrentSize())
                 .build();
     }
 
-    private static boolean isReadonly(SegmentInitializationContext context) {
+    private static boolean readonly(SegmentInitializationContext context) {
         return (int) context.getCurrentSize() > MAX_SEGMENT_SIZE;
     }
 
@@ -86,12 +86,12 @@ public class SegmentImpl implements Segment {
         if (isReadOnly()) {
             return false;
         }
-        AddSegmentIndex(objectKey);
+        addSegmentIndex(objectKey);
 
-        WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
+        var writableDatabaseRecord = createNewRecord(objectKey, objectValue);
 
         outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());//Если что-то не будет заходить можно перенести открытие потока в само поле
-        var recordSize = outputStream.write(record);
+        var recordSize = outputStream.write(writableDatabaseRecord);
         outputStream.close();
         updateFinalOffset(recordSize);
 
@@ -118,7 +118,7 @@ public class SegmentImpl implements Segment {
         finalOffset += recordSize;
     }
 
-    private void AddSegmentIndex(String objectKey) {
+    private void addSegmentIndex(String objectKey) {
         segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(finalOffset));
     }
 
@@ -130,11 +130,12 @@ public class SegmentImpl implements Segment {
     public Optional<byte[]> read(String objectKey) throws IOException {
 
         long offset;
-        if (searchOffsetByKey(objectKey).isPresent()) {
-            try (DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
-                offset = searchOffsetByKey(objectKey).get().getOffset();
+        var offsetInfo = searchOffsetByKey(objectKey);
+        if (offsetInfo.isPresent()) {
+            try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
+                offset = offsetInfo.get().getOffset();
                 long skip = inputStream.skip(offset);
-                if (SkipIsNotCorrect(offset, skip)) throw new IOException("Unable to indent the file");
+                if (skipIsNotCorrect(offset, skip)) throw new IOException("Unable to indent the file");
                 var unit = inputStream.readDbUnit();
                 if (unit.isPresent() && unit.get().getValue() != null) {
                     return Optional.ofNullable(unit.get().getValue());
@@ -144,7 +145,7 @@ public class SegmentImpl implements Segment {
         return Optional.empty();
     }
 
-    private boolean SkipIsNotCorrect(long offset, long skip) {
+    private boolean skipIsNotCorrect(long offset, long skip) {
         return skip != offset;
     }
 
@@ -153,7 +154,7 @@ public class SegmentImpl implements Segment {
     }
 
     private DataInputStream createInputStreamForDatabase() throws FileNotFoundException {
-        FileInputStream fileInputStream = new FileInputStream(segmentPath.toString());
+        var fileInputStream = new FileInputStream(segmentPath.toString());
 
         return new DataInputStream(fileInputStream);
     }

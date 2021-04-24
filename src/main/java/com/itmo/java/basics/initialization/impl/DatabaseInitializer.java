@@ -8,7 +8,6 @@ import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
-import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -35,7 +34,7 @@ public class DatabaseInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
 
         try {
-            Path databasePath = context.currentDbContext().getDatabasePath();
+            var databasePath = context.currentDbContext().getDatabasePath();
 
             var tableDirectories = findTableDirs(databasePath);
             sortFileArray(tableDirectories);
@@ -66,13 +65,7 @@ public class DatabaseInitializer implements Initializer {
         executionEnvironment.addDatabase
                 (DatabaseImpl.initializeFromContext(databaseInitializationContext));
     }
-    private void addTableToDatabaseContext
-            (DatabaseInitializationContext databaseInitializationContext,
-             TableInitializationContext tableInitializationContext){
 
-        databaseInitializationContext.addTable
-                (TableImpl.initializeFromContext(tableInitializationContext));
-    }
     private InitializationContext createInitializationContextWithTableContext
             (InitializationContext context,
              TableInitializationContext tableInitializationContext){

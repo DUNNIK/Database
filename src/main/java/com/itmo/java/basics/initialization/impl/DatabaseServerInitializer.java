@@ -5,9 +5,7 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
-import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +33,7 @@ public class DatabaseServerInitializer implements Initializer {
         makeEnvironmentDirIfNotExist(context);
 
         try {
-            Path environmentPath = context.executionEnvironment().getWorkingPath();
+            var environmentPath = context.executionEnvironment().getWorkingPath();
             var databaseDirectories = findDatabasesDir(environmentPath);
             sortFileArray(databaseDirectories);
 
@@ -47,7 +45,7 @@ public class DatabaseServerInitializer implements Initializer {
 
 
                 databaseInitializer.perform(
-                        CreateInitializationContextWithDatabaseContext(
+                        createInitializationContextWithDatabaseContext(
                                 executionEnvironment,
                                 databaseContext));
             }
@@ -61,13 +59,7 @@ public class DatabaseServerInitializer implements Initializer {
         Arrays.sort(files, Comparator.comparing(File::getName));
     }
 
-    private void addDatabaseToExecutionEnvironment
-            (ExecutionEnvironment executionEnvironment,
-             DatabaseInitializationContext databaseInitializationContext){
-        executionEnvironment.addDatabase
-                (DatabaseImpl.initializeFromContext(databaseInitializationContext));
-    }
-    private InitializationContext CreateInitializationContextWithDatabaseContext
+    private InitializationContext createInitializationContextWithDatabaseContext
             (ExecutionEnvironment executionEnvironment,
              DatabaseInitializationContext databaseInitializationContext){
         return InitializationContextImpl.builder()
