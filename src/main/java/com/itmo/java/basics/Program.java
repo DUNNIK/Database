@@ -8,7 +8,6 @@ import com.itmo.java.basics.initialization.impl.*;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,30 +30,31 @@ public class Program {
                     .executionEnvironment(executionEnvironment)
                     .build());
 
-            Database database = DatabaseImpl.create("db", executionEnvironmentPath);
-            database.createTableIfNotExists("table1");
-            database.createTableIfNotExists("table2");
-            database.write("table1", "", null);
-            database.write("table1", "2", "1".getBytes(StandardCharsets.UTF_8));
-            database.write("table1", "3", "1".getBytes(StandardCharsets.UTF_8));
-            database.delete("table1", "2");
-            database.write("table1", "Hel__123lo", "25ю.фыафы1241лдаара132134512".getBytes(StandardCharsets.UTF_8));
-            database.write("table2", "Hel__123lo", "2132134512".getBytes(StandardCharsets.UTF_8));
-            database.write("table2", "Hel1lo", "2a1s2ффодпрфрююфа.ю.ю._d3".getBytes(StandardCharsets.UTF_8));
-            database.write("table2", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
-            database.write("table2", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
-            database.write("table1", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
-            database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
+//            Database database = DatabaseImpl.create("db", executionEnvironmentPath);
+//            database.createTableIfNotExists("table1");
+//            database.createTableIfNotExists("table2");
+//            database.write("table1", "", null);
+//            database.write("table1", "2", "1".getBytes(StandardCharsets.UTF_8));
+//            database.write("table1", "3", "1".getBytes(StandardCharsets.UTF_8));
+//            database.delete("table1", "2");
+//            database.write("table1", "Hel__123lo", "25ю.фыафы1241лдаара132134512".getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", "Hel__123lo", "2132134512".getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", "Hel1lo", "2a1s2ффодпрфрююфа.ю.ю._d3".getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
+//            database.write("table1", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
+//            database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
 
             initializer.perform(InitializationContextImpl.builder()
                     .executionEnvironment(executionEnvironment)
                     .build());
 
-            executionEnvironment.getDatabase("").get().read("","");
+            System.out.println(executionEnvironment.getDatabase("db").get().read("table1","Hel__123lo"));
         } catch (DatabaseException e) {
             System.out.println(e.getMessage());
         }
     }
+
     static String veryLongText = "СТО ТЫСЯЧ СЛОВ Светлана БИТКИНА\n" +
             "\n" +
             "И вот книга закончена. У нее даже есть название — «Сто тысяч слов». Помог компьютер, считающий знаки, слова и строки. Оказалось, что в моем тексте всего 100 тысяч слов. Подумалось, как много можно рассказать с помощью такого, в общем-то небольшого, количества. Интересно, а сколько слов каждый из нас произносит в течение своей жизни? Наверное, многие и многие миллионы…\n" +
@@ -243,5 +243,4 @@ public class Program {
             "\n" +
             "Бесплатный фрагмент закончился.\n" +
             "Купите книгу, чтобы продолжить чтение.";
-
 }

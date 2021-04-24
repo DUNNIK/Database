@@ -46,6 +46,7 @@ public class SegmentInitializer implements Initializer {
             databaseRecord.ifPresent(record -> updateSegmentContextInformation(currentSize(record.size()), segmentIndex));
 
             databaseRecord.ifPresent(record -> updateTableIndexInformation(context, record));
+
         }
         try {
             inputStream.close();
@@ -66,16 +67,16 @@ public class SegmentInitializer implements Initializer {
                 .build();
     }
     private void addInfoInSegmentIndex(SegmentIndex segmentIndex, DatabaseRecord databaseRecord) {
-        if (databaseRecord.isValuePresented()){
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
-        var databaseRecordSize = databaseRecord.size();
-        segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(currentSize(databaseRecordSize)));
-        }
+        var offset = currentSize(databaseRecord.size());
+        segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(offset));
     }
 
-    private void updateTableIndexInformation(InitializationContext context, DatabaseRecord record){
-        var objectKey = new String(record.getKey(), StandardCharsets.UTF_8);
-        context.currentTableContext().updateCurrentSegment(SegmentImpl.initializeFromContext(segmentInitializationContext), objectKey);
+    private void updateTableIndexInformation(InitializationContext context, DatabaseRecord databaseRecord){
+        var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
+        var segment = SegmentImpl.initializeFromContext(segmentInitializationContext);
+        context.currentTableContext().getTableIndex().onIndexedEntityUpdated(objectKey, segment);
+        context.currentTableContext().updateCurrentSegment(segment);
     }
     private Optional<DatabaseRecord> readDatabaseRecord(DatabaseInputStream inputStream) throws DatabaseException {
         Optional<DatabaseRecord> unit;
