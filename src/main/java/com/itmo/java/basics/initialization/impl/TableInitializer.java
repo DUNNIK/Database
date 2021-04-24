@@ -57,11 +57,7 @@ public class TableInitializer implements Initializer {
     }
 
     private void sortFileArray(File[] files){
-        Arrays.sort(files, new Comparator<File>(){
-            public int compare(File firstFile, File secondFile) {
-                return firstFile.getName().compareTo(secondFile.getName());
-            }
-        });
+        Arrays.sort(files, Comparator.comparing(File::getName));
     }
     private boolean isSegmentNameCorrect(String fileName, InitializationContext context){
         var regexForSegmentName = createRegexForSegmentName(context);
