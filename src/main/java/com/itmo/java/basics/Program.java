@@ -49,7 +49,9 @@ public class Program {
                     .executionEnvironment(executionEnvironment)
                     .build());
 
-            System.out.println(executionEnvironment.getDatabase("db").get().read("table1","Hel__123lo"));
+            var a = executionEnvironment.getDatabase("db").get().read("table1","Hel__123lo");
+            var b = new String(a.get());
+            System.out.println(b);
         } catch (DatabaseException e) {
             System.out.println(e.getMessage());
         }
