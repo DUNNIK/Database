@@ -7,10 +7,13 @@ import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class DatabaseServerInitializer implements Initializer {
 
@@ -34,6 +37,7 @@ public class DatabaseServerInitializer implements Initializer {
         try {
             Path environmentPath = context.executionEnvironment().getWorkingPath();
             var databaseDirectories = findDatabasesDir(environmentPath);
+            sortFileArray(databaseDirectories);
 
             for (File databaseDirectory : databaseDirectories) {
                 var databaseContext = createDatabaseContextFromDir(
@@ -54,6 +58,13 @@ public class DatabaseServerInitializer implements Initializer {
     }
 
 
+    private void sortFileArray(File[] files){
+        Arrays.sort(files, new Comparator<File>(){
+            public int compare(File firstFile, File secondFile) {
+                return firstFile.getName().compareTo(secondFile.getName());
+            }
+        });
+    }
     private void addDatabaseToExecutionEnvironment
             (ExecutionEnvironment executionEnvironment,
              DatabaseInitializationContext databaseInitializationContext){

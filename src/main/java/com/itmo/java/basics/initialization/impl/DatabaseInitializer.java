@@ -12,6 +12,8 @@ import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class DatabaseInitializer implements Initializer {
 
@@ -36,6 +38,7 @@ public class DatabaseInitializer implements Initializer {
             Path databasePath = context.currentDbContext().getDatabasePath();
 
             var tableDirectories = findTableDirs(databasePath);
+            sortFileArray(tableDirectories);
             var databaseContext = context.currentDbContext();
 
             for (File tableDirectory : tableDirectories) {
@@ -51,6 +54,14 @@ public class DatabaseInitializer implements Initializer {
         } catch (Exception e){
             throw new DatabaseException("Error in DbInitializer.", e);
         }
+    }
+
+    private void sortFileArray(File[] files){
+        Arrays.sort(files, new Comparator<File>(){
+            public int compare(File firstFile, File secondFile) {
+                return firstFile.getName().compareTo(secondFile.getName());
+            }
+        });
     }
 
     private void addDatabaseToExecutionEnvironment

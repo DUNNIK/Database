@@ -7,6 +7,8 @@ import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,7 @@ public class TableInitializer implements Initializer {
             Path tablePath = context.currentTableContext().getTablePath();
 
             var segmentFiles = findSegmentFiles(tablePath);
+            sortFileArray(segmentFiles);
 
             for (File segmentFile : segmentFiles) {
                 if (isSegmentNameCorrect(segmentFile.getName(), context)) {
@@ -53,6 +56,13 @@ public class TableInitializer implements Initializer {
         }
     }
 
+    private void sortFileArray(File[] files){
+        Arrays.sort(files, new Comparator<File>(){
+            public int compare(File firstFile, File secondFile) {
+                return firstFile.getName().compareTo(secondFile.getName());
+            }
+        });
+    }
     private boolean isSegmentNameCorrect(String fileName, InitializationContext context){
         var regexForSegmentName = createRegexForSegmentName(context);
         Pattern pattern = Pattern.compile(regexForSegmentName);
