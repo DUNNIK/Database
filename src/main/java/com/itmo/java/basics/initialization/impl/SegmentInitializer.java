@@ -33,22 +33,23 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        segmentInitializationContext = context.currentSegmentContext();
-        SegmentIndex segmentIndex = new SegmentIndex();
-        DatabaseInputStream inputStream =
-                new DatabaseInputStream(createInputStreamForDatabase());
-
-        while (isNotFileEnd((int)segmentInitializationContext.getCurrentSize())){
-            var databaseRecord = readDatabaseRecord(inputStream);
-
-            databaseRecord.ifPresent(record -> addInfoInSegmentIndex(segmentIndex, record));
-
-            databaseRecord.ifPresent(record -> updateSegmentContextInformation(currentSize(record.size()), segmentIndex));
-
-            databaseRecord.ifPresent(record -> updateTableIndexInformation(context, record));
-
-        }
         try {
+            segmentInitializationContext = context.currentSegmentContext();
+            SegmentIndex segmentIndex = new SegmentIndex();
+            DatabaseInputStream inputStream =
+                    new DatabaseInputStream(createInputStreamForDatabase());
+
+            while (isNotFileEnd((int)segmentInitializationContext.getCurrentSize())){
+                var databaseRecord = readDatabaseRecord(inputStream);
+
+                databaseRecord.ifPresent(record -> addInfoInSegmentIndex(segmentIndex, record));
+
+                databaseRecord.ifPresent(record -> updateSegmentContextInformation(currentSize(record.size()), segmentIndex));
+
+                databaseRecord.ifPresent(record -> updateTableIndexInformation(context, record));
+
+            }
+
             inputStream.close();
         } catch (IOException e) {
             throw new DatabaseException("Error when closing the segment file", e);

@@ -31,26 +31,31 @@ public class DatabaseServerInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
         makeEnvironmentDirIfNotExist(context);
 
-        Path environmentPath;
         try {
-            environmentPath = context.executionEnvironment().getWorkingPath();
+            Path environmentPath = context.executionEnvironment().getWorkingPath();
+//        try {
+//            environmentPath = context.executionEnvironment().getWorkingPath();
+//        } catch (Exception e){
+//            throw new DatabaseException("Invalid execution environment.", e);
+//        }
+            var databaseDirectories = findDatabasesDir(environmentPath);
+
+            for (File databaseDirectory : databaseDirectories) {
+                var databaseContext = createDatabaseContextFromDir(
+                        databaseDirectory, environmentPath);
+
+                var executionEnvironment = context.executionEnvironment();
+
+
+                databaseInitializer.perform(
+                        CreateInitializationContextWithDatabaseContext(
+                                executionEnvironment,
+                                databaseContext));
+            }
         } catch (Exception e){
-            throw new DatabaseException("Invalid execution environment.", e);
+            throw new DatabaseException("Error in Server Initializer", e);
         }
-        var databaseDirectories = findDatabasesDir(environmentPath);
 
-        for (File databaseDirectory : databaseDirectories) {
-            var databaseContext = createDatabaseContextFromDir(
-                    databaseDirectory, environmentPath);
-
-            var executionEnvironment = context.executionEnvironment();
-
-
-            databaseInitializer.perform(
-                    CreateInitializationContextWithDatabaseContext(
-                            executionEnvironment,
-                            databaseContext));
-        }
     }
 
 

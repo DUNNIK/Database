@@ -28,27 +28,31 @@ public class TableInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
 
-        Path tablePath;
         try {
-            tablePath = context.currentTableContext().getTablePath();
-        } catch (Exception e){
-            throw new DatabaseException("Invalid TableContext", e);
+            Path tablePath = context.currentTableContext().getTablePath();
+//        try {
+//            tablePath = context.currentTableContext().getTablePath();
+//        } catch (Exception e){
+//            throw new DatabaseException("Invalid TableContext", e);
+//        }
+
+            var segmentFiles = findSegmentFiles(tablePath);
+
+            for (File segmentFile : segmentFiles) {
+                var segmentContext
+                        = createSegmentContextFromFile(segmentFile, tablePath);
+
+                segmentInitializer.perform(
+                        createInitializationContextWithSegmentContext(
+                                context,
+                                segmentContext));
+            }
+            var databaseContext = context.currentDbContext();
+            var tableContext = context.currentTableContext();
+            addTableToDatabaseContext(databaseContext, tableContext);
+        } catch (Exception e) {
+            throw new DatabaseException("Error in TableInitializer", e);
         }
-
-        var segmentFiles = findSegmentFiles(tablePath);
-
-        for (File segmentFile : segmentFiles) {
-            var segmentContext
-                    = createSegmentContextFromFile(segmentFile, tablePath);
-
-            segmentInitializer.perform(
-                    createInitializationContextWithSegmentContext(
-                            context,
-                            segmentContext));
-        }
-        var databaseContext = context.currentDbContext();
-        var tableContext = context.currentTableContext();
-        addTableToDatabaseContext(databaseContext, tableContext);
     }
 
     private void addTableToDatabaseContext

@@ -32,26 +32,30 @@ public class DatabaseInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
 
-        Path databasePath;
         try {
-            databasePath = context.currentDbContext().getDatabasePath();
+            Path databasePath = context.currentDbContext().getDatabasePath();
+//        try {
+//            databasePath = context.currentDbContext().getDatabasePath();
+//        } catch (Exception e){
+//            throw new DatabaseException("Invalid DbContext", e);
+//        }
+
+            var tableDirectories = findTableDirs(databasePath);
+            var databaseContext = context.currentDbContext();
+
+            for (File tableDirectory : tableDirectories) {
+                var tableContext
+                        = createTableContextFromDir(tableDirectory, databasePath);
+
+                tableInitializer.perform(
+                        createInitializationContextWithTableContext(
+                                context,
+                                tableContext));
+            }
+            addDatabaseToExecutionEnvironment(context.executionEnvironment(), databaseContext);
         } catch (Exception e){
-            throw new DatabaseException("Invalid DbContext", e);
+            throw new DatabaseException("Error in DbInitializer.", e);
         }
-
-        var tableDirectories = findTableDirs(databasePath);
-        var databaseContext = context.currentDbContext();
-
-        for (File tableDirectory : tableDirectories) {
-            var tableContext
-                    = createTableContextFromDir(tableDirectory, databasePath);
-
-            tableInitializer.perform(
-                    createInitializationContextWithTableContext(
-                            context,
-                            tableContext));
-        }
-        addDatabaseToExecutionEnvironment(context.executionEnvironment(), databaseContext);
     }
 
     private void addDatabaseToExecutionEnvironment
