@@ -16,13 +16,15 @@ public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
 
     public ExecutionEnvironmentImpl(DatabaseConfig config) {
         this.config = config;
-        databaseMap = new HashMap<String, Database>();
+        databaseMap = new HashMap<>();
     }
 
     @Override
     public Optional<Database> getDatabase(String name) {
-        var database = databaseMap.get(name);
-        return Optional.of(database);
+        if (databaseMap.containsKey(name)){
+            return Optional.of(databaseMap.get(name));
+        }
+        return Optional.empty();
     }
 
     @Override

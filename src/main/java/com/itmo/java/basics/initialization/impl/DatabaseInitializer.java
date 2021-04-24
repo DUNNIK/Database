@@ -86,7 +86,7 @@ public class DatabaseInitializer implements Initializer {
     private TableInitializationContext createTableContextFromDir(File directory, Path databasePath){
         return new TableInitializationContextImpl
                 (directory.getName(),
-                databasePath,
+                        databasePath,
                         new TableIndex()
                 );
     }
