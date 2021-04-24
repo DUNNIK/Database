@@ -33,12 +33,12 @@ public class TableInitializer implements Initializer {
             var tablePath = context.currentTableContext().getTablePath();
 
             var segmentFiles = findSegmentFiles(tablePath);
-            sortFileArray(segmentFiles);
+            //sortFileArray(segmentFiles);
 
-            for (File segmentFile : segmentFiles) {
-                if (isSegmentNameCorrect(segmentFile.getName(), context)) {
+            for (int i = 0; i < segmentFiles.length; i++) {
+                if (isSegmentNameCorrect(segmentFiles[i].getName(), context)) {
                     var segmentContext
-                            = createSegmentContextFromFile(segmentFile, tablePath);
+                            = createSegmentContextFromFile(segmentFiles[i], tablePath);
 
                     segmentInitializer.perform(
                             createInitializationContextWithSegmentContext(
@@ -54,9 +54,11 @@ public class TableInitializer implements Initializer {
         }
     }
 
-    private void sortFileArray(File[] files){
-        Arrays.sort(files, Comparator.comparing(File::getName));
-    }
+//    private void cleanSegmentFilesArray(File[] files){
+//    }
+//    private void sortFileArray(File[] files){
+//        Arrays.sort(files, Comparator.comparing(File::getName));
+//    }
     private boolean isSegmentNameCorrect(String fileName, InitializationContext context){
         var regexForSegmentName = createRegexForSegmentName(context);
         var pattern = Pattern.compile(regexForSegmentName);
