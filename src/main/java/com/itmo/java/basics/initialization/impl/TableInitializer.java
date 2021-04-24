@@ -91,9 +91,9 @@ public class TableInitializer implements Initializer {
     private void addTableToDatabaseContext
             (DatabaseInitializationContext databaseInitializationContext,
              TableInitializationContext tableInitializationContext){
-
+        var table = TableImpl.initializeFromContext(tableInitializationContext);
         databaseInitializationContext.addTable
-                (TableImpl.initializeFromContext(tableInitializationContext));
+                (table);
     }
     private InitializationContext createInitializationContextWithSegmentContext
             (InitializationContext context, SegmentInitializationContext segmentInitializationContext){
