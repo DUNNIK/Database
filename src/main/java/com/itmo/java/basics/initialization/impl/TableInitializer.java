@@ -8,7 +8,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -79,9 +78,7 @@ public class TableInitializer implements Initializer {
 
         return files;
     }
-    private void sortFileArray(File[] files){
-        Arrays.sort(files, Comparator.comparing(File::getName));
-    }
+
     private boolean isNotSegmentNameCorrect(String fileName, InitializationContext context){
         var regexForSegmentName = createRegexForSegmentName(context);
         var pattern = Pattern.compile(regexForSegmentName);
