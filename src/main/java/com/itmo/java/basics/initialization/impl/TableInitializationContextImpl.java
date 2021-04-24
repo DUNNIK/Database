@@ -40,11 +40,13 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public Segment getCurrentSegment() {
+        if (currentSegment.isReadOnly()) return null;
         return currentSegment;
     }
 
     @Override
     public void updateCurrentSegment(Segment segment) {
+        if (segment.isReadOnly()) return;
         currentSegment = segment;
     }
 }
