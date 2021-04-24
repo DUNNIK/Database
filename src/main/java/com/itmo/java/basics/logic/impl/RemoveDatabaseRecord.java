@@ -20,7 +20,7 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public byte[] getValue() {
-        return new byte[0];
+        return null;
     }
 
     @Override
