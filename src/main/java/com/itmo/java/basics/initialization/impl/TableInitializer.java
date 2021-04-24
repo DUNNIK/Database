@@ -6,8 +6,10 @@ import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class TableInitializer implements Initializer {
@@ -33,18 +35,18 @@ public class TableInitializer implements Initializer {
             var tablePath = context.currentTableContext().getTablePath();
 
             var segmentFiles = findSegmentFiles(tablePath);
-            //sortFileArray(segmentFiles);
+            segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
+            sortFileArray(segmentFiles);
 
-            for (int i = 0; i < segmentFiles.length; i++) {
-                if (isSegmentNameCorrect(segmentFiles[i].getName(), context)) {
-                    var segmentContext
-                            = createSegmentContextFromFile(segmentFiles[i], tablePath);
+            for (File segmentFile : segmentFiles) {
+                var segmentContext
+                        = createSegmentContextFromFile(segmentFile, tablePath);
 
-                    segmentInitializer.perform(
-                            createInitializationContextWithSegmentContext(
-                                    context,
-                                    segmentContext));
-                }
+                segmentInitializer.perform(
+                        createInitializationContextWithSegmentContext(
+                                context,
+                                segmentContext));
+
             }
             var databaseContext = context.currentDbContext();
             var tableContext = context.currentTableContext();
@@ -54,16 +56,26 @@ public class TableInitializer implements Initializer {
         }
     }
 
-//    private void cleanSegmentFilesArray(File[] files){
-//    }
-//    private void sortFileArray(File[] files){
-//        Arrays.sort(files, Comparator.comparing(File::getName));
-//    }
-    private boolean isSegmentNameCorrect(String fileName, InitializationContext context){
+    private File[] cleanSegmentFilesArray(File[] files, InitializationContext context){
+
+        for (File segmentFile : files) {
+            if (isNotSegmentNameCorrect(segmentFile.getName(), context)) {
+                List<File> list = new ArrayList<>(Arrays.asList(files));
+                list.remove(segmentFile);
+                files = list.toArray(new File[list.size()]);
+            }
+        }
+
+        return files;
+    }
+    private void sortFileArray(File[] files){
+        Arrays.sort(files, Comparator.comparing(File::getName));
+    }
+    private boolean isNotSegmentNameCorrect(String fileName, InitializationContext context){
         var regexForSegmentName = createRegexForSegmentName(context);
         var pattern = Pattern.compile(regexForSegmentName);
         var matcher = pattern.matcher(fileName);
-        return matcher.find();
+        return !matcher.find();
     }
     private String createRegexForSegmentName(InitializationContext context){
         return "^"+context.currentTableContext().getTableName()+"_";
