@@ -34,11 +34,6 @@ public class DatabaseInitializer implements Initializer {
 
         try {
             Path databasePath = context.currentDbContext().getDatabasePath();
-//        try {
-//            databasePath = context.currentDbContext().getDatabasePath();
-//        } catch (Exception e){
-//            throw new DatabaseException("Invalid DbContext", e);
-//        }
 
             var tableDirectories = findTableDirs(databasePath);
             var databaseContext = context.currentDbContext();

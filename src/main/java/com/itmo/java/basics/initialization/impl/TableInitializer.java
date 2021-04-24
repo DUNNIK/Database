@@ -30,11 +30,6 @@ public class TableInitializer implements Initializer {
 
         try {
             Path tablePath = context.currentTableContext().getTablePath();
-//        try {
-//            tablePath = context.currentTableContext().getTablePath();
-//        } catch (Exception e){
-//            throw new DatabaseException("Invalid TableContext", e);
-//        }
 
             var segmentFiles = findSegmentFiles(tablePath);
 

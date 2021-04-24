@@ -33,11 +33,6 @@ public class DatabaseServerInitializer implements Initializer {
 
         try {
             Path environmentPath = context.executionEnvironment().getWorkingPath();
-//        try {
-//            environmentPath = context.executionEnvironment().getWorkingPath();
-//        } catch (Exception e){
-//            throw new DatabaseException("Invalid execution environment.", e);
-//        }
             var databaseDirectories = findDatabasesDir(environmentPath);
 
             for (File databaseDirectory : databaseDirectories) {
