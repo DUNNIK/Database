@@ -90,7 +90,7 @@ public class SegmentImpl implements Segment {
 
         WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
 
-        outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
+        outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());//Если что-то не будет заходить можно перенести открытие потока в само поле
         var recordSize = outputStream.write(record);
         outputStream.close();
         updateFinalOffset(recordSize);
