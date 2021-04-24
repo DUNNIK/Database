@@ -2,13 +2,9 @@ package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.initialization.SegmentInitializationContext;
-import com.itmo.java.basics.logic.io.DatabaseInputStream;
 import lombok.Builder;
 
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 @Builder

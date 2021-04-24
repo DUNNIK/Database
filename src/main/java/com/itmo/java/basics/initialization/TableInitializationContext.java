@@ -39,5 +39,6 @@ public interface TableInitializationContext {
      *
      * @param segment новый сегмент
      */
-    void updateCurrentSegment(Segment segment);
+    //Изменил метод, попробовать
+    void updateCurrentSegment(Segment segment, String objectKey);
 }

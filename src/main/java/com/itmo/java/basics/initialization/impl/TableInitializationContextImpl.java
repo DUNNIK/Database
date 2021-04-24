@@ -44,8 +44,8 @@ public class TableInitializationContextImpl implements TableInitializationContex
     }
 
     @Override
-    public void updateCurrentSegment(Segment segment) {
-        tableIndex.onIndexedEntityUpdated(segment.getName(), segment);
+    public void updateCurrentSegment(Segment segment, String objectKey) {
+        tableIndex.onIndexedEntityUpdated(objectKey, segment);
         currentSegment = segment;
     }
 }
