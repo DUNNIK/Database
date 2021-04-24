@@ -17,12 +17,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class SegmentInitializer implements Initializer {
 
     private SegmentInitializationContext segmentInitializationContext;
-
     /**
      * Добавляет в контекст информацию об инициализируемом сегменте.
      * Составляет индекс сегмента
@@ -47,9 +48,7 @@ public class SegmentInitializer implements Initializer {
                 databaseRecord.ifPresent(record -> updateSegmentContextInformation(currentSize(record.size()), segmentIndex));
 
                 databaseRecord.ifPresent(record -> updateTableIndexInformation(context, record));
-
             }
-
             inputStream.close();
         } catch (IOException e) {
             throw new DatabaseException("Error when closing the segment file", e);
@@ -81,11 +80,8 @@ public class SegmentInitializer implements Initializer {
     }
     private Optional<DatabaseRecord> readDatabaseRecord(DatabaseInputStream inputStream) throws DatabaseException {
         Optional<DatabaseRecord> unit;
-
         try {
-
             unit = inputStream.readDbUnit();
-
         } catch (IOException e) {
             throw new DatabaseException("Error reading the record", e);
         }

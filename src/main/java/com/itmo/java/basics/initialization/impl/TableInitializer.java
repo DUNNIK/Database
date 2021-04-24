@@ -2,12 +2,13 @@ package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.*;
+import com.itmo.java.basics.logic.DatabaseRecord;
 import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TableInitializer implements Initializer {
 
@@ -34,13 +35,15 @@ public class TableInitializer implements Initializer {
             var segmentFiles = findSegmentFiles(tablePath);
 
             for (File segmentFile : segmentFiles) {
-                var segmentContext
-                        = createSegmentContextFromFile(segmentFile, tablePath);
+                if (isSegmentNameCorrect(segmentFile.getName(), context)) {
+                    var segmentContext
+                            = createSegmentContextFromFile(segmentFile, tablePath);
 
-                segmentInitializer.perform(
-                        createInitializationContextWithSegmentContext(
-                                context,
-                                segmentContext));
+                    segmentInitializer.perform(
+                            createInitializationContextWithSegmentContext(
+                                    context,
+                                    segmentContext));
+                }
             }
             var databaseContext = context.currentDbContext();
             var tableContext = context.currentTableContext();
@@ -50,6 +53,15 @@ public class TableInitializer implements Initializer {
         }
     }
 
+    private boolean isSegmentNameCorrect(String fileName, InitializationContext context){
+        var regexForSegmentName = createRegexForSegmentName(context);
+        Pattern pattern = Pattern.compile(regexForSegmentName);
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.find();
+    }
+    private String createRegexForSegmentName(InitializationContext context){
+        return "^"+context.currentTableContext().getTableName()+"_";
+    }
     private void addTableToDatabaseContext
             (DatabaseInitializationContext databaseInitializationContext,
              TableInitializationContext tableInitializationContext){

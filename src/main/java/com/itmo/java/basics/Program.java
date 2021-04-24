@@ -30,27 +30,28 @@ public class Program {
                     .executionEnvironment(executionEnvironment)
                     .build());
 
-            Database database = DatabaseImpl.create("db", executionEnvironmentPath);
-            database.createTableIfNotExists("table1");
-            database.createTableIfNotExists("table2");
-            database.write("table1", "", null);
-            database.write("table1", "2", "1".getBytes(StandardCharsets.UTF_8));
-            database.write("table1", "3", "1".getBytes(StandardCharsets.UTF_8));
-            database.delete("table1", "2");
-            database.write("table1", "Hel__123lo", "25ю.фыафы1241лдаара132134512".getBytes(StandardCharsets.UTF_8));
-            database.write("table2", "Hel__123lo", "2132134512".getBytes(StandardCharsets.UTF_8));
-            database.write("table2", "Hel1lo", "2a1s2ффодпрфрююфа.ю.ю._d3".getBytes(StandardCharsets.UTF_8));
-            database.write("table2", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
-            database.write("table2", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
-            database.write("table1", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
-            database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
+//            Database database = DatabaseImpl.create("db", executionEnvironmentPath);
+//            database.createTableIfNotExists("table1");
+//            database.createTableIfNotExists("table2");
+//            database.write("table1", "", null);
+//            database.write("table1", "2", "1".getBytes(StandardCharsets.UTF_8));
+//            database.write("table1", "3", "1".getBytes(StandardCharsets.UTF_8));
+//            database.delete("table1", "2");
+//            database.write("table1", "Hel__123lo", "25ю.фыафы1241лдаара132134512".getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", "Hel__123lo", "2132134512".getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", "Hel1lo", "2a1s2ффодпрфрююфа.ю.ю._d3".getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
+//            database.write("table2", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
+//            database.write("table1", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
+//            database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
 
             initializer.perform(InitializationContextImpl.builder()
                     .executionEnvironment(executionEnvironment)
                     .build());
 
             var a = executionEnvironment.getDatabase("db").get().read("table1","Hel__123lo");
-            var b = new String(a.get());
+            String b = "";
+            if (a.isPresent())b = new String(a.get());
             System.out.println(b);
         } catch (DatabaseException e) {
             System.out.println(e.getMessage());
