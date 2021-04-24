@@ -17,9 +17,13 @@ public class TableInitializationContextImpl implements TableInitializationContex
     public TableInitializationContextImpl(String tableName, Path databasePath, TableIndex tableIndex) {
         this.tableName = tableName;
         tablePath = createTablePathFromRootPath(databasePath);
-        this.tableIndex = tableIndex;
+        this.tableIndex = createNewIfNull(tableIndex);
     }
 
+    private TableIndex createNewIfNull(TableIndex tableIndex){
+        if (tableIndex==null) return new TableIndex();
+        return tableIndex;
+    }
     private Path createTablePathFromRootPath(Path tableRoot) {
         return Path.of(tableRoot + File.separator + tableName);
     }
@@ -40,13 +44,11 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public Segment getCurrentSegment() {
-        if (currentSegment.isReadOnly()) return null;
         return currentSegment;
     }
 
     @Override
     public void updateCurrentSegment(Segment segment) {
-        if (segment.isReadOnly()) return;
         currentSegment = segment;
     }
 }
