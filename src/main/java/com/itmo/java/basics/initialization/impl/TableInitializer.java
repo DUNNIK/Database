@@ -29,7 +29,6 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-
         try {
             var tablePath = context.currentTableContext().getTablePath();
             var segmentFiles = findSegmentFiles(tablePath);

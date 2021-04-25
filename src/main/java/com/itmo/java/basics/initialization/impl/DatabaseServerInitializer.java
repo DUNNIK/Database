@@ -31,7 +31,6 @@ public class DatabaseServerInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
         makeEnvironmentDirIfNotExist(context);
-
         try {
             var environmentPath = context.executionEnvironment().getWorkingPath();
             var databaseDirectories = findDatabasesDir(environmentPath);
