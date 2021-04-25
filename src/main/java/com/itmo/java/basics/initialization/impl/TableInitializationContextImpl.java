@@ -20,6 +20,7 @@ public class TableInitializationContextImpl implements TableInitializationContex
         this.tableName = tableName;
         tablePath = createTablePathFromRootPath(databasePath);
         this.tableIndex = tableIndex;
+        currentSegment = null;
     }
 
     private Path createTablePathFromRootPath(Path tableRoot) {
@@ -48,13 +49,6 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public void updateCurrentSegment(Segment segment) {
-        if (segment.isReadOnly()) {
-            try {
-                segment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tablePath);
-            } catch (DatabaseException e) {
-                e.printStackTrace();
-            }
-        }
         currentSegment = segment;
     }
 }
