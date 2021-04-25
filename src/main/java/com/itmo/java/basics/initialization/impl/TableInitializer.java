@@ -32,7 +32,7 @@ public class TableInitializer implements Initializer {
         try {
             var tablePath = context.currentTableContext().getTablePath();
             var segmentFiles = findSegmentFiles(tablePath);
-            segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
+            //segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
             sortFileArrayByTime(segmentFiles, context);
             for (File segmentFile : segmentFiles) {
                 var segmentContext
@@ -62,7 +62,6 @@ public class TableInitializer implements Initializer {
         });
     }
     private File[] cleanSegmentFilesArray(File[] files, InitializationContext context){
-
         for (File segmentFile : files) {
             if (isNotSegmentNameCorrect(segmentFile.getName(), context)) {
                 List<File> list = new ArrayList<>(Arrays.asList(files));
@@ -70,7 +69,6 @@ public class TableInitializer implements Initializer {
                 files = list.toArray(new File[list.size()]);
             }
         }
-
         return files;
     }
 
