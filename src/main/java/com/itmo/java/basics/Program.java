@@ -46,7 +46,7 @@ public class Program {
                     .executionEnvironment(executionEnvironment)
                     .build());
 
-            var a = executionEnvironment.getDatabase("db").get().read("table1","Hel__123lo");
+            var a = executionEnvironment.getDatabase("db").get().read("table2","Hel__123lo");
             String b = "";
             if (a.isPresent())b = new String(a.get());
             System.out.println(b);

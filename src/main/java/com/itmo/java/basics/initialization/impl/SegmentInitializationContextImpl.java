@@ -13,17 +13,17 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
 
     private final String segmentName;
     private final Path segmentPath;
-    private int currentSize;
+    private final long currentSize;
     private final SegmentIndex index;
 
-    public SegmentInitializationContextImpl(String segmentName, Path segmentPath, int currentSize, SegmentIndex index) {
+    public SegmentInitializationContextImpl(String segmentName, Path segmentPath, long currentSize, SegmentIndex index) {
         this.segmentName = segmentName;
         this.segmentPath = segmentPath;
         this.currentSize = currentSize;
         this.index = index;
     }
 
-    public SegmentInitializationContextImpl(String segmentName, Path tablePath, int currentSize) {
+    public SegmentInitializationContextImpl(String segmentName, Path tablePath, long currentSize) {
         this.segmentName = segmentName;
         segmentPath = createSegmentPathFromRootPath(tablePath);
         this.currentSize = currentSize;

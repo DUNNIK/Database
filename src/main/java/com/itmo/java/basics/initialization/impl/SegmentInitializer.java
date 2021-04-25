@@ -1,7 +1,6 @@
 package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
-import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
@@ -48,10 +47,10 @@ public class SegmentInitializer implements Initializer {
         }
     }
 
-    private int currentSize(long recordSize){
-        return (int) (recordSize + segmentInitializationContext.getCurrentSize());
+    private long currentSize(long recordSize){
+        return recordSize + segmentInitializationContext.getCurrentSize();
     }
-    private void updateSegmentContextInformation(int currentSize){
+    private void updateSegmentContextInformation(long currentSize){
         segmentInitializationContext = new SegmentInitializationContextImpl(
                 segmentInitializationContext.getSegmentName(),
                 segmentInitializationContext.getSegmentPath(),
