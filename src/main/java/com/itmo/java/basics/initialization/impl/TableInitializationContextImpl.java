@@ -42,6 +42,7 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public Segment getCurrentSegment() {
+        if (currentSegment == null) throw new RuntimeException("Current Segment is null");
         return currentSegment;
     }
 
