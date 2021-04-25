@@ -33,12 +33,13 @@ public class SegmentInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
         segmentInitializationContext = context.currentSegmentContext();
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
-            while (isNotFileEnd((int) segmentInitializationContext.getCurrentSize())) {
+            while (isNotFileEnd(segmentInitializationContext.getCurrentSize())) {
                 var databaseRecordOptional = readDatabaseRecord(inputStream);
                 if (databaseRecordOptional.isPresent()){
                     var databaseRecord = databaseRecordOptional.get();
                     addInfoInSegmentIndex(databaseRecord);
-                    updateSegmentContextInformation(currentSize(databaseRecord.size()));
+                    var currentSize = currentSize(databaseRecord.size());
+                    updateSegmentContextInformation(currentSize);
                     updateTableIndexInformation(context, databaseRecord);
                 }
             }
@@ -91,7 +92,7 @@ public class SegmentInitializer implements Initializer {
 
         return new DataInputStream(fileInputStream);
     }
-    private boolean isNotFileEnd(int currentSize) throws DatabaseException {
+    private boolean isNotFileEnd(long currentSize) throws DatabaseException {
         try {
             var fileSize = Files.size(segmentInitializationContext.getSegmentPath());
             return currentSize < fileSize;

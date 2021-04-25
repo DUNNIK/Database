@@ -58,13 +58,14 @@ public class SegmentImpl implements Segment {
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
-
+        var file = new File(context.getSegmentPath().toString());
+        var finalOffset = file.length();
         return SegmentImpl.builder()
                 .segmentName(context.getSegmentName())
                 .segmentPath(context.getSegmentPath())
                 .segmentIndex(context.getIndex())
                 .readonly(readonly(context))
-                .finalOffset(context.getCurrentSize())
+                .finalOffset(finalOffset)
                 .build();
     }
 
