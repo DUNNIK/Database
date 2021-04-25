@@ -1,8 +1,10 @@
 package com.itmo.java.basics.initialization.impl;
 
+import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.Segment;
+import com.itmo.java.basics.logic.impl.SegmentImpl;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -21,12 +23,13 @@ public class TableInitializationContextImpl implements TableInitializationContex
     }
 
     private TableIndex createNewIfNull(TableIndex tableIndex){
-        if (tableIndex==null) return new TableIndex();
+        if (tableIndex == null) return new TableIndex();
         return tableIndex;
     }
     private Path createTablePathFromRootPath(Path tableRoot) {
         return Path.of(tableRoot + File.separator + tableName);
     }
+
     @Override
     public String getTableName() {
         return tableName;
@@ -49,6 +52,13 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public void updateCurrentSegment(Segment segment) {
+        if (segment.isReadOnly()) {
+            try {
+                segment = SegmentImpl.create(SegmentImpl.createSegmentName(tableName), tablePath);
+            } catch (DatabaseException e) {
+                e.printStackTrace();
+            }
+        }
         currentSegment = segment;
     }
 }

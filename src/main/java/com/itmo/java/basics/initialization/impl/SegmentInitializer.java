@@ -37,14 +37,12 @@ public class SegmentInitializer implements Initializer {
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
             while (isNotFileEnd((int) segmentInitializationContext.getCurrentSize())) {
                 var databaseRecord = readDatabaseRecord(inputStream);
-
                 if (databaseRecord.isPresent()){
                     addInfoInSegmentIndex(segmentIndex, databaseRecord.get());
                     updateSegmentContextInformation(currentSize(databaseRecord.get().size()), segmentIndex);
                     updateTableIndexInformation(context, databaseRecord.get());
                 }
             }
-
         } catch (Exception e) {
             throw new DatabaseException("Error when closing the segment file", e);
         }

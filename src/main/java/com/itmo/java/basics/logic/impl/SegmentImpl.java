@@ -72,7 +72,7 @@ public class SegmentImpl implements Segment {
         return (int) context.getCurrentSize() > MAX_SEGMENT_SIZE;
     }
 
-    static String createSegmentName(String tableName) {
+    public static String createSegmentName(String tableName) {
         return tableName + "_" + System.currentTimeMillis();
     }
 

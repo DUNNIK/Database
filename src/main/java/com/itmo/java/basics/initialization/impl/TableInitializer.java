@@ -32,23 +32,19 @@ public class TableInitializer implements Initializer {
 
         try {
             var tablePath = context.currentTableContext().getTablePath();
-
             var segmentFiles = findSegmentFiles(tablePath);
             segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
             sortFileArrayByTime(segmentFiles, context);
-
-            var databaseContext = context.currentDbContext();
-            var tableContext = context.currentTableContext();
             for (File segmentFile : segmentFiles) {
                 var segmentContext
                         = createSegmentContextFromFile(segmentFile, tablePath);
-
                 segmentInitializer.perform(
                         createInitializationContextWithSegmentContext(
                                 context,
                                 segmentContext));
-
             }
+            var databaseContext = context.currentDbContext();
+            var tableContext = context.currentTableContext();
             addTableToDatabaseContext(databaseContext, tableContext);
         } catch (Exception e) {
             throw new DatabaseException("Error in TableInitializer", e);

@@ -36,14 +36,10 @@ public class DatabaseServerInitializer implements Initializer {
             var environmentPath = context.executionEnvironment().getWorkingPath();
             var databaseDirectories = findDatabasesDir(environmentPath);
             sortFileArray(databaseDirectories);
-
             for (File databaseDirectory : databaseDirectories) {
                 var databaseContext = createDatabaseContextFromDir(
                         databaseDirectory, environmentPath);
-
                 var executionEnvironment = context.executionEnvironment();
-
-
                 databaseInitializer.perform(
                         createInitializationContextWithDatabaseContext(
                                 executionEnvironment,

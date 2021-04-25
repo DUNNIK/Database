@@ -8,6 +8,7 @@ import com.itmo.java.basics.initialization.impl.*;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +54,8 @@ public class Program {
             String b = "";
             if (a.isPresent())b = new String(a.get());
             System.out.println(b);
+
+
         } catch (DatabaseException e) {
             System.out.println(e.getMessage());
         }
