@@ -54,7 +54,7 @@ public class Program {
             if (a.isPresent())b = new String(a.get());
             System.out.println(b);
 
-            a = executionEnvironment.getDatabase("database1").get().read("table1",veryLongText);
+            a = executionEnvironment.getDatabase("db").get().read("table1",veryLongText);
             b = "";
             if (a.isPresent())b = new String(a.get());
             System.out.println(b);

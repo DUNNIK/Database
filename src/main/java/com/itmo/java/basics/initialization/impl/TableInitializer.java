@@ -58,7 +58,7 @@ public class TableInitializer implements Initializer {
             Long firstFileTime = Long.parseLong(matcher1.replaceFirst(""));
             var matcher2 = pattern.matcher(secondFile.getName());
             Long secondFileTime = Long.parseLong(matcher2.replaceFirst(""));
-            return secondFileTime.compareTo(firstFileTime);
+            return firstFileTime.compareTo(secondFileTime);
         });
     }
     private File[] cleanSegmentFilesArray(File[] files, InitializationContext context){
