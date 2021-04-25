@@ -32,7 +32,7 @@ public class TableInitializer implements Initializer {
         try {
             var tablePath = context.currentTableContext().getTablePath();
             var segmentFiles = findSegmentFiles(tablePath);
-            //segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
+            segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
             sortFileArrayByTime(segmentFiles, context);
             for (File segmentFile : segmentFiles) {
                 var segmentContext
