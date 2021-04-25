@@ -19,7 +19,7 @@ public class TableInitializationContextImpl implements TableInitializationContex
     public TableInitializationContextImpl(String tableName, Path databasePath, TableIndex tableIndex) {
         this.tableName = tableName;
         tablePath = createTablePathFromRootPath(databasePath);
-        this.tableIndex = createNewIfNull(tableIndex);
+        this.tableIndex = tableIndex;
     }
 
     private TableIndex createNewIfNull(TableIndex tableIndex){
