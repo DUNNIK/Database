@@ -64,13 +64,13 @@ public class SegmentImpl implements Segment {
                 .segmentName(context.getSegmentName())
                 .segmentPath(context.getSegmentPath())
                 .segmentIndex(context.getIndex())
-                .readonly(readonly(context))
+                .readonly(readonly(finalOffset))
                 .finalOffset(finalOffset)
                 .build();
     }
 
-    private static boolean readonly(SegmentInitializationContext context) {
-        return (int) context.getCurrentSize() > MAX_SEGMENT_SIZE;
+    private static boolean readonly(long finalOffset) {
+        return finalOffset > MAX_SEGMENT_SIZE;
     }
 
     public static String createSegmentName(String tableName) {

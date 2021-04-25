@@ -22,10 +22,6 @@ public class TableInitializationContextImpl implements TableInitializationContex
         this.tableIndex = tableIndex;
     }
 
-    private TableIndex createNewIfNull(TableIndex tableIndex){
-        if (tableIndex == null) return new TableIndex();
-        return tableIndex;
-    }
     private Path createTablePathFromRootPath(Path tableRoot) {
         return Path.of(tableRoot + File.separator + tableName);
     }
