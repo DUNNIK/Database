@@ -92,7 +92,6 @@ public class TableInitializer implements Initializer {
     }
     private InitializationContext createInitializationContextWithSegmentContext
             (InitializationContext context, SegmentInitializationContext segmentInitializationContext){
-
         return InitializationContextImpl.builder()
                 .executionEnvironment(context.executionEnvironment())
                 .currentDatabaseContext(context.currentDbContext())

@@ -36,11 +36,12 @@ public class SegmentInitializer implements Initializer {
         var segmentIndex = new SegmentIndex();
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
             while (isNotFileEnd((int) segmentInitializationContext.getCurrentSize())) {
-                var databaseRecord = readDatabaseRecord(inputStream);
-                if (databaseRecord.isPresent()){
-                    addInfoInSegmentIndex(segmentIndex, databaseRecord.get());
-                    updateSegmentContextInformation(currentSize(databaseRecord.get().size()), segmentIndex);
-                    updateTableIndexInformation(context, databaseRecord.get());
+                var databaseRecordOptional = readDatabaseRecord(inputStream);
+                if (databaseRecordOptional.isPresent()){
+                    var databaseRecord = databaseRecordOptional.get();
+                    addInfoInSegmentIndex(segmentIndex, databaseRecord);
+                    updateSegmentContextInformation(currentSize(databaseRecord.size()), segmentIndex);
+                    updateTableIndexInformation(context, databaseRecord);
                 }
             }
         } catch (Exception e) {
@@ -52,12 +53,11 @@ public class SegmentInitializer implements Initializer {
         return (int) (recordSize + segmentInitializationContext.getCurrentSize());
     }
     private void updateSegmentContextInformation(int currentSize, SegmentIndex index){
-        segmentInitializationContext = SegmentInitializationContextImpl.builder()
-                .segmentName(segmentInitializationContext.getSegmentName())
-                .segmentPath(segmentInitializationContext.getSegmentPath())
-                .currentSize(currentSize)
-                .index(index)
-                .build();
+        segmentInitializationContext = new SegmentInitializationContextImpl(
+                segmentInitializationContext.getSegmentName(),
+                segmentInitializationContext.getSegmentPath(),
+                currentSize,
+                index);
     }
     private void addInfoInSegmentIndex(SegmentIndex segmentIndex, DatabaseRecord databaseRecord) {
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
@@ -68,8 +68,8 @@ public class SegmentInitializer implements Initializer {
     private void updateTableIndexInformation(InitializationContext context, DatabaseRecord databaseRecord){
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
         var segment = SegmentImpl.initializeFromContext(segmentInitializationContext);
-        context.currentTableContext().getTableIndex().onIndexedEntityUpdated(objectKey, segment);
         context.currentTableContext().updateCurrentSegment(segment);
+        context.currentTableContext().getTableIndex().onIndexedEntityUpdated(objectKey, segment);
     }
     private Optional<DatabaseRecord> readDatabaseRecord(DatabaseInputStream inputStream) throws DatabaseException {
         Optional<DatabaseRecord> unit;

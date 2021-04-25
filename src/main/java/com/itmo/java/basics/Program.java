@@ -5,11 +5,7 @@ import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.initialization.impl.*;
-import com.itmo.java.basics.logic.Database;
-import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -55,7 +51,10 @@ public class Program {
             if (a.isPresent())b = new String(a.get());
             System.out.println(b);
 
-
+            a = executionEnvironment.getDatabase("database1").get().read("table1",veryLongText);
+            b = "";
+            if (a.isPresent())b = new String(a.get());
+            System.out.println(b);
         } catch (DatabaseException e) {
             System.out.println(e.getMessage());
         }
