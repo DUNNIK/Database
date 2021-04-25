@@ -33,14 +33,13 @@ public class SegmentInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
         segmentInitializationContext = context.currentSegmentContext();
-        var segmentIndex = new SegmentIndex();
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
             while (isNotFileEnd((int) segmentInitializationContext.getCurrentSize())) {
                 var databaseRecordOptional = readDatabaseRecord(inputStream);
                 if (databaseRecordOptional.isPresent()){
                     var databaseRecord = databaseRecordOptional.get();
-                    addInfoInSegmentIndex(segmentIndex, databaseRecord);
-                    updateSegmentContextInformation(currentSize(databaseRecord.size()), segmentIndex);
+                    addInfoInSegmentIndex(databaseRecord);
+                    updateSegmentContextInformation(currentSize(databaseRecord.size()));
                     updateTableIndexInformation(context, databaseRecord);
                 }
             }
@@ -52,16 +51,17 @@ public class SegmentInitializer implements Initializer {
     private int currentSize(long recordSize){
         return (int) (recordSize + segmentInitializationContext.getCurrentSize());
     }
-    private void updateSegmentContextInformation(int currentSize, SegmentIndex index){
+    private void updateSegmentContextInformation(int currentSize){
         segmentInitializationContext = new SegmentInitializationContextImpl(
                 segmentInitializationContext.getSegmentName(),
                 segmentInitializationContext.getSegmentPath(),
                 currentSize,
-                index);
+                segmentInitializationContext.getIndex());
     }
-    private void addInfoInSegmentIndex(SegmentIndex segmentIndex, DatabaseRecord databaseRecord) {
+    private void addInfoInSegmentIndex(DatabaseRecord databaseRecord) {
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
         var offset = segmentInitializationContext.getCurrentSize();
+        var segmentIndex = segmentInitializationContext.getIndex();
         segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(offset));
     }
 

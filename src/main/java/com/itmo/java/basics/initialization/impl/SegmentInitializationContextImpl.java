@@ -13,7 +13,7 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
 
     private final String segmentName;
     private final Path segmentPath;
-    private final int currentSize;
+    private int currentSize;
     private final SegmentIndex index;
 
     public SegmentInitializationContextImpl(String segmentName, Path segmentPath, int currentSize, SegmentIndex index) {
