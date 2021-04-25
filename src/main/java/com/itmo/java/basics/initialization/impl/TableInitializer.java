@@ -30,6 +30,7 @@ public class TableInitializer implements Initializer {
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
         try {
+            CheckContextFields(context);
             var tablePath = context.currentTableContext().getTablePath();
             var segmentFiles = findSegmentFiles(tablePath);
             segmentFiles = cleanSegmentFilesArray(segmentFiles, context);
@@ -50,6 +51,11 @@ public class TableInitializer implements Initializer {
         }
     }
 
+    private void CheckContextFields(InitializationContext context) throws DatabaseException {
+        if (context.executionEnvironment() == null || context.currentDbContext() == null){
+            throw new DatabaseException("Such a context cannot exist");
+        }
+    }
     private void sortFileArrayByTime(File[] files, InitializationContext context){
         Arrays.sort(files, (firstFile, secondFile) -> {
             var regexForSegmentName = createRegexForSegmentName(context);

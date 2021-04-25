@@ -31,6 +31,7 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        CheckContextFields(context);
         segmentInitializationContext = context.currentSegmentContext();
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
             while (isNotFileEnd(segmentInitializationContext.getCurrentSize())) {
@@ -48,6 +49,13 @@ public class SegmentInitializer implements Initializer {
         }
     }
 
+    private void CheckContextFields(InitializationContext context) throws DatabaseException {
+        if (context.executionEnvironment() == null
+                || context.currentDbContext() == null
+                || context.currentTableContext() == null){
+            throw new DatabaseException("Such a context cannot exist");
+        }
+    }
     private long currentSize(long recordSize){
         return recordSize + segmentInitializationContext.getCurrentSize();
     }

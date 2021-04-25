@@ -2,7 +2,6 @@ package com.itmo.java.basics.initialization.impl;
 
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.initialization.SegmentInitializationContext;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.io.File;
