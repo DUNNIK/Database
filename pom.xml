@@ -49,6 +49,11 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.struts</groupId>
+            <artifactId>struts-tiles</artifactId>
+            <version>1.3.8</version>
+        </dependency>
     </dependencies>
 
     <!--    explicitly setting repository cause it clashes with my work repos-->
