@@ -31,6 +31,7 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        if (context.currentTableContext() == null) throw new DatabaseException("Such a context cannot exist");
         segmentInitializationContext = context.currentSegmentContext();
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
             while (isNotFileEnd(segmentInitializationContext.getCurrentSize())) {

@@ -44,6 +44,11 @@ public class Program {
             database.write("table2", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
             database.write("table1", veryLongText, veryLongText.getBytes(StandardCharsets.UTF_8));
             database.write("table1", "veryLongText", veryLongText.getBytes(StandardCharsets.UTF_8));
+            initializer.perform(InitializationContextImpl.builder()
+                    .executionEnvironment(executionEnvironment)
+                    .build());
+
+            database.delete("table1", veryLongText);
 
             initializer.perform(InitializationContextImpl.builder()
                     .executionEnvironment(executionEnvironment)
