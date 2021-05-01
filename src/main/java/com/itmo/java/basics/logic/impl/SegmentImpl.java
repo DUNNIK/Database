@@ -9,6 +9,8 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import com.itmo.java.basics.logic.io.DatabaseInputStream;
 import com.itmo.java.basics.logic.io.DatabaseOutputStream;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,8 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class SegmentImpl implements Segment {
-
+    private static final int MAX_SEGMENT_SIZE = 100_000;
     private final String segmentName;
     private final Path segmentPath;
     private final SegmentIndex segmentIndex;
@@ -54,10 +58,22 @@ public class SegmentImpl implements Segment {
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
-        return null;
+        var file = new File(context.getSegmentPath().toString());
+        var finalOffset = file.length();
+        return SegmentImpl.builder()
+                .segmentName(context.getSegmentName())
+                .segmentPath(context.getSegmentPath())
+                .segmentIndex(context.getIndex())
+                .readonly(readonly(finalOffset))
+                .finalOffset(finalOffset)
+                .build();
     }
 
-    static String createSegmentName(String tableName) {
+    private static boolean readonly(long finalOffset) {
+        return finalOffset > MAX_SEGMENT_SIZE;
+    }
+
+    public static String createSegmentName(String tableName) {
         return tableName + "_" + System.currentTimeMillis();
     }
 
@@ -71,12 +87,12 @@ public class SegmentImpl implements Segment {
         if (isReadOnly()) {
             return false;
         }
-        AddSegmentIndex(objectKey);
+        addSegmentIndex(objectKey);
 
-        WritableDatabaseRecord record = createNewRecord(objectKey, objectValue);
+        var writableDatabaseRecord = createNewRecord(objectKey, objectValue);
 
-        outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());
-        var recordSize = outputStream.write(record);
+        outputStream = new DatabaseOutputStream(createOutputStreamForDataBase());//Если что-то не будет заходить можно перенести открытие потока в само поле
+        var recordSize = outputStream.write(writableDatabaseRecord);
         outputStream.close();
         updateFinalOffset(recordSize);
 
@@ -103,44 +119,43 @@ public class SegmentImpl implements Segment {
         finalOffset += recordSize;
     }
 
-    private void AddSegmentIndex(String objectKey) {
+    private void addSegmentIndex(String objectKey) {
         segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(finalOffset));
     }
 
     private boolean isWriteNotPossible() {
-        var maxSegmentSize = 100_000;
-        return maxSegmentSize <= finalOffset;
+        return MAX_SEGMENT_SIZE <= finalOffset;
     }
 
     @Override
     public Optional<byte[]> read(String objectKey) throws IOException {
 
         long offset;
-        if (searchOffsetByKey(objectKey).isPresent()) {
-            DatabaseInputStream inputStream = new DatabaseInputStream(createInputStreamForDataBase());
-            offset = searchOffsetByKey(objectKey).get().getOffset();
-            long skip = inputStream.skip(offset);
-            if (!isSkipWasCorrect(offset, skip)) throw new IOException();
-
-            var unit = inputStream.readDbUnit();
-            if (unit.isPresent() && unit.get().getValue() != null) {
-                return Optional.ofNullable(unit.get().getValue());
+        var offsetInfo = searchOffsetByKey(objectKey);
+        if (offsetInfo.isPresent()) {
+            try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
+                offset = offsetInfo.get().getOffset();
+                long skip = inputStream.skip(offset);
+                if (skipIsNotCorrect(offset, skip)) throw new IOException("Unable to indent the file");
+                var unit = inputStream.readDbUnit();
+                if (unit.isPresent() && unit.get().getValue() != null) {
+                    return Optional.ofNullable(unit.get().getValue());
+                }
             }
-            inputStream.close();
         }
         return Optional.empty();
     }
 
-    private boolean isSkipWasCorrect(long offset, long skip) {
-        return skip == offset;
+    private boolean skipIsNotCorrect(long offset, long skip) {
+        return skip != offset;
     }
 
     private Optional<SegmentOffsetInfo> searchOffsetByKey(String objectKey) {
         return segmentIndex.searchForKey(objectKey);
     }
 
-    private DataInputStream createInputStreamForDataBase() throws FileNotFoundException {
-        FileInputStream fileInputStream = new FileInputStream(segmentPath.toString());
+    private DataInputStream createInputStreamForDatabase() throws FileNotFoundException {
+        var fileInputStream = new FileInputStream(segmentPath.toString());
 
         return new DataInputStream(fileInputStream);
     }
