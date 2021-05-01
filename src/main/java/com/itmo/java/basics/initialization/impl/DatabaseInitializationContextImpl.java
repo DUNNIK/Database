@@ -41,7 +41,9 @@ public class DatabaseInitializationContextImpl implements DatabaseInitialization
 
     @Override
     public void addTable(Table table) {
-        if (isTableInDb(table)) throw new RuntimeException("table is already in the database");
+        if (isTableInDb(table)){
+            throw new RuntimeException("Table with name" + table.getName() + "is already in the database");
+        }
         tables.put(table.getName(), table);
     }
     private boolean isTableInDb(Table table){

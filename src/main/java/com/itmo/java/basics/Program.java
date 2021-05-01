@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
+
 public class Program {
     public static void main(String[] args) {
         Path executionEnvironmentPath = Paths.get("C:/Users/NIKITOS/ExecutionEnvironment");
