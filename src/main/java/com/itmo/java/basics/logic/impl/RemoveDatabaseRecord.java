@@ -6,7 +6,7 @@ import com.itmo.java.basics.logic.WritableDatabaseRecord;
 public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     private final byte[] key;
-    int keySize;
+    final int keySize;
 
     public RemoveDatabaseRecord(byte[] objectKey) {
         this.key = objectKey.clone();

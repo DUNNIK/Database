@@ -7,8 +7,8 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     private final byte[] key;
     private final byte[] value;
-    int keySize;
-    int valueSize;
+    final int keySize;
+    final int valueSize;
 
     public SetDatabaseRecord(byte[] objectKey, byte[] objectValue) {
         this.key = objectKey.clone();

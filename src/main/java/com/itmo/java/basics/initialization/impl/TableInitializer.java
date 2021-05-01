@@ -83,8 +83,9 @@ public class TableInitializer implements Initializer {
         var matcher = pattern.matcher(fileName);
         return !matcher.find();
     }
-    private String createRegexForSegmentName(InitializationContext context){
-        return "^"+context.currentTableContext().getTableName()+"_";
+
+    private String createRegexForSegmentName ( InitializationContext context ) {
+        return "^" + context.currentTableContext ( ).getTableName ( ) + "_";
     }
     private void addTableToDatabaseContext
             (DatabaseInitializationContext databaseInitializationContext,

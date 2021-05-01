@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class Program {
     public static void main(String[] args) {
         Path executionEnvironmentPath = Paths.get("C:/Users/NIKITOS/ExecutionEnvironment");
@@ -68,7 +69,7 @@ public class Program {
         }
     }
 
-    static String veryLongText = "СТО ТЫСЯЧ СЛОВ Светлана БИТКИНА\n" +
+    static final String veryLongText = "СТО ТЫСЯЧ СЛОВ Светлана БИТКИНА\n" +
             "\n" +
             "И вот книга закончена. У нее даже есть название — «Сто тысяч слов». Помог компьютер, считающий знаки, слова и строки. Оказалось, что в моем тексте всего 100 тысяч слов. Подумалось, как много можно рассказать с помощью такого, в общем-то небольшого, количества. Интересно, а сколько слов каждый из нас произносит в течение своей жизни? Наверное, многие и многие миллионы…\n" +
             "\n" +
