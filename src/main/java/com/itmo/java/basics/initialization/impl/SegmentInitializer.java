@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Optional;
 
-
 public class SegmentInitializer implements Initializer {
 
     private SegmentInitializationContext segmentInitializationContext;
