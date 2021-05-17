@@ -55,15 +55,30 @@ public class RespBulkString implements RespObject {
     private ByteArrayOutputStream createOutputStreamBytes() throws IOException {
         var bytes = new ByteArrayOutputStream();
         try {
-            bytes.write(CODE);
-            bytes.write(data.length);
-            bytes.write(CRLF);
-            bytes.write(data);
-            bytes.write(CRLF);
+            if (isDataNull()) {
+                createNullResp(bytes);
+            } else {
+                createNotNullResp(bytes);
+            }
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespBulkString with data: " + convertToString(), e);
         }
         return bytes;
+    }
+    private boolean isDataNull(){
+        return data == null;
+    }
+    private void createNotNullResp(ByteArrayOutputStream bytes) throws IOException {
+        bytes.write(CODE);
+        bytes.write(data.length);
+        bytes.write(CRLF);
+        bytes.write(data);
+        bytes.write(CRLF);
+    }
+    private void createNullResp(ByteArrayOutputStream bytes) throws IOException {
+        bytes.write(CODE);
+        bytes.write(NULL_STRING_SIZE);
+        bytes.write(CRLF);
     }
     private String convertToString(){
         return Arrays.toString(data);
