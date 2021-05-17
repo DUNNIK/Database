@@ -1,5 +1,7 @@
 package com.itmo.java.protocol.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -13,8 +15,10 @@ public class RespCommandId implements RespObject {
      */
     public static final byte CODE = '!';
 
+    private final int commandId;
+
     public RespCommandId(int commandId) {
-        //TODO implement
+        this.commandId = commandId;
     }
 
     /**
@@ -29,12 +33,35 @@ public class RespCommandId implements RespObject {
 
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        return convertToString();
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        var respOutput = createOutputStreamBytes();
+        writeBytesInOutputStream(respOutput, os);
+    }
+
+    private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
+        try {
+            respOutput.writeTo(os);
+        } catch (IOException e){
+            throw new IOException("An error occurred while writing RespCommandId with commandId: " + commandId, e);
+        }
+    }
+
+    private ByteArrayOutputStream createOutputStreamBytes() throws IOException {
+        var bytes = new ByteArrayOutputStream();
+        try {
+            bytes.write(CODE);
+            bytes.write(commandId);
+            bytes.write(CRLF);
+        } catch (IOException e) {
+            throw new IOException("Error creating a byte record RESP RespCommandId with commandId:" + commandId, e);
+        }
+        return bytes;
+    }
+    private String convertToString(){
+        return String.valueOf(commandId);
     }
 }

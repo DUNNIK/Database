@@ -11,13 +11,14 @@ import com.itmo.java.protocol.model.RespObject;
  */
 public class DirectReferenceKvsConnection implements KvsConnection {
 
+    private DatabaseServer databaseServer;
     public DirectReferenceKvsConnection(DatabaseServer databaseServer) {
-        //TODO implement
+        this.databaseServer = databaseServer;
     }
 
     @Override
     public RespObject send(int commandId, RespArray command) throws ConnectionException {
-        //TODO implement
+        databaseServer.
         return null;
     }
 

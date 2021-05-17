@@ -4,17 +4,22 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.exceptions.DatabaseException;
+import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
+import com.itmo.java.basics.initialization.impl.InitializationContextImpl;
 import com.itmo.java.protocol.model.RespArray;
+import lombok.Builder;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Builder
 public class DatabaseServer {
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutionEnvironment environment;
+    private final DatabaseServerInitializer initializer;
     /**
      * Конструктор
      *
@@ -23,8 +28,14 @@ public class DatabaseServer {
      * @throws DatabaseException если произошла ошибка инициализации
      */
     public static DatabaseServer initialize(ExecutionEnvironment env, DatabaseServerInitializer initializer) throws DatabaseException {
-        //TODO implement
-        return null;
+        var initializationContext = InitializationContextImpl.builder()
+                .executionEnvironment(env)
+                .build();
+        initializer.perform(initializationContext);
+        return DatabaseServer.builder()
+                .environment(env)
+                .initializer(initializer)
+                .build();
     }
 
     public CompletableFuture<DatabaseCommandResult> executeNextCommand(RespArray message) {
