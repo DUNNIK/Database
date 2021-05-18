@@ -97,6 +97,6 @@ public class RespArray implements RespObject {
             stringBuilder.append(currentRespObject.asString());
             stringBuilder.append(" ");
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 }
