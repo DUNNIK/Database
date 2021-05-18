@@ -52,7 +52,8 @@ public class RespArray implements RespObject {
 
     private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
         try {
-            respOutput.writeTo(os);
+            os.write(respOutput.toByteArray());
+            //respOutput.writeTo(os);
         } catch (IOException e){
             throw new IOException("An error occurred while writing RespArray with that objects: " + convertToString(), e);
         }
