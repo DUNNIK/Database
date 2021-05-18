@@ -62,6 +62,6 @@ public class RespCommandId implements RespObject {
         return bytes;
     }
     private String convertToString(){
-        return "" + commandId;
+        return String.valueOf(commandId);
     }
 }
