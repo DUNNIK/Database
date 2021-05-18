@@ -13,10 +13,14 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
     private final byte[] payload;
 
     public SuccessDatabaseCommandResult(byte[] payload) {
-        this.payload = payload;
+        this.payload = checkPayload(payload);
     }
-
-
+    private byte[] checkPayload(byte[] payload){
+        if (payload == null){
+            return null;
+        }
+        return payload.clone();
+    }
     @Override
     public String getPayLoad() {
         return convertPayloadToString();

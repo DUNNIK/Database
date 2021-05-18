@@ -54,7 +54,7 @@ public class SetKeyCommand implements DatabaseCommand {
             var database = databaseOptional.get();
             var readOptionalValue = database.read(tableName, key);
             if (readOptionalValue.isEmpty()){
-                return DatabaseCommandResult.error("There is no value to delete");//ToDo: Null, it would be not error
+                return DatabaseCommandResult.error("There is no value to delete");
             }
             var previousValue = readOptionalValue.get();
 
