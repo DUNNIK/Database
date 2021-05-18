@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Id
@@ -54,7 +55,7 @@ public class RespCommandId implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
-            bytes.write(commandId);
+            bytes.write(Integer.toString(commandId).getBytes(StandardCharsets.UTF_8));
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespCommandId with commandId:" + commandId, e);

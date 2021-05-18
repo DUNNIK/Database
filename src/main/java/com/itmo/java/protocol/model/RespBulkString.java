@@ -71,14 +71,14 @@ public class RespBulkString implements RespObject {
     }
     private void createNotNullResp(ByteArrayOutputStream bytes) throws IOException {
         bytes.write(CODE);
-        bytes.write(data.length);
+        bytes.write(Integer.toString(data.length).getBytes(StandardCharsets.UTF_8));
         bytes.write(CRLF);
         bytes.write(data);
         bytes.write(CRLF);
     }
     private void createNullResp(ByteArrayOutputStream bytes) throws IOException {
         bytes.write(CODE);
-        bytes.write(NULL_STRING_SIZE);
+        bytes.write(Integer.toString(NULL_STRING_SIZE).getBytes(StandardCharsets.UTF_8));
         bytes.write(CRLF);
     }
     private String convertToString(){
