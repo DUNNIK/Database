@@ -7,7 +7,6 @@ import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.protocol.model.RespObject;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**

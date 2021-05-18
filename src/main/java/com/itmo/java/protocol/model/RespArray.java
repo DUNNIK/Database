@@ -3,6 +3,7 @@ package com.itmo.java.protocol.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class RespArray implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
-            bytes.write(respObjects.size());
+            bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespArray with that objects: " + convertToString(), e);
