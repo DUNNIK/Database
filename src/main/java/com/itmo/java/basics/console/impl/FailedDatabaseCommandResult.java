@@ -21,8 +21,7 @@ public class FailedDatabaseCommandResult implements DatabaseCommandResult {
      */
     @Override
     public String getPayLoad() {
-        //TODO implement
-        return null;
+        return payload;
     }
 
     @Override
