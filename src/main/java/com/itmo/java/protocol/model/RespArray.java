@@ -69,6 +69,7 @@ public class RespArray implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
+            bytes.write(respObjects.size());
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespArray with that objects: " + convertToString(), e);

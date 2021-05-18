@@ -3,6 +3,7 @@ package com.itmo.java.protocol.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -61,6 +62,6 @@ public class RespError implements RespObject {
         return bytes;
     }
     private String convertToString(){
-        return Arrays.toString(message);
+        return new String(message, StandardCharsets.UTF_8);
     }
 }

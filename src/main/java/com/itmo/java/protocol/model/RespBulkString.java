@@ -3,6 +3,7 @@ package com.itmo.java.protocol.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -81,7 +82,7 @@ public class RespBulkString implements RespObject {
         bytes.write(CRLF);
     }
     private String convertToString(){
-        return Arrays.toString(data);
+        return new String(data, StandardCharsets.UTF_8);
     }
 
 }
