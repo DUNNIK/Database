@@ -1,5 +1,6 @@
 package com.itmo.java.protocol.model;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,7 +45,8 @@ public class RespCommandId implements RespObject {
 
     private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
         try {
-            os.write(respOutput.toByteArray());
+            var bos = new BufferedOutputStream(os);
+            bos.write(respOutput.toByteArray());
         } catch (IOException e){
             throw new IOException("An error occurred while writing RespCommandId with commandId: " + commandId, e);
         }
