@@ -81,9 +81,8 @@ public class RespArray implements RespObject {
     private int whatIsTheArraySize() {
         int count = 0;
         for (var respObject:respObjects) {
-            if (respObject instanceof RespBulkString){
-                count += 1;
-            }
+            if (respObject instanceof RespCommandId) continue;
+            count += 1;
         }
         return count;
     }
