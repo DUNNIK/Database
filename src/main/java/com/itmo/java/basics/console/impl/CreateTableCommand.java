@@ -4,15 +4,20 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
  * Команда для создания базы таблицы
  */
 public class CreateTableCommand implements DatabaseCommand {
-
+    private final ExecutionEnvironment environment;
+    private final List<RespObject> commandArgs;
+    private String dbName;
+    private String tableName;
     /**
      * Создает команду
      * <br/>
@@ -24,7 +29,11 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        //TODO implement
+        if (isNotValidArgumentsCount(commandArgs)){
+            throw new IllegalArgumentException("When creating the table, an incorrect number of arguments was passed");
+        }
+        environment = env;
+        this.commandArgs = commandArgs;
     }
 
     /**
@@ -34,7 +43,30 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        try{
+            parseCommandArgs();
+            var databaseOptional = environment.getDatabase(dbName);
+            if (databaseOptional.isEmpty()){
+                return DatabaseCommandResult.error("This database is not present in the environment");
+            }
+            var database = databaseOptional.get();
+            database.createTableIfNotExists(tableName);
+        } catch (DatabaseException e) {
+            return DatabaseCommandResult.error(e);
+        }
+        var message = "Table" + tableName + "in Database" + dbName + "was created";
+        return DatabaseCommandResult.success(message.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void parseCommandArgs() throws DatabaseException {
+        try {
+            dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+            tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
+        } catch (Exception e) {
+            throw new DatabaseException("An error occurred while parsing the command", e);
+        }
+    }
+    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs){
+        return commandArgs.size() != 4;
     }
 }

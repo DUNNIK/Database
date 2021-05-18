@@ -1,8 +1,6 @@
 package com.itmo.java.basics;
 
-import com.itmo.java.basics.console.DatabaseCommand;
-import com.itmo.java.basics.console.DatabaseCommandResult;
-import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.console.*;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
@@ -40,13 +38,14 @@ public class DatabaseServer {
 
     public CompletableFuture<DatabaseCommandResult> executeNextCommand(RespArray message) {
         return CompletableFuture.supplyAsync(() -> {
-            // code here...
-            return null;
+            var commandName = message.getObjects().get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
+            var databaseCommands = DatabaseCommands.valueOf(commandName.asString());
+            var command = databaseCommands.getCommand(environment, message.getObjects());
+            return command.execute();
         }, executorService);
     }
 
     public CompletableFuture<DatabaseCommandResult> executeNextCommand(DatabaseCommand command) {
-        //TODO implement
-        return null;
+        return CompletableFuture.supplyAsync(command::execute);
     }
 }

@@ -18,7 +18,7 @@ public class DirectReferenceKvsConnection implements KvsConnection {
 
     @Override
     public RespObject send(int commandId, RespArray command) throws ConnectionException {
-        databaseServer.
+
         return null;
     }
 
