@@ -5,7 +5,6 @@ import com.itmo.java.protocol.model.RespBulkString;
 import com.itmo.java.protocol.model.RespObject;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 /**
  * Результат успешной команды
@@ -14,7 +13,7 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
     private final byte[] payload;
 
     public SuccessDatabaseCommandResult(byte[] payload) {
-        this.payload = payload;
+        this.payload = payload.clone();
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.itmo.java.basics;
 
 import com.itmo.java.basics.console.*;
 import com.itmo.java.basics.exceptions.DatabaseException;
-import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
 import com.itmo.java.basics.initialization.impl.InitializationContextImpl;
 import com.itmo.java.protocol.model.RespArray;

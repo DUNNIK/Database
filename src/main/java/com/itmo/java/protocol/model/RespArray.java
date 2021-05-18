@@ -70,12 +70,22 @@ public class RespArray implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
-            bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
+            bytes.write(Integer.toString(whatIsTheArraySize()).getBytes(StandardCharsets.UTF_8));
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespArray with that objects: " + convertToString(), e);
         }
         return bytes;
+    }
+
+    private int whatIsTheArraySize() {
+        int count = 0;
+        for (var respObject:respObjects) {
+            if (respObject instanceof RespBulkString){
+                count += 1;
+            }
+        }
+        return count;
     }
 
     public List<RespObject> getObjects() {

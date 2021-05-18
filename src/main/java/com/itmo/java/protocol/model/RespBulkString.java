@@ -17,9 +17,16 @@ public class RespBulkString implements RespObject {
     public static final int NULL_STRING_SIZE = -1;
     private final byte[] data;
     public RespBulkString(byte[] data) {
-        this.data = data;
+
+        this.data = correctData(data);
     }
 
+    private byte[] correctData(byte[] data){
+        if (data == null){
+            return null;
+        }
+        return data.clone();
+    }
     /**
      * Ошибка ли это? Ответ - нет
      *

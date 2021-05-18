@@ -18,7 +18,7 @@ public class RespError implements RespObject {
     private final byte[] message;
 
     public RespError(byte[] message) {
-        this.message = message;
+        this.message = message.clone();
     }
 
     /**
@@ -38,6 +38,7 @@ public class RespError implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
+
         var respOutput = createOutputStreamBytes();
         writeBytesInOutputStream(respOutput, os);
     }

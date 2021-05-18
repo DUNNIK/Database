@@ -9,7 +9,7 @@ public interface KvsCommand {
      * Счетчик для команды. Каждая созданная команда использует это поле для создания id, инкрементирует значение
      * Первая команда создается с id 0
      */
-    AtomicInteger idGen = new AtomicInteger(0);
+    AtomicInteger idGen = new AtomicInteger();
 
     /**
      * Сериализует объект в RESP
