@@ -54,7 +54,7 @@ public class RespCommandId implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
-            bytes.write(Integer.toString(commandId).getBytes(StandardCharsets.UTF_8));
+            bytes.write(commandId);
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespCommandId with commandId:" + commandId, e);

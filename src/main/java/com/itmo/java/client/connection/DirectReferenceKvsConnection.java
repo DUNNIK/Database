@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class DirectReferenceKvsConnection implements KvsConnection {
 
-    private DatabaseServer databaseServer;
+    private final DatabaseServer databaseServer;
     public DirectReferenceKvsConnection(DatabaseServer databaseServer) {
         this.databaseServer = databaseServer;
     }
