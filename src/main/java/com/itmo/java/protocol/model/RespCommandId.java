@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -39,29 +40,14 @@ public class RespCommandId implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        var respOutput = createOutputStreamBytes();
-        writeBytesInOutputStream(respOutput, os);
+        os.write(CODE);
+        writeCommandId(os);
+        os.write(CRLF);
     }
-
-    private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
-        try {
-            var bos = new BufferedOutputStream(os);
-            bos.write(respOutput.toByteArray());
-        } catch (IOException e){
-            throw new IOException("An error occurred while writing RespCommandId with commandId: " + commandId, e);
-        }
-    }
-
-    private ByteArrayOutputStream createOutputStreamBytes() throws IOException {
-        var bytes = new ByteArrayOutputStream();
-        try {
-            bytes.write(CODE);
-            bytes.write(Integer.toString(commandId).getBytes(StandardCharsets.UTF_8));
-            bytes.write(CRLF);
-        } catch (IOException e) {
-            throw new IOException("Error creating a byte record RESP RespCommandId with commandId:" + commandId, e);
-        }
-        return bytes;
+    private void writeCommandId(OutputStream os) throws IOException {
+        var byteInt = ByteBuffer.allocate(4);
+        byteInt.putInt(commandId);
+        os.write(byteInt.array());
     }
     private String convertToString(){
         return String.valueOf(commandId);
