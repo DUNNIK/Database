@@ -71,7 +71,7 @@ public class TableInitializer implements Initializer {
             if (isNotSegmentNameCorrect(segmentFile.getName(), context)) {
                 List<File> list = new ArrayList<>(Arrays.asList(files));
                 list.remove(segmentFile);
-                files = list.toArray(new File[list.size()]);
+                files = list.toArray(new File[0]);
             }
         }
         return files;
