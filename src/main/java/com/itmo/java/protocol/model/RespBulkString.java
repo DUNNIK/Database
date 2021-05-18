@@ -16,11 +16,17 @@ public class RespBulkString implements RespObject {
 
     public static final int NULL_STRING_SIZE = -1;
     private final byte[] data;
-    public RespBulkString(byte[] data) {
 
-        this.data = data;
+    public RespBulkString(byte[] data) {
+        this.data = checkData(data);
     }
 
+    private byte[] checkData(byte[] data){
+        if (data == null){
+            return new byte[0];
+        }
+        return data.clone();
+    }
     /**
      * Ошибка ли это? Ответ - нет
      *
@@ -67,7 +73,7 @@ public class RespBulkString implements RespObject {
         return bytes;
     }
     private boolean isDataNull(){
-        return data == null;
+        return data == null || data.length == 0;
     }
     private void createNotNullResp(ByteArrayOutputStream bytes) throws IOException {
         bytes.write(CODE);

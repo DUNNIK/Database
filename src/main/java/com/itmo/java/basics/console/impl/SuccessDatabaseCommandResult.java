@@ -17,7 +17,7 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
     }
     private byte[] checkPayload(byte[] payload){
         if (payload == null){
-            return null;
+            return new byte[0];
         }
         return payload.clone();
     }
@@ -27,7 +27,7 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
     }
 
     private String convertPayloadToString(){
-        if (payload == null){
+        if (payload.length == 0){
             return null;
         }
         return new String(payload, StandardCharsets.UTF_8);

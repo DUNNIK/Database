@@ -18,9 +18,14 @@ public class RespError implements RespObject {
     private final byte[] message;
 
     public RespError(byte[] message) {
-        this.message = message;
+        this.message = checkMessage(message);
     }
-
+    private byte[] checkMessage(byte[] message){
+        if (message == null){
+            return new byte[0];
+        }
+        return message.clone();
+    }
     /**
      * Ошибка ли это? Ответ - да
      *
