@@ -45,7 +45,6 @@ public class RespCommandId implements RespObject {
     private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
         try {
             os.write(respOutput.toByteArray());
-            //respOutput.writeTo(os);
         } catch (IOException e){
             throw new IOException("An error occurred while writing RespCommandId with commandId: " + commandId, e);
         }
