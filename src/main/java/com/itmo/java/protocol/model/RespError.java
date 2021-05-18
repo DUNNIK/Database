@@ -18,7 +18,7 @@ public class RespError implements RespObject {
     private final byte[] message;
 
     public RespError(byte[] message) {
-        this.message = message.clone();
+        this.message = message;
     }
 
     /**

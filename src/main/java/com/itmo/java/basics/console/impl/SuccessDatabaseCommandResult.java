@@ -13,8 +13,9 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
     private final byte[] payload;
 
     public SuccessDatabaseCommandResult(byte[] payload) {
-        this.payload = payload.clone();
+        this.payload = payload;
     }
+
 
     @Override
     public String getPayLoad() {

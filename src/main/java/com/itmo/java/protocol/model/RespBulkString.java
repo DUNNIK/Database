@@ -18,15 +18,9 @@ public class RespBulkString implements RespObject {
     private final byte[] data;
     public RespBulkString(byte[] data) {
 
-        this.data = correctData(data);
+        this.data = data;
     }
 
-    private byte[] correctData(byte[] data){
-        if (data == null){
-            return null;
-        }
-        return data.clone();
-    }
     /**
      * Ошибка ли это? Ответ - нет
      *
