@@ -4,15 +4,14 @@ import com.itmo.java.client.command.*;
 import com.itmo.java.client.connection.KvsConnection;
 import com.itmo.java.client.exception.ConnectionException;
 import com.itmo.java.client.exception.DatabaseExecutionException;
-import com.itmo.java.protocol.model.RespArray;
 import com.itmo.java.protocol.model.RespObject;
 
 import java.util.function.Supplier;
 
 public class SimpleKvsClient implements KvsClient {
 
-    private String databaseName;
-    private Supplier<KvsConnection> connectionSupplier;
+    private final String databaseName;
+    private final Supplier<KvsConnection> connectionSupplier;
     /**
      * Конструктор
      *
@@ -32,12 +31,18 @@ public class SimpleKvsClient implements KvsClient {
             var commandId = databaseKvsCommand.getCommandId();
             var respCommand = databaseKvsCommand.serialize();
             executionResult = connectionSupplier.get().send(commandId, respCommand);
+            ifErrorThrowException(executionResult);
         } catch (ConnectionException e) {
             throw new DatabaseExecutionException("Error when calling the createDatabase command", e);
         }
         return executionResult.asString();
     }
 
+    private void ifErrorThrowException(RespObject executionResult) throws DatabaseExecutionException {
+        if (executionResult.isError()){
+            throw new DatabaseExecutionException(executionResult.asString());
+        }
+    }
     @Override
     public String createTable(String tableName) throws DatabaseExecutionException {
         var tableKvsCommand = new CreateTableKvsCommand(databaseName, tableName);
@@ -46,8 +51,9 @@ public class SimpleKvsClient implements KvsClient {
             var commandId = tableKvsCommand.getCommandId();
             var respCommand = tableKvsCommand.serialize();
             executionResult = connectionSupplier.get().send(commandId, respCommand);
+            ifErrorThrowException(executionResult);
         } catch (ConnectionException e) {
-            throw new DatabaseExecutionException("Error when calling the createDatabase command", e);
+            throw new DatabaseExecutionException("Error when calling the createTable command", e);
         }
         return executionResult.asString();
     }
@@ -60,8 +66,9 @@ public class SimpleKvsClient implements KvsClient {
             var commandId = getKvsCommand.getCommandId();
             var respCommand = getKvsCommand.serialize();
             executionResult = connectionSupplier.get().send(commandId, respCommand);
+            ifErrorThrowException(executionResult);
         } catch (ConnectionException e) {
-            throw new DatabaseExecutionException("Error when calling the createDatabase command", e);
+            throw new DatabaseExecutionException("Error when calling the get command", e);
         }
         return executionResult.asString();
     }
@@ -74,8 +81,9 @@ public class SimpleKvsClient implements KvsClient {
             var commandId = setKvsCommand.getCommandId();
             var respCommand = setKvsCommand.serialize();
             executionResult = connectionSupplier.get().send(commandId, respCommand);
+            ifErrorThrowException(executionResult);
         } catch (ConnectionException e) {
-            throw new DatabaseExecutionException("Error when calling the createDatabase command", e);
+            throw new DatabaseExecutionException("Error when calling the set command", e);
         }
         return executionResult.asString();
     }
@@ -88,8 +96,9 @@ public class SimpleKvsClient implements KvsClient {
             var commandId = deleteKvsCommand.getCommandId();
             var respCommand = deleteKvsCommand.serialize();
             executionResult = connectionSupplier.get().send(commandId, respCommand);
+            ifErrorThrowException(executionResult);
         } catch (ConnectionException e) {
-            throw new DatabaseExecutionException("Error when calling the createDatabase command", e);
+            throw new DatabaseExecutionException("Error when calling the delete command", e);
         }
         return executionResult.asString();
     }
