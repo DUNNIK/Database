@@ -92,7 +92,7 @@ public class RespArray implements RespObject {
     }
     private List<String> parseStringsFromRespObjects(RespObject... objects){
         var result = new ArrayList<String>();
-        for (var respObject:respObjects) {
+        for (var respObject:objects) {
             result.add(respObject.asString());
         }
         return result;
