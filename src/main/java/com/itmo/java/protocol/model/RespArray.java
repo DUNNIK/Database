@@ -53,10 +53,11 @@ public class RespArray implements RespObject {
     private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
         try {
             os.write(respOutput.toByteArray());
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new IOException("An error occurred while writing RespArray with that objects: " + convertToString(), e);
         }
     }
+
     private void writeArrayObjectsToOutputStream(OutputStream os) throws IOException {
         for (RespObject currentRespObject : respObjects) {
             try {
@@ -66,6 +67,7 @@ public class RespArray implements RespObject {
             }
         }
     }
+
     private ByteArrayOutputStream createOutputStreamBytes() throws IOException {
         var bytes = new ByteArrayOutputStream();
         try {
@@ -82,7 +84,7 @@ public class RespArray implements RespObject {
         return respObjects;
     }
 
-    private String convertToString(){
+    private String convertToString() {
         var stringBuilder = new StringBuilder();
         for (RespObject currentRespObject : respObjects) {
             stringBuilder.append(currentRespObject.asString());

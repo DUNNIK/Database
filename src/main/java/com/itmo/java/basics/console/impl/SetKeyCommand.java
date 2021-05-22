@@ -20,6 +20,7 @@ public class SetKeyCommand implements DatabaseCommand {
     private String tableName;
     private String key;
     private String value;
+
     /**
      * Создает команду.
      * <br/>
@@ -31,7 +32,7 @@ public class SetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public SetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (isNotValidArgumentsCount(commandArgs)){
+        if (isNotValidArgumentsCount(commandArgs)) {
             throw new IllegalArgumentException("The wrong number of parameters was passed to set the value");
         }
         environment = env;
@@ -45,15 +46,15 @@ public class SetKeyCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        try{
+        try {
             parseCommandArgs();
             var databaseOptional = environment.getDatabase(dbName);
-            if (databaseOptional.isEmpty()){
+            if (databaseOptional.isEmpty()) {
                 return DatabaseCommandResult.error("This database is not present in the environment");
             }
             var database = databaseOptional.get();
             var readOptionalValue = database.read(tableName, key);
-            if (readOptionalValue.isEmpty()){
+            if (readOptionalValue.isEmpty()) {
                 return DatabaseCommandResult.error("There is no value to delete");
             }
             var previousValue = readOptionalValue.get();
@@ -64,6 +65,7 @@ public class SetKeyCommand implements DatabaseCommand {
             return DatabaseCommandResult.error(e);
         }
     }
+
     private void parseCommandArgs() throws DatabaseException {
         try {
             dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
@@ -74,7 +76,8 @@ public class SetKeyCommand implements DatabaseCommand {
             throw new DatabaseException("An error occurred while parsing the command", e);
         }
     }
-    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs){
+
+    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
         return commandArgs.size() != 6;
     }
 }

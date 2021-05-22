@@ -20,12 +20,14 @@ public class RespError implements RespObject {
     public RespError(byte[] message) {
         this.message = checkMessage(message);
     }
-    private byte[] checkMessage(byte[] message){
-        if (message == null){
+
+    private byte[] checkMessage(byte[] message) {
+        if (message == null) {
             return new byte[0];
         }
         return message.clone();
     }
+
     /**
      * Ошибка ли это? Ответ - да
      *
@@ -47,10 +49,11 @@ public class RespError implements RespObject {
         var respOutput = createOutputStreamBytes();
         writeBytesInOutputStream(respOutput, os);
     }
+
     private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
         try {
             os.write(respOutput.toByteArray());
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new IOException("An error occurred while writing RespError with message: " + convertToString(), e);
         }
     }
@@ -66,7 +69,8 @@ public class RespError implements RespObject {
         }
         return bytes;
     }
-    private String convertToString(){
+
+    private String convertToString() {
         return new String(message, StandardCharsets.UTF_8);
     }
 }

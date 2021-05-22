@@ -14,6 +14,7 @@ public class CreateDatabaseKvsCommand implements KvsCommand {
 
     private final int id;
     private final String databaseName;
+
     /**
      * Создает объект
      *

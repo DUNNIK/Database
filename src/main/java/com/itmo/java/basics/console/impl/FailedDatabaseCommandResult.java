@@ -36,7 +36,8 @@ public class FailedDatabaseCommandResult implements DatabaseCommandResult {
     public RespObject serialize() {
         return new RespError(convertPayloadToByte());
     }
-    private byte[] convertPayloadToByte(){
+
+    private byte[] convertPayloadToByte() {
         return payload.getBytes(StandardCharsets.UTF_8);
     }
 }

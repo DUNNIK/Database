@@ -18,6 +18,7 @@ public class DeleteKeyCommand implements DatabaseCommand {
     private String dbName;
     private String tableName;
     private String key;
+
     /**
      * Создает команду.
      * <br/>
@@ -29,7 +30,7 @@ public class DeleteKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public DeleteKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (isNotValidArgumentsCount(commandArgs)){
+        if (isNotValidArgumentsCount(commandArgs)) {
             throw new IllegalArgumentException("The wrong number of parameters was passed to delete the value");
         }
         environment = env;
@@ -43,15 +44,15 @@ public class DeleteKeyCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        try{
+        try {
             parseCommandArgs();
             var databaseOptional = environment.getDatabase(dbName);
-            if (databaseOptional.isEmpty()){
+            if (databaseOptional.isEmpty()) {
                 return DatabaseCommandResult.error("This database is not present in the environment");
             }
             var database = databaseOptional.get();
             var deleteOptionalValue = database.read(tableName, key);
-            if (deleteOptionalValue.isEmpty()){
+            if (deleteOptionalValue.isEmpty()) {
                 return DatabaseCommandResult.error("There is no value to delete");
             }
             var deleteValue = deleteOptionalValue.get();
@@ -61,6 +62,7 @@ public class DeleteKeyCommand implements DatabaseCommand {
             return DatabaseCommandResult.error(e);
         }
     }
+
     private void parseCommandArgs() throws DatabaseException {
         try {
             dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
@@ -71,7 +73,7 @@ public class DeleteKeyCommand implements DatabaseCommand {
         }
     }
 
-    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs){
+    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
         return commandArgs.size() != 5;
     }
 }

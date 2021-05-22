@@ -41,12 +41,14 @@ public class RespCommandId implements RespObject {
         writeCommandId(os);
         os.write(CRLF);
     }
+
     private void writeCommandId(OutputStream os) throws IOException {
         var byteInt = ByteBuffer.allocate(4);
         byteInt.putInt(commandId);
         os.write(byteInt.array());
     }
-    private String convertToString(){
+
+    private String convertToString() {
         return String.valueOf(commandId);
     }
 }

@@ -18,6 +18,7 @@ public class CreateTableCommand implements DatabaseCommand {
     private final List<RespObject> commandArgs;
     private String dbName;
     private String tableName;
+
     /**
      * Создает команду
      * <br/>
@@ -29,7 +30,7 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (isNotValidArgumentsCount(commandArgs)){
+        if (isNotValidArgumentsCount(commandArgs)) {
             throw new IllegalArgumentException("When creating the table, an incorrect number of arguments was passed");
         }
         environment = env;
@@ -43,10 +44,10 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        try{
+        try {
             parseCommandArgs();
             var databaseOptional = environment.getDatabase(dbName);
-            if (databaseOptional.isEmpty()){
+            if (databaseOptional.isEmpty()) {
                 return DatabaseCommandResult.error("This database is not present in the environment");
             }
             var database = databaseOptional.get();
@@ -66,7 +67,8 @@ public class CreateTableCommand implements DatabaseCommand {
             throw new DatabaseException("An error occurred while parsing the command", e);
         }
     }
-    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs){
+
+    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
         return commandArgs.size() != 4;
     }
 }

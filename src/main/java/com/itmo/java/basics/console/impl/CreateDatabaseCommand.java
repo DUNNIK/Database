@@ -19,6 +19,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
     private final DatabaseFactory factory;
     private final List<RespObject> commandArgs;
     private String dbName;
+
     /**
      * Создает команду.
      * <br/>
@@ -31,7 +32,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
-        if (isNotValidArgumentsCount(commandArgs)){
+        if (isNotValidArgumentsCount(commandArgs)) {
             throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed");
         }
         environment = env;
@@ -46,7 +47,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        try{
+        try {
             parseCommandArgs();
             var database = factory.createNonExistent(dbName, environment.getWorkingPath());
             environment.addDatabase(database);
@@ -58,17 +59,21 @@ public class CreateDatabaseCommand implements DatabaseCommand {
     }
 
     private void parseCommandArgs() throws DatabaseException {
-        if (isDataNotValid()) throw new DatabaseException("The DatabaseCommand has invalid arguments");
+        if (isDataNotValid()) {
+            throw new DatabaseException("The DatabaseCommand has invalid arguments");
+        }
         try {
             dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
         } catch (Exception e) {
             throw new DatabaseException("An error occurred while parsing the command", e);
         }
     }
-    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs){
+
+    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
         return commandArgs.size() != 3;
     }
-    private boolean isDataNotValid(){
+
+    private boolean isDataNotValid() {
         return environment == null || factory == null;
     }
 }

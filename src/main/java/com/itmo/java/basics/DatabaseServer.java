@@ -17,6 +17,7 @@ public class DatabaseServer {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final ExecutionEnvironment environment;
     private final DatabaseServerInitializer initializer;
+
     /**
      * Конструктор
      *

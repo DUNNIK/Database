@@ -12,6 +12,7 @@ public class SimpleKvsClient implements KvsClient {
 
     private final String databaseName;
     private final Supplier<KvsConnection> connectionSupplier;
+
     /**
      * Конструктор
      *
@@ -39,10 +40,11 @@ public class SimpleKvsClient implements KvsClient {
     }
 
     private void ifErrorThrowException(RespObject executionResult) throws DatabaseExecutionException {
-        if (executionResult.isError()){
+        if (executionResult.isError()) {
             throw new DatabaseExecutionException(executionResult.asString());
         }
     }
+
     @Override
     public String createTable(String tableName) throws DatabaseExecutionException {
         var tableKvsCommand = new CreateTableKvsCommand(databaseName, tableName);

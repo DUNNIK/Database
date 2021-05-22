@@ -15,23 +15,26 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
     public SuccessDatabaseCommandResult(byte[] payload) {
         this.payload = checkPayload(payload);
     }
-    private byte[] checkPayload(byte[] payload){
-        if (payload == null){
+
+    private byte[] checkPayload(byte[] payload) {
+        if (payload == null) {
             return new byte[0];
         }
         return payload.clone();
     }
+
     @Override
     public String getPayLoad() {
         return convertPayloadToString();
     }
 
-    private String convertPayloadToString(){
-        if (payload.length == 0){
+    private String convertPayloadToString() {
+        if (payload.length == 0) {
             return null;
         }
         return new String(payload, StandardCharsets.UTF_8);
     }
+
     @Override
     public boolean isSuccess() {
         return true;
