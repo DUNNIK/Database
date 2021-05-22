@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,9 +19,11 @@ public class RespArray implements RespObject {
     public static final byte CODE = '*';
 
     private final List<RespObject> respObjects;
+    private final List<String> respObjectStrings;
 
     public RespArray(RespObject... objects) {
         respObjects = Arrays.asList(objects);
+        respObjectStrings = parseStringsFromRespObjects(objects);
     }
 
     /**
@@ -85,11 +88,13 @@ public class RespArray implements RespObject {
     }
 
     private String convertToString() {
-        var stringBuilder = new StringBuilder();
-        for (RespObject currentRespObject : respObjects) {
-            stringBuilder.append(currentRespObject.asString());
-            stringBuilder.append(" ");
+        return String.join(" ", respObjectStrings);
+    }
+    private List<String> parseStringsFromRespObjects(RespObject... objects){
+        var result = new ArrayList<String>();
+        for (var respObject:respObjects) {
+            result.add(respObject.asString());
         }
-        return stringBuilder.toString().trim();
+        return result;
     }
 }
