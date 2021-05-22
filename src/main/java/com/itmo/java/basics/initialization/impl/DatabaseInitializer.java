@@ -28,7 +28,7 @@ public class DatabaseInitializer implements Initializer {
      *
      * @param context контекст с информацией об инициализируемой бд и об окружении
      * @throws DatabaseException если в контексте лежит неправильный путь к базе, невозможно прочитать содержимого папки,
-     *  или если возникла ошибка дочерних инициализаторов
+     *                           или если возникла ошибка дочерних инициализаторов
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
@@ -46,25 +46,25 @@ public class DatabaseInitializer implements Initializer {
             }
             var databaseContext = context.currentDbContext();
             addDatabaseToExecutionEnvironment(context.executionEnvironment(), databaseContext);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new DatabaseException("Error in DbInitializer.", e);
         }
     }
 
-    private void sortFileArray(File[] files){
+    private void sortFileArray(File[] files) {
         Arrays.sort(files, Comparator.comparing(File::getName));
     }
 
     private void addDatabaseToExecutionEnvironment
             (ExecutionEnvironment executionEnvironment,
-             DatabaseInitializationContext databaseInitializationContext){
+             DatabaseInitializationContext databaseInitializationContext) {
         executionEnvironment.addDatabase
                 (DatabaseImpl.initializeFromContext(databaseInitializationContext));
     }
 
     private InitializationContext createInitializationContextWithTableContext
             (InitializationContext context,
-             TableInitializationContext tableInitializationContext){
+             TableInitializationContext tableInitializationContext) {
 
         return InitializationContextImpl.builder()
                 .executionEnvironment(context.executionEnvironment())
@@ -72,14 +72,16 @@ public class DatabaseInitializer implements Initializer {
                 .currentTableContext(tableInitializationContext)
                 .build();
     }
-    private TableInitializationContext createTableContextFromDir(File directory, Path databasePath){
+
+    private TableInitializationContext createTableContextFromDir(File directory, Path databasePath) {
         return new TableInitializationContextImpl
                 (directory.getName(),
                         databasePath,
                         new TableIndex()
                 );
     }
-    private File[] findTableDirs(Path databasePath){
+
+    private File[] findTableDirs(Path databasePath) {
         return new File(databasePath.toString()).listFiles(File::isDirectory);
     }
 

@@ -29,7 +29,7 @@ public class TableInitializer implements Initializer {
      *
      * @param context контекст с информацией об инициализируемой бд, окружении, таблицы
      * @throws DatabaseException если в контексте лежит неправильный путь к таблице, невозможно прочитать содержимого папки,
-     *  или если возникла ошибка ошибка дочерних инициализаторов
+     *                           или если возникла ошибка ошибка дочерних инициализаторов
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
@@ -55,7 +55,7 @@ public class TableInitializer implements Initializer {
     }
 
 
-    private void sortFileArrayByTime(File[] files, InitializationContext context){
+    private void sortFileArrayByTime(File[] files, InitializationContext context) {
         Arrays.sort(files, (firstFile, secondFile) -> {
             var regexForSegmentName = createRegexForSegmentName(context);
             var pattern = Pattern.compile(regexForSegmentName);
@@ -66,36 +66,39 @@ public class TableInitializer implements Initializer {
             return firstFileTime.compareTo(secondFileTime);
         });
     }
-    private File[] cleanSegmentFilesArray(File[] files, InitializationContext context){
+
+    private File[] cleanSegmentFilesArray(File[] files, InitializationContext context) {
         for (File segmentFile : files) {
             if (isNotSegmentNameCorrect(segmentFile.getName(), context)) {
                 List<File> list = new ArrayList<>(Arrays.asList(files));
                 list.remove(segmentFile);
-                files = list.toArray(new File[list.size()]);
+                files = list.toArray(new File[0]);
             }
         }
         return files;
     }
 
-    private boolean isNotSegmentNameCorrect(String fileName, InitializationContext context){
+    private boolean isNotSegmentNameCorrect(String fileName, InitializationContext context) {
         var regexForSegmentName = createRegexForSegmentName(context);
         var pattern = Pattern.compile(regexForSegmentName);
         var matcher = pattern.matcher(fileName);
         return !matcher.find();
     }
 
-    private String createRegexForSegmentName ( InitializationContext context ) {
-        return "^" + context.currentTableContext ( ).getTableName ( ) + "_";
+    private String createRegexForSegmentName(InitializationContext context) {
+        return "^" + context.currentTableContext().getTableName() + "_";
     }
+
     private void addTableToDatabaseContext
             (DatabaseInitializationContext databaseInitializationContext,
-             TableInitializationContext tableInitializationContext){
+             TableInitializationContext tableInitializationContext) {
         var table = TableImpl.initializeFromContext(tableInitializationContext);
         databaseInitializationContext.addTable
                 (table);
     }
+
     private InitializationContext createInitializationContextWithSegmentContext
-            (InitializationContext context, SegmentInitializationContext segmentInitializationContext){
+            (InitializationContext context, SegmentInitializationContext segmentInitializationContext) {
         return InitializationContextImpl.builder()
                 .executionEnvironment(context.executionEnvironment())
                 .currentDatabaseContext(context.currentDbContext())
@@ -104,14 +107,15 @@ public class TableInitializer implements Initializer {
                 .build();
     }
 
-    private SegmentInitializationContext createSegmentContextFromFile(File segmentFile, Path tablePath){
+    private SegmentInitializationContext createSegmentContextFromFile(File segmentFile, Path tablePath) {
         return new SegmentInitializationContextImpl(
                 segmentFile.getName(),
                 tablePath,
                 0
         );
     }
-    private File[] findSegmentFiles(Path tablePath){
+
+    private File[] findSegmentFiles(Path tablePath) {
         return new File(tablePath.toString()).listFiles(File::isFile);
     }
 }

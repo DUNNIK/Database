@@ -20,6 +20,7 @@ import java.util.Optional;
 public class SegmentInitializer implements Initializer {
 
     private SegmentInitializationContext segmentInitializationContext;
+
     /**
      * Добавляет в контекст информацию об инициализируемом сегменте.
      * Составляет индекс сегмента
@@ -35,7 +36,7 @@ public class SegmentInitializer implements Initializer {
         try (var inputStream = new DatabaseInputStream(createInputStreamForDatabase())) {
             while (isNotFileEnd(segmentInitializationContext.getCurrentSize())) {
                 var databaseRecordOptional = readDatabaseRecord(inputStream);
-                if (databaseRecordOptional.isPresent()){
+                if (databaseRecordOptional.isPresent()) {
                     var databaseRecord = databaseRecordOptional.get();
                     addInfoInSegmentIndex(databaseRecord);
                     var currentSize = currentSize(databaseRecord.size());
@@ -48,16 +49,18 @@ public class SegmentInitializer implements Initializer {
         }
     }
 
-    private long currentSize(long recordSize){
+    private long currentSize(long recordSize) {
         return recordSize + segmentInitializationContext.getCurrentSize();
     }
-    private void updateSegmentContextInformation(long currentSize){
+
+    private void updateSegmentContextInformation(long currentSize) {
         segmentInitializationContext = new SegmentInitializationContextImpl(
                 segmentInitializationContext.getSegmentName(),
                 segmentInitializationContext.getSegmentPath(),
                 currentSize,
                 segmentInitializationContext.getIndex());
     }
+
     private void addInfoInSegmentIndex(DatabaseRecord databaseRecord) {
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
         var offset = segmentInitializationContext.getCurrentSize();
@@ -65,12 +68,13 @@ public class SegmentInitializer implements Initializer {
         segmentIndex.onIndexedEntityUpdated(objectKey, new SegmentOffsetInfoImpl(offset));
     }
 
-    private void updateTableIndexInformation(InitializationContext context, DatabaseRecord databaseRecord){
+    private void updateTableIndexInformation(InitializationContext context, DatabaseRecord databaseRecord) {
         var objectKey = new String(databaseRecord.getKey(), StandardCharsets.UTF_8);
         var segment = SegmentImpl.initializeFromContext(segmentInitializationContext);
         context.currentTableContext().updateCurrentSegment(segment);
         context.currentTableContext().getTableIndex().onIndexedEntityUpdated(objectKey, segment);
     }
+
     private Optional<DatabaseRecord> readDatabaseRecord(DatabaseInputStream inputStream) throws DatabaseException {
         Optional<DatabaseRecord> unit;
         try {
@@ -92,6 +96,7 @@ public class SegmentInitializer implements Initializer {
 
         return new DataInputStream(fileInputStream);
     }
+
     private boolean isNotFileEnd(long currentSize) throws DatabaseException {
         try {
             var fileSize = Files.size(segmentInitializationContext.getSegmentPath());

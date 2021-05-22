@@ -1,7 +1,11 @@
 package com.itmo.java.protocol.model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,8 +18,12 @@ public class RespArray implements RespObject {
      */
     public static final byte CODE = '*';
 
+    private final List<RespObject> respObjects;
+    private final List<String> respObjectStrings;
+
     public RespArray(RespObject... objects) {
-        //TODO implement
+        respObjects = Arrays.asList(objects);
+        respObjectStrings = parseStringsFromRespObjects(objects);
     }
 
     /**
@@ -35,17 +43,58 @@ public class RespArray implements RespObject {
      */
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        return convertToString();
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        var respArrayStartOutput = createOutputStreamBytes();
+        writeBytesInOutputStream(respArrayStartOutput, os);
+        writeArrayObjectsToOutputStream(os);
+    }
+
+    private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
+        try {
+            os.write(respOutput.toByteArray());
+        } catch (IOException e) {
+            throw new IOException("An error occurred while writing RespArray with that objects: " + convertToString(), e);
+        }
+    }
+
+    private void writeArrayObjectsToOutputStream(OutputStream os) throws IOException {
+        for (RespObject currentRespObject : respObjects) {
+            try {
+                currentRespObject.write(os);
+            } catch (IOException e) {
+                throw new IOException("An error occurred while writing RespArray objects", e);
+            }
+        }
+    }
+
+    private ByteArrayOutputStream createOutputStreamBytes() throws IOException {
+        var bytes = new ByteArrayOutputStream();
+        try {
+            bytes.write(CODE);
+            bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
+            bytes.write(CRLF);
+        } catch (IOException e) {
+            throw new IOException("Error creating a byte record RESP RespArray with that objects: " + convertToString(), e);
+        }
+        return bytes;
     }
 
     public List<RespObject> getObjects() {
-        //TODO implement
-        return null;
+        return respObjects;
+    }
+
+    private String convertToString() {
+        return String.join(" ", respObjectStrings);
+    }
+    private List<String> parseStringsFromRespObjects(RespObject... objects){
+        var result = new ArrayList<String>();
+        for (var respObject:objects) {
+            result.add(respObject.asString());
+        }
+        return result;
     }
 }
