@@ -18,7 +18,7 @@ public class CreateTableCommand implements DatabaseCommand {
     private final List<RespObject> commandArgs;
     private String dbName;
     private String tableName;
-
+    public static final int COMMAND_SIZE = 4;
     /**
      * Создает команду
      * <br/>
@@ -31,7 +31,9 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
         if (isNotValidArgumentsCount(commandArgs)) {
-            throw new IllegalArgumentException("When creating the table, an incorrect number of arguments was passed");
+            throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed.\n" +
+                    "Your number of arguments:\n" + commandArgs.size() +
+                    "The required number of arguments:" + COMMAND_SIZE);
         }
         environment = env;
         this.commandArgs = commandArgs;
@@ -69,6 +71,6 @@ public class CreateTableCommand implements DatabaseCommand {
     }
 
     private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
-        return commandArgs.size() != 4;
+        return commandArgs.size() != COMMAND_SIZE;
     }
 }

@@ -20,6 +20,7 @@ public class SetKeyCommand implements DatabaseCommand {
     private String tableName;
     private String key;
     private String value;
+    public static final int COMMAND_SIZE = 6;
 
     /**
      * Создает команду.
@@ -33,7 +34,9 @@ public class SetKeyCommand implements DatabaseCommand {
      */
     public SetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
         if (isNotValidArgumentsCount(commandArgs)) {
-            throw new IllegalArgumentException("The wrong number of parameters was passed to set the value");
+            throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed.\n" +
+                    "Your number of arguments:\n" + commandArgs.size() +
+                    "The required number of arguments:" + COMMAND_SIZE);
         }
         environment = env;
         this.commandArgs = commandArgs;
@@ -78,6 +81,6 @@ public class SetKeyCommand implements DatabaseCommand {
     }
 
     private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
-        return commandArgs.size() != 6;
+        return commandArgs.size() != COMMAND_SIZE;
     }
 }

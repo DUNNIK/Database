@@ -19,6 +19,7 @@ public class GetKeyCommand implements DatabaseCommand {
     private String dbName;
     private String tableName;
     private String key;
+    public static final int COMMAND_SIZE = 5;
 
     /**
      * Создает команду.
@@ -32,7 +33,9 @@ public class GetKeyCommand implements DatabaseCommand {
      */
     public GetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
         if (isNotValidArgumentsCount(commandArgs)) {
-            throw new IllegalArgumentException("The wrong number of parameters was passed to read the value");
+            throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed.\n" +
+                    "Your number of arguments:\n" + commandArgs.size() +
+                    "The required number of arguments:" + COMMAND_SIZE);
         }
         environment = env;
         this.commandArgs = commandArgs;
@@ -74,6 +77,6 @@ public class GetKeyCommand implements DatabaseCommand {
     }
 
     private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
-        return commandArgs.size() != 5;
+        return commandArgs.size() != COMMAND_SIZE;
     }
 }

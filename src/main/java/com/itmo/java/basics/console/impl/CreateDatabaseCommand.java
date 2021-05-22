@@ -19,7 +19,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
     private final DatabaseFactory factory;
     private final List<RespObject> commandArgs;
     private String dbName;
-
+    public static final int COMMAND_SIZE = 3;
     /**
      * Создает команду.
      * <br/>
@@ -33,7 +33,9 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
         if (isNotValidArgumentsCount(commandArgs)) {
-            throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed");
+            throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed.\n" +
+                    "Your number of arguments:\n" + commandArgs.size() +
+                    "The required number of arguments:" + COMMAND_SIZE);
         }
         environment = env;
         this.factory = factory;
@@ -70,7 +72,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
     }
 
     private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
-        return commandArgs.size() != 3;
+        return commandArgs.size() != COMMAND_SIZE;
     }
 
     private boolean isDataNotValid() {
