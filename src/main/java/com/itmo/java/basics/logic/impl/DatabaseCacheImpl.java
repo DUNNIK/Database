@@ -10,7 +10,7 @@ public class DatabaseCacheImpl implements DatabaseCache {
 
     private static final int CAPACITY = 5_000;
     private final LinkedHashMap<String, byte[]> cacheMap
-            = new LinkedHashMap<>(CAPACITY, 0.75f, true) {
+            = new LinkedHashMap<>(CAPACITY, 0.75f, true){
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, byte[]> eldest) {
             return size() > CAPACITY;

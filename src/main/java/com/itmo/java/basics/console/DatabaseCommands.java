@@ -1,7 +1,5 @@
 package com.itmo.java.basics.console;
 
-import com.itmo.java.basics.console.impl.*;
-import com.itmo.java.basics.logic.impl.DatabaseImpl;
 import com.itmo.java.protocol.model.RespObject;
 
 import java.util.List;
@@ -15,31 +13,36 @@ public enum DatabaseCommands {
     CREATE_DATABASE {
         @Override
         public DatabaseCommand getCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-            return new CreateDatabaseCommand(env, DatabaseImpl::create, commandArgs);
+            //TODO implement
+            return null;
         }
     },
     CREATE_TABLE {
         @Override
         public DatabaseCommand getCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-            return new CreateTableCommand(env, commandArgs);
+            //TODO implement
+            return null;
         }
     },
     SET_KEY {
         @Override
         public DatabaseCommand getCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-            return new SetKeyCommand(env, commandArgs);
+            //TODO implement
+            return null;
         }
     },
     GET_KEY {
         @Override
         public DatabaseCommand getCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-            return new GetKeyCommand(env, commandArgs);
+            //TODO implement
+            return null;
         }
     },
     DELETE_KEY {
         @Override
         public DatabaseCommand getCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-            return new DeleteKeyCommand(env, commandArgs);
+            //TODO implement
+            return null;
         }
     };
 

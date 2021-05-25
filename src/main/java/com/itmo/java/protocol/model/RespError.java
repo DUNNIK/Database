@@ -1,9 +1,7 @@
 package com.itmo.java.protocol.model;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Сообщение об ошибке в RESP протоколе
@@ -15,17 +13,8 @@ public class RespError implements RespObject {
      */
     public static final byte CODE = '-';
 
-    private final byte[] message;
-
     public RespError(byte[] message) {
-        this.message = checkMessage(message);
-    }
-
-    private byte[] checkMessage(byte[] message) {
-        if (message == null) {
-            return new byte[0];
-        }
-        return message.clone();
+        //TODO implement
     }
 
     /**
@@ -40,37 +29,12 @@ public class RespError implements RespObject {
 
     @Override
     public String asString() {
-        return convertToString();
+        //TODO implement
+        return null;
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-
-        var respOutput = createOutputStreamBytes();
-        writeBytesInOutputStream(respOutput, os);
-    }
-
-    private void writeBytesInOutputStream(ByteArrayOutputStream respOutput, OutputStream os) throws IOException {
-        try {
-            os.write(respOutput.toByteArray());
-        } catch (IOException e) {
-            throw new IOException("An error occurred while writing RespError with message: " + convertToString(), e);
-        }
-    }
-
-    private ByteArrayOutputStream createOutputStreamBytes() throws IOException {
-        var bytes = new ByteArrayOutputStream();
-        try {
-            bytes.write(CODE);
-            bytes.write(message);
-            bytes.write(CRLF);
-        } catch (IOException e) {
-            throw new IOException("Error creating a byte record RESP RespError with message: " + convertToString(), e);
-        }
-        return bytes;
-    }
-
-    private String convertToString() {
-        return new String(message, StandardCharsets.UTF_8);
+        //TODO implement
     }
 }

@@ -1,7 +1,5 @@
 package com.itmo.java.basics.console;
 
-import com.itmo.java.basics.console.impl.FailedDatabaseCommandResult;
-import com.itmo.java.basics.console.impl.SuccessDatabaseCommandResult;
 import com.itmo.java.protocol.model.RespObject;
 
 public interface DatabaseCommandResult extends DatabaseApiSerializable {
@@ -13,7 +11,8 @@ public interface DatabaseCommandResult extends DatabaseApiSerializable {
      * @return успешный результат выполнения команды, который был сформирован
      */
     static DatabaseCommandResult success(byte[] result) {
-        return new SuccessDatabaseCommandResult(result);
+        //TODO implement
+        return null;
     }
 
     /**
@@ -23,7 +22,8 @@ public interface DatabaseCommandResult extends DatabaseApiSerializable {
      * @return результат зафейленный команды, при выполнении которой произошла ошибка
      */
     static DatabaseCommandResult error(String message) {
-        return new FailedDatabaseCommandResult(message);
+        //TODO implement
+        return null;
     }
 
     /**
@@ -34,7 +34,8 @@ public interface DatabaseCommandResult extends DatabaseApiSerializable {
      * @return результат команды, при выполнении которой произошла ошибка
      */
     static DatabaseCommandResult error(Exception exception) {
-        return new FailedDatabaseCommandResult(exception.getMessage());
+        //TODO implement
+        return null;
     }
 
     /**

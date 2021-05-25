@@ -2,7 +2,6 @@ package com.itmo.java.protocol.model;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 /**
  * Id
@@ -14,10 +13,8 @@ public class RespCommandId implements RespObject {
      */
     public static final byte CODE = '!';
 
-    private final int commandId;
-
     public RespCommandId(int commandId) {
-        this.commandId = commandId;
+        //TODO implement
     }
 
     /**
@@ -32,23 +29,12 @@ public class RespCommandId implements RespObject {
 
     @Override
     public String asString() {
-        return convertToString();
+        //TODO implement
+        return null;
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        os.write(CODE);
-        writeCommandId(os);
-        os.write(CRLF);
-    }
-
-    private void writeCommandId(OutputStream os) throws IOException {
-        var byteInt = ByteBuffer.allocate(4);
-        byteInt.putInt(commandId);
-        os.write(byteInt.array());
-    }
-
-    private String convertToString() {
-        return String.valueOf(commandId);
+        //TODO implement
     }
 }
