@@ -90,9 +90,10 @@ public class RespArray implements RespObject {
     private String convertToString() {
         return String.join(" ", respObjectStrings);
     }
-    private List<String> parseStringsFromRespObjects(RespObject... objects){
+
+    private List<String> parseStringsFromRespObjects(RespObject... objects) {
         var result = new ArrayList<String>();
-        for (var respObject:objects) {
+        for (var respObject : objects) {
             result.add(respObject.asString());
         }
         return result;
