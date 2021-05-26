@@ -21,7 +21,7 @@ public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
 
     @Override
     public Optional<Database> getDatabase(String name) {
-        if (databaseMap.containsKey(name)){
+        if (databaseMap.containsKey(name)) {
             return Optional.of(databaseMap.get(name));
         }
         return Optional.empty();

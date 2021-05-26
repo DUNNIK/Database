@@ -167,8 +167,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        write(objectKey, null);
-        return true;
+        return write(objectKey, null);
     }
 
 }

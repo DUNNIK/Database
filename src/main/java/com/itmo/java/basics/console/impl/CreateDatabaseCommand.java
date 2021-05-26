@@ -4,16 +4,22 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.DatabaseFactory;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
  * Команда для создания базы данных
  */
 public class CreateDatabaseCommand implements DatabaseCommand {
-
+    private final ExecutionEnvironment environment;
+    private final DatabaseFactory factory;
+    private final List<RespObject> commandArgs;
+    private String dbName;
+    public static final int COMMAND_SIZE = 3;
     /**
      * Создает команду.
      * <br/>
@@ -26,7 +32,14 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
-        //TODO implement
+        if (isNotValidArgumentsCount(commandArgs)) {
+            throw new IllegalArgumentException("When creating the database, an incorrect number of arguments was passed.\n" +
+                    "Your number of arguments:\n" + commandArgs.size() +
+                    "The required number of arguments:" + COMMAND_SIZE);
+        }
+        environment = env;
+        this.factory = factory;
+        this.commandArgs = commandArgs;
     }
 
     /**
@@ -36,7 +49,33 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        try {
+            parseCommandArgs();
+            var database = factory.createNonExistent(dbName, environment.getWorkingPath());
+            environment.addDatabase(database);
+        } catch (DatabaseException e) {
+            return DatabaseCommandResult.error(e);
+        }
+        var message = "Database" + dbName + "was created";
+        return DatabaseCommandResult.success(message.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void parseCommandArgs() throws DatabaseException {
+        if (isDataNotValid()) {
+            throw new DatabaseException("The DatabaseCommand has invalid arguments");
+        }
+        try {
+            dbName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+        } catch (Exception e) {
+            throw new DatabaseException("An error occurred while parsing the command", e);
+        }
+    }
+
+    private boolean isNotValidArgumentsCount(List<RespObject> commandArgs) {
+        return commandArgs.size() != COMMAND_SIZE;
+    }
+
+    private boolean isDataNotValid() {
+        return environment == null || factory == null;
     }
 }
