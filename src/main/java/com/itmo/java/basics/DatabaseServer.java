@@ -48,4 +48,9 @@ public class DatabaseServer {
     public CompletableFuture<DatabaseCommandResult> executeNextCommand(DatabaseCommand command) {
         return CompletableFuture.supplyAsync(command::execute);
     }
+
+    public ExecutionEnvironment getEnv() {
+        //TODO implement
+        return null;
+    }
 }
