@@ -7,6 +7,7 @@ import com.itmo.java.protocol.RespWriter;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +22,7 @@ public class JavaSocketServerConnector implements Closeable {
      */
     private final ExecutorService clientIOWorkers = Executors.newSingleThreadExecutor();
 
-//    private final ServerSocket serverSocket; // todo uncomment
+    //private final ServerSocket serverSocket;
     private final ExecutorService connectionAcceptorExecutor = Executors.newSingleThreadExecutor();
 
     /**
@@ -29,8 +30,7 @@ public class JavaSocketServerConnector implements Closeable {
      */
     public JavaSocketServerConnector(DatabaseServer databaseServer, ServerConfig config) throws IOException {
     }
- 
-     /**
+    /**
      * Начинает слушать заданный порт, начинает аксептить клиентские сокеты. На каждый из них начинает клиентскую таску
      */
     public void start() {
