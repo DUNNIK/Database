@@ -1,22 +1,32 @@
 package com.itmo.java.basics.config;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
  */
 public class ConfigLoader {
 
+    private final String fileName;
+    private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
+    private static final String HOST_REGEX = "\\S+\\.host=";
+    private static final String PORT_REGEX = "\\S+\\.port=";
+
     /**
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        //TODO implement
+        fileName = "server.properties";
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        //TODO implement
+        fileName = name;
     }
 
     /**
@@ -27,7 +37,76 @@ public class ConfigLoader {
      * Читаются: "kvs.workingPath", "kvs.host", "kvs.port" (но в конфигурационном файле допустимы и другие проперти)
      */
     public DatabaseServerConfig readConfig() {
-        //TODO implement
+        var databaseServerConfig = new DatabaseServerConfig(
+                new ServerConfig(ServerConfig.DEFAULT_HOST, ServerConfig.DEFAULT_PORT),
+                new DatabaseConfig(DatabaseConfig.DEFAULT_WORKING_PATH)
+        );
+        try {
+            var allLines = readAllFile();
+            var workingPath = searchWithRegex(allLines, WORKING_PATH_REGEX);
+            workingPath = ifNullThenDefault(workingPath, DatabaseConfig.DEFAULT_WORKING_PATH);
+            var host = searchWithRegex(allLines, HOST_REGEX);
+            host = ifNullThenDefault(host, ServerConfig.DEFAULT_HOST);
+            var port = Integer.parseInt(searchWithRegex(allLines, PORT_REGEX));
+            port = ifNullThenDefault(port);
+            var databaseConfig = new DatabaseConfig(workingPath);
+            var serverConfig = new ServerConfig(host, port);
+            databaseServerConfig = new DatabaseServerConfig(serverConfig, databaseConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return databaseServerConfig;
+    }
+
+    private String ifNullThenDefault(String value, String defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    private Integer ifNullThenDefault(Integer value) {
+        if (value == null) {
+            return ServerConfig.DEFAULT_PORT;
+        }
+        return value;
+    }
+
+    private String searchWithRegex(List<String> allLines, String regex) {
+        String value = null;
+        for (var line : allLines) {
+            var expressions = line.split(" ");
+            for (String expression : expressions) {
+                var receivedValue = getValueFromExpression(expression.trim(), regex);
+                if (isStringFit(receivedValue)) {
+                    value = receivedValue.trim();
+                }
+            }
+        }
+        return value;
+    }
+
+    private boolean isStringFit(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+    private String getValueFromExpression(String expression, String regex) {
+        var pattern = Pattern.compile(regex);
+        var matcher1 = pattern.matcher(expression);
+        if (matcher1.find()) {
+            return matcher1.replaceFirst("");
+        }
         return null;
+    }
+
+    private List<String> readAllFile() throws IOException {
+        var inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        var bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        var line = bufferedReader.readLine();
+        var allLines = new ArrayList<String>();
+        while (line != null) {
+            allLines.add(line.trim());
+            line = bufferedReader.readLine();
+        }
+        return allLines;
     }
 }
