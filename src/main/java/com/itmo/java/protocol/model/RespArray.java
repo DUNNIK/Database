@@ -1,5 +1,7 @@
 package com.itmo.java.protocol.model;
 
+import lombok.Builder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +13,7 @@ import java.util.List;
 /**
  * Массив RESP объектов
  */
+@Builder
 public class RespArray implements RespObject {
 
     /**
