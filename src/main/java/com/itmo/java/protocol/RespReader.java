@@ -11,6 +11,7 @@ public class RespReader implements AutoCloseable {
     private final InputStream inputStream;
     private final DataInputStream dataInputStream;
     private final BufferedReader reader;
+
     /**
      * Специальные символы окончания элемента
      */
