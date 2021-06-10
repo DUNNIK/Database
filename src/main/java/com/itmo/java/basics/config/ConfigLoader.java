@@ -3,6 +3,7 @@ package com.itmo.java.basics.config;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -100,7 +101,10 @@ public class ConfigLoader {
 
     private List<String> readAllFile() throws IOException {
         var inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);
-        var bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        if (inputStream == null) {
+            return new ArrayList<>();
+        }
+        var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream)));
         var line = bufferedReader.readLine();
         var allLines = new ArrayList<String>();
         while (line != null) {
