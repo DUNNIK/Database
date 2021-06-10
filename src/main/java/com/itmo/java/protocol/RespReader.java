@@ -122,11 +122,8 @@ public class RespReader implements AutoCloseable {
 
     private RespBulkString readBulkStringWithCode() throws IOException {
         var messageLength = Integer.parseInt(reader.readLine());
-        var message = reader.readLine();
-        if (message.length() != messageLength ) {
-            throw new IOException("The length of the read string:" + message.length() + "should have been:" + messageLength);
-        }
-        return new RespBulkString(message.getBytes());
+        var message = inputStream.readNBytes(messageLength);
+        return new RespBulkString(message);
     }
     /**
      * Считывает массив RESP элементов

@@ -14,7 +14,7 @@ import java.net.Socket;
  * С помощью {@link RespWriter} и {@link RespReader} читает/пишет в сокет
  */
 public class SocketKvsConnection implements KvsConnection {
-    private Socket clientSocket;
+    private Socket clientSocket = new Socket();
 
     public SocketKvsConnection(ConnectionConfig config) {
         try {
@@ -35,6 +35,10 @@ public class SocketKvsConnection implements KvsConnection {
      */
     @Override
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
+        if (!clientSocket.isConnected()) {
+            throw new ConnectionException("An error occurred while connecting to the server");
+        }
+
         try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
             command.write(output);
             output.flush();
