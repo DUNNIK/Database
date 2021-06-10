@@ -33,8 +33,7 @@ public class CommandReader implements AutoCloseable {
         var commandArray = reader.readArray();
         var commandName = commandArray.getObjects().get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
         var databaseCommands = DatabaseCommands.valueOf(commandName.asString());
-        var command = databaseCommands.getCommand(environment, commandArray.getObjects());
-        return command;
+        return databaseCommands.getCommand(environment, commandArray.getObjects());
     }
 
     @Override
