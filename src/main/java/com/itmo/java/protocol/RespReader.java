@@ -55,10 +55,14 @@ public class RespReader implements AutoCloseable {
     }
 
     private byte checkCodeOfNextObject() throws IOException {
-        dataInputStream.mark(1);
-        var code = dataInputStream.readByte();
-        dataInputStream.reset();
-        return code;
+        try {
+            dataInputStream.mark(1);
+            var code = dataInputStream.readByte();
+            dataInputStream.reset();
+            return code;
+        } catch (IOException e) {
+            throw new IOException("The first byte of the object cannot be checked", e);
+        }
     }
 
     private boolean isInputStreamEmpty() throws IOException {

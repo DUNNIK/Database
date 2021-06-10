@@ -33,8 +33,7 @@ public class SocketKvsConnection implements KvsConnection {
     @Override
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
         try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
-            var commandLine = command.asString();
-            output.write(commandLine.getBytes());
+            command.write(output);
             output.flush();
             var data = new byte[32 * 1024];
             var readBytes = input.read(data);
