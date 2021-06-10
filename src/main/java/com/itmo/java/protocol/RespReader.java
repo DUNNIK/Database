@@ -3,6 +3,7 @@ package com.itmo.java.protocol;
 import com.itmo.java.protocol.model.*;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -159,11 +160,14 @@ public class RespReader implements AutoCloseable {
         exceptionIfStreamEmpty();
         var code = dataInputStream.readByte();
         exceptionIfNotCorrectCode(code, RespCommandId.CODE);
-        var commandId = Integer.parseInt(reader.readLine());
+        var commandId = getInt(reader.readLine().getBytes());
         return new RespCommandId(commandId);
     }
 
-
+    private Integer getInt(byte[] bytes) {
+        var byteBuffer = ByteBuffer.wrap(bytes);
+        return byteBuffer.getInt();
+    }
     @Override
     public void close() throws IOException {
         inputStream.close();
