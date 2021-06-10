@@ -6,6 +6,7 @@ import com.itmo.java.protocol.RespWriter;
 import com.itmo.java.protocol.model.RespArray;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -35,10 +36,10 @@ public class SocketKvsConnection implements KvsConnection {
             var commandLine = command.asString();
             output.write(commandLine.getBytes());
             output.flush();
-            var reader = new RespReader(input);
-            var obj = reader.readObject();
-            close();
-            return obj;
+            var data = new byte[32 * 1024];
+            var readBytes = input.read(data);
+            var reader = new RespReader(new ByteArrayInputStream(data, 0, readBytes));
+            return reader.readObject();
         } catch (IOException e) {
             throw new ConnectionException("An error occurred while connecting to the server", e);
         }

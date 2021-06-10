@@ -1,15 +1,24 @@
 package com.itmo.java.basics.connector;
 
 import com.itmo.java.basics.DatabaseServer;
+import com.itmo.java.basics.config.ConfigLoader;
+import com.itmo.java.basics.config.DatabaseConfig;
 import com.itmo.java.basics.config.ServerConfig;
+import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
+import com.itmo.java.basics.initialization.impl.DatabaseInitializer;
+import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
+import com.itmo.java.basics.initialization.impl.SegmentInitializer;
+import com.itmo.java.basics.initialization.impl.TableInitializer;
 import com.itmo.java.basics.resp.CommandReader;
 import com.itmo.java.protocol.RespReader;
 import com.itmo.java.protocol.RespWriter;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -56,7 +65,6 @@ public class JavaSocketServerConnector implements Closeable {
         System.out.println("Stopping socket connector");
         try {
             serverSocket.close();
-            clientIOWorkers.shutdownNow();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,7 +73,22 @@ public class JavaSocketServerConnector implements Closeable {
 
 
     public static void main(String[] args) throws Exception {
-        // можнно запускать прямо здесь
+        var executionEnvironmentPath = Paths.get("C:/Users/NIKITOS/ExecutionEnvironment");
+        var initializer =
+                new DatabaseServerInitializer(
+                        new DatabaseInitializer(
+                                new TableInitializer(
+                                        new SegmentInitializer())));
+
+        var executionEnvironment = new ExecutionEnvironmentImpl(
+                new DatabaseConfig(executionEnvironmentPath.toString()));
+
+        var server = DatabaseServer.initialize(executionEnvironment, initializer);
+        var loader = new ConfigLoader();
+        var config = loader.readConfig();
+        JavaSocketServerConnector connector = null;
+        connector = new JavaSocketServerConnector(server, config.getServerConfig());
+        connector.start();
     }
 
     /**
@@ -94,7 +117,9 @@ public class JavaSocketServerConnector implements Closeable {
         @Override
         public void run() {
             try (var input = client.getInputStream(); var output = client.getOutputStream()) {
-                var commandReader = new CommandReader(new RespReader(input), server.getEnv());
+                var buffer = new byte[32 * 1024];
+                int readBytes = input.read(buffer);
+                var commandReader = new CommandReader(new RespReader(new ByteArrayInputStream(buffer, 0, readBytes)), server.getEnv());
                 if (commandReader.hasNextCommand()) {
                     var command = commandReader.readCommand();
                     var databaseCommandResult = command.execute();

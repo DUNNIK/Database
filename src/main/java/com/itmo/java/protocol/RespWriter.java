@@ -17,7 +17,8 @@ public class RespWriter implements AutoCloseable{
      */
     public void write(RespObject object) throws IOException {
         if (object != null) {
-            object.write(outputStream);
+            outputStream.write(object.asString().getBytes());
+            outputStream.flush();
         }
     }
 

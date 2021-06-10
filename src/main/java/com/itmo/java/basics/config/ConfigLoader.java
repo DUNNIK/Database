@@ -47,13 +47,13 @@ public class ConfigLoader {
             workingPath = ifNullThenDefault(workingPath, DatabaseConfig.DEFAULT_WORKING_PATH);
             var host = searchWithRegex(allLines, HOST_REGEX);
             host = ifNullThenDefault(host, ServerConfig.DEFAULT_HOST);
-            var port = Integer.parseInt(searchWithRegex(allLines, PORT_REGEX));
-            port = ifNullThenDefault(port);
+            var portStr = searchWithRegex(allLines, PORT_REGEX);
+            var port = ifNullThenDefault(portStr);
             var databaseConfig = new DatabaseConfig(workingPath);
             var serverConfig = new ServerConfig(host, port);
             databaseServerConfig = new DatabaseServerConfig(serverConfig, databaseConfig);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return databaseServerConfig;
     }
@@ -65,11 +65,11 @@ public class ConfigLoader {
         return value;
     }
 
-    private Integer ifNullThenDefault(Integer value) {
+    private Integer ifNullThenDefault(String value) {
         if (value == null) {
             return ServerConfig.DEFAULT_PORT;
         }
-        return value;
+        return Integer.parseInt(value);
     }
 
     private String searchWithRegex(List<String> allLines, String regex) {
