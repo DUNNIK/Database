@@ -5,6 +5,7 @@ import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommands;
 import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.protocol.RespReader;
+import com.itmo.java.protocol.model.RespObject;
 
 import java.io.IOException;
 
@@ -31,10 +32,11 @@ public class CommandReader implements AutoCloseable {
      */
     public DatabaseCommand readCommand() throws IOException {
         var commandArray = reader.readArray();
-        var commandId = commandArray.getObjects().get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex());
-        var commandName = commandArray.getObjects().get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
-        if (commandId == null && commandName == null) {
-            throw new IllegalArgumentException("An error occurred. No comman name or command id");
+        RespObject commandName;
+        try {
+            commandName = commandArray.getObjects().get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("An error occurred. No command name or command id", e);
         }
         var databaseCommands = DatabaseCommands.valueOf(commandName.asString());
         return databaseCommands.getCommand(environment, commandArray.getObjects());

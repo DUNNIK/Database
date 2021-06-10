@@ -90,31 +90,8 @@ public class RespReader implements AutoCloseable {
         var code = dataInputStream.readByte();
         exceptionIfNotCorrectCode(code, RespError.CODE);
         var message = reader.readLine();
-        //checkCRLF(dataInputStream);
         return new RespError(message.getBytes());
     }
-
-    /*private byte[] readByteArrayToCRLF(DataInputStream dataInputStream) throws IOException {
-        var bytes = new ArrayList<Byte>();
-        var currentByte = dataInputStream.readByte();
-        while (currentByte != CR) {
-            bytes.add(currentByte);
-            currentByte = dataInputStream.readByte();
-        }
-        dataInputStream.reset();
-        return null;
-    }
-
-    private void checkCRLF(DataInputStream dataInputStream) throws IOException {
-        var cr = dataInputStream.readByte();
-        if (cr != CR) {
-            throw new IOException("Read error. Expected byte:" + CR + "received byte:" + cr);
-        }
-        var lf = dataInputStream.readByte();
-        if (lf != LF) {
-            throw new IOException("Read error. Expected byte:" + CR + "received byte:" + cr);
-        }
-    }*/
 
     private void exceptionIfNotCorrectCode(byte currentCode, byte correctCode) throws IOException {
         if (currentCode != correctCode) {
