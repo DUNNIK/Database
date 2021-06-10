@@ -120,9 +120,9 @@ public class JavaSocketServerConnector implements Closeable {
         @Override
         public void run() {
             try (var input = client.getInputStream(); var output = client.getOutputStream()) {
-               /* var buffer = new byte[32 * 1024];
-                int readBytes = input.read(buffer);*/
-                var commandReader = new CommandReader(new RespReader(input), server.getEnv());
+                var buffer = new byte[32 * 1024];
+                int readBytes = input.read(buffer);
+                var commandReader = new CommandReader(new RespReader(new ByteArrayInputStream(buffer, 0, readBytes)), server.getEnv());
                 if (commandReader.hasNextCommand()) {
                     var command = commandReader.readCommand();
                     var databaseCommandResult = command.execute();
