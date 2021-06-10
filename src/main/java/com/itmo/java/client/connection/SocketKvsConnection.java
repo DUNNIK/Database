@@ -36,9 +36,11 @@ public class SocketKvsConnection implements KvsConnection {
             output.write(commandLine.getBytes());
             output.flush();
             var reader = new RespReader(input);
-            return reader.readObject();
+            var obj = reader.readObject();
+            close();
+            return obj;
         } catch (IOException e) {
-            throw new ConnectionException("An error occurred while connecting to the server");
+            throw new ConnectionException("An error occurred while connecting to the server", e);
         }
     }
 
