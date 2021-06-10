@@ -41,9 +41,13 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespObject readObject() throws IOException {
-        exceptionIfStreamEmpty();
-        var code = checkCodeOfNextObject();
-        return readCorrectObject(code);
+        try {
+            exceptionIfStreamEmpty();
+            var code = checkCodeOfNextObject();
+            return readCorrectObject(code);
+        } catch (Exception e) {
+            throw new IOException("Error while reading RespObject", e);
+        }
     }
 
     private void exceptionIfStreamEmpty() throws IOException {
