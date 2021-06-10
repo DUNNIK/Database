@@ -65,19 +65,10 @@ public class JavaSocketServerConnector implements Closeable {
     public void close() {
         System.out.println("Stopping socket connector");
         try {
-            serverSocket.close();;
-            if (!clientIOWorkers.awaitTermination(100, TimeUnit.MICROSECONDS)) {
-                System.out.println("Still waiting after 100ms...");
-                System.exit(0);
-            }
-            System.out.println("clientIOWorkers exiting normally");
-
-            if (!connectionAcceptorExecutor.awaitTermination(100, TimeUnit.MICROSECONDS)) {
-                System.out.println("Still waiting after 100ms...");
-                System.exit(0);
-            }
-            System.out.println("connectionAcceptorExecutor exiting normally");
-        } catch (IOException | InterruptedException e) {
+            serverSocket.close();
+            clientIOWorkers.shutdown();
+            connectionAcceptorExecutor.shutdown();
+        } catch (IOException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
