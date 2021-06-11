@@ -11,7 +11,6 @@ import java.util.List;
 public class RespReader implements AutoCloseable {
 
     private final BufferedReader reader;
-    private int offset;
     /**
      * Специальные символы окончания элемента
      */
@@ -21,7 +20,6 @@ public class RespReader implements AutoCloseable {
     public RespReader(InputStream is) {
 
         this.reader = new BufferedReader(new InputStreamReader(new DataInputStream(new BufferedInputStream(is)), StandardCharsets.UTF_8));
-        offset = 0;
     }
 
     /**
@@ -74,7 +72,6 @@ public class RespReader implements AutoCloseable {
 
     private byte readCodeOfNextObject() throws IOException {
         try {
-            offset++;
             return (byte) reader.read();
         } catch (IOException e) {
             throw new IOException("An error occurred while reading", e);
@@ -116,13 +113,11 @@ public class RespReader implements AutoCloseable {
         exceptionIfStreamEmpty();
         var code = (byte) reader.read();
         exceptionIfNotCorrectCode(code, RespError.CODE);
-        offset++;
         return readErrorWithCode();
     }
 
     private RespError readErrorWithCode() throws IOException {
         var message = readBeforeCRLF();
-        offset += message.length;
         return new RespError(message);
     }
 
@@ -142,13 +137,11 @@ public class RespReader implements AutoCloseable {
         exceptionIfStreamEmpty();
         var code = (byte) reader.read();
         exceptionIfNotCorrectCode(code, RespBulkString.CODE);
-        offset++;
         return readBulkStringWithCode();
     }
 
     private RespBulkString readBulkStringWithCode() throws IOException {
         var messageLength = Integer.parseInt(reader.readLine());
-        offset++;
         var message = readBeforeCRLF();
         if (message.length != messageLength) {
             throw new IOException("An error occurred while reading the Bulk String");
@@ -166,13 +159,11 @@ public class RespReader implements AutoCloseable {
         exceptionIfStreamEmpty();
         var code = (byte) reader.read();
         exceptionIfNotCorrectCode(code, RespArray.CODE);
-        offset++;
         return readArrayWithCode();
     }
 
     private RespArray readArrayWithCode() throws IOException {
         var arrayLength = Integer.parseInt(reader.readLine());
-        offset++;
         var respList = readArrayObjects(arrayLength);
         return RespArray.builder()
                 .respObjects(respList)
@@ -203,13 +194,11 @@ public class RespReader implements AutoCloseable {
         exceptionIfStreamEmpty();
         var code = (byte) reader.read();
         exceptionIfNotCorrectCode(code, RespCommandId.CODE);
-        offset++;
         return readCommandIdWithCode();
     }
 
     private RespCommandId readCommandIdWithCode() throws IOException {
         var commandIdBytes = readBeforeCRLF();
-        offset += commandIdBytes.length;
         var commandId = getInt(commandIdBytes);
         return new RespCommandId(commandId);
     }
