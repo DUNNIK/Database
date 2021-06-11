@@ -47,7 +47,7 @@ public class JavaSocketServerConnector implements Closeable {
      */
     public void start() {
         connectionAcceptorExecutor.submit(() -> {
-            Socket socket = null;
+            Socket socket;
             try {
                 socket = serverSocket.accept();
                 try (var clientTask = new ClientTask(socket, databaseServer)){
@@ -55,6 +55,8 @@ public class JavaSocketServerConnector implements Closeable {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                close();
             }
         });
     }
