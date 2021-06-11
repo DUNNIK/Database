@@ -42,7 +42,7 @@ public class SocketKvsConnection implements KvsConnection {
         try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
             command.write(output);
             output.flush();
-            var data = new byte[32 * 1024];
+            var data = new byte[Integer.MAX_VALUE];
             var readBytes = input.read(data);
             var reader = new RespReader(new ByteArrayInputStream(data, 0, readBytes));
             return reader.readObject();
