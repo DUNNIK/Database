@@ -18,9 +18,6 @@ public class SocketKvsConnection implements KvsConnection {
 
     public SocketKvsConnection(ConnectionConfig config) {
         try {
-            if (config == null) {
-                throw new IOException("Config is empty");
-            }
             clientSocket = new Socket(config.getHost(), config.getPort());
         } catch (IOException e) {
             e.printStackTrace();
