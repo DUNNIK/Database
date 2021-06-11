@@ -3,6 +3,7 @@ package com.itmo.java.protocol.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -84,7 +85,8 @@ public class RespBulkString implements RespObject {
 
     private void createNotNullResp(ByteArrayOutputStream bytes) throws IOException {
         bytes.write(CODE);
-        bytes.write(Integer.toString(data.length).getBytes(StandardCharsets.UTF_8));
+        writeInt(bytes, data.length);
+        //bytes.write(Integer.toString(data.length).getBytes(StandardCharsets.UTF_8));
         bytes.write(CRLF);
         bytes.write(data);
         bytes.write(CRLF);
@@ -94,6 +96,12 @@ public class RespBulkString implements RespObject {
         bytes.write(CODE);
         bytes.write(Integer.toString(NULL_STRING_SIZE).getBytes(StandardCharsets.UTF_8));
         bytes.write(CRLF);
+    }
+
+    private void writeInt(OutputStream os, int intValue) throws IOException {
+        var byteInt = ByteBuffer.allocate(4);
+        byteInt.putInt(intValue);
+        os.write(byteInt.array());
     }
 
     private String convertToString() {
