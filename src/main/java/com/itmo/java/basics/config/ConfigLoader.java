@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class ConfigLoader {
 
-    private final String filePath;
+    private InputStream inputStream;
     private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
     private static final String HOST_REGEX = "\\S+\\.host=";
     private static final String PORT_REGEX = "\\S+\\.port=";
@@ -21,14 +21,18 @@ public class ConfigLoader {
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        filePath = String.valueOf(this.getClass().getClassLoader().getResource("server.properties"));
+        inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
-    public ConfigLoader(String path) {
-        filePath = path;
+    public ConfigLoader(String name) {
+        try {
+            inputStream = new FileInputStream(name);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -102,7 +106,6 @@ public class ConfigLoader {
     }
 
     private List<String> readAllFile() throws IOException {
-        var inputStream = new FileInputStream(filePath);
         var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8));
         var line = bufferedReader.readLine();
         var allLines = new ArrayList<String>();
