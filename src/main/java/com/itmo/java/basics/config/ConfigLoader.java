@@ -31,40 +31,8 @@ public class ConfigLoader {
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        var clearFilePath = clearFilePath(name);
-        var cleanURL = cleanURL(clearFilePath);
-        try {
-            inputStream = cleanURL.openStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
     }
-
-    private URL cleanURL(String filePath){
-        var url = this.getClass().getResource(filePath);
-        if (url == null){
-            try {
-                url = createUrlFromPath(filePath);
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Exception. An error occurred when opening a stream from the URL impossible");
-            }
-        }
-        return url;
-    }
-
-    private URL createUrlFromPath(String filePath) throws MalformedURLException {
-        return new File(filePath).toURI().toURL();
-    }
-
-    private String clearFilePath(String filePath) {
-        var separator = File.separator;
-        var filePathAfterChangingSeparator = filePath.replaceAll(Matcher.quoteReplacement(separator), "/");
-        var regex = "^.*:";
-        var pattern = Pattern.compile(regex);
-        var matcher = pattern.matcher(filePathAfterChangingSeparator);
-        return matcher.replaceFirst("");
-    }
-
     /**
      * Считывает конфиг из указанного в конструкторе файла.
      * Если не удалось считать из заданного файла, или какого-то конкретно значения не оказалось,
