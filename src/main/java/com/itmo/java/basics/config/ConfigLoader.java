@@ -1,6 +1,7 @@
 package com.itmo.java.basics.config;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -104,13 +105,14 @@ public class ConfigLoader {
         if (inputStream == null) {
             return new ArrayList<>();
         }
-        var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream)));
+        var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8));
         var line = bufferedReader.readLine();
         var allLines = new ArrayList<String>();
         while (line != null) {
             allLines.add(line.trim());
             line = bufferedReader.readLine();
         }
+        bufferedReader.close();
         return allLines;
     }
 }

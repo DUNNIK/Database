@@ -4,6 +4,7 @@ import com.itmo.java.protocol.model.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class RespReader implements AutoCloseable {
 
     public RespReader(InputStream is) {
 
-        this.reader = new BufferedReader(new InputStreamReader(new DataInputStream(new BufferedInputStream(is))));
+        this.reader = new BufferedReader(new InputStreamReader(new DataInputStream(new BufferedInputStream(is)), StandardCharsets.UTF_8));
         offset = 0;
     }
 
