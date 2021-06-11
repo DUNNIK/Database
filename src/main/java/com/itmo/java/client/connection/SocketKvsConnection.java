@@ -57,9 +57,6 @@ public class SocketKvsConnection implements KvsConnection {
     @Override
     public void close() {
         try {
-            if (clientSocket.isConnected()) {
-                return;
-            }
             clientSocket.close();
         } catch (IOException e) {
             Thread.currentThread().interrupt();
