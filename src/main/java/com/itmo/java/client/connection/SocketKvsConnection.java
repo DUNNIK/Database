@@ -38,7 +38,6 @@ public class SocketKvsConnection implements KvsConnection {
         if (!clientSocket.isConnected()) {
             throw new ConnectionException("An error occurred while connecting to the server");
         }
-
         try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
             var writer = new RespWriter(output);
             writer.write(command);

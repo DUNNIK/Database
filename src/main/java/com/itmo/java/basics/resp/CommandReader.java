@@ -34,7 +34,11 @@ public class CommandReader implements AutoCloseable {
         var commandArray = reader.readArray();
         RespObject commandName;
         try {
+            var commandId = commandArray.getObjects().get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex());
             commandName = commandArray.getObjects().get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex());
+            if (commandId == null || commandName == null) {
+                throw new IllegalArgumentException("Command id or command name is null");
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("An error occurred. No command name or command id", e);
         }
