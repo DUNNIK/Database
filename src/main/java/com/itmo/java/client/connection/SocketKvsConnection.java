@@ -6,7 +6,6 @@ import com.itmo.java.protocol.RespWriter;
 import com.itmo.java.protocol.model.RespArray;
 import com.itmo.java.protocol.model.RespObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -15,13 +14,16 @@ import java.net.Socket;
  */
 public class SocketKvsConnection implements KvsConnection {
     private Socket clientSocket;
+    private RespReader reader;
+    private RespWriter writer;
 
     public SocketKvsConnection(ConnectionConfig config) {
         try {
             clientSocket = new Socket(config.getHost(), config.getPort());
+            this.writer = new RespWriter(clientSocket.getOutputStream());
+            this.reader = new RespReader(clientSocket.getInputStream());
         } catch (Exception e) {
             e.printStackTrace();
-            close();
         }
     }
 
@@ -33,15 +35,8 @@ public class SocketKvsConnection implements KvsConnection {
      */
     @Override
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
-        if (clientSocket == null || clientSocket.isClosed()) {
-            throw new ConnectionException("An error occurred while connecting to the server");
-        }
-        try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
-            var writer = new RespWriter(output);
+        try {
             writer.write(command);
-            var data = new byte[100_000];
-            var readBytes = input.read(data);
-            var reader = new RespReader(new ByteArrayInputStream(data, 0, readBytes));
             return reader.readObject();
         } catch (Exception e) {
             Thread.currentThread().interrupt();
@@ -55,11 +50,10 @@ public class SocketKvsConnection implements KvsConnection {
     @Override
     public void close() {
         try {
-            if (clientSocket == null) {
-                throw new ConnectionException("Error. Connection does not exist");
-            }
+            reader.close();
+            writer.close();
             clientSocket.close();
-        } catch (IOException | ConnectionException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
