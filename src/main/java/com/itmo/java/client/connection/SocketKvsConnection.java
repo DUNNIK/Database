@@ -43,6 +43,9 @@ public class SocketKvsConnection implements KvsConnection {
             writer.write(command);
             var data = new byte[100_000];
             var readBytes = input.read(data);
+            if (readBytes == 0) {
+                throw new ConnectionException("An error occurred while reading data from the server");
+            }
             var reader = new RespReader(new ByteArrayInputStream(data, 0, readBytes));
             return reader.readObject();
         } catch (Exception e) {
