@@ -37,7 +37,7 @@ public class SimpleKvsClient implements KvsClient {
             executionResult = connectionSupplier.get().send(commandId, respCommand);
             ifErrorThrowException(executionResult);
         } catch (ConnectionException e) {
-            throw new DatabaseExecutionException("Error when calling the createDatabase command", e);
+            throw new DatabaseExecutionException("Error when calling the createDatabase command" + e);
         }
         return executionResult.asString();
     }

@@ -1,10 +1,13 @@
 package com.itmo.java.basics.config;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -28,11 +31,38 @@ public class ConfigLoader {
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
+        var clearFilePath = clearFilePath(name);
+        var cleanURL = cleanURL(clearFilePath);
         try {
-            inputStream = new BufferedInputStream(new FileInputStream(name));
-        } catch (FileNotFoundException e) {
+            inputStream = cleanURL.openStream();
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private URL cleanURL(String filePath){
+        var url = this.getClass().getResource(filePath);
+        if (url == null){
+            try {
+                url = createUrlFromPath(filePath);
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Exception. An error occurred when opening a stream from the URL impossible");
+            }
+        }
+        return url;
+    }
+
+    private URL createUrlFromPath(String filePath) throws MalformedURLException {
+        return new File(filePath).toURI().toURL();
+    }
+
+    private String clearFilePath(String filePath) {
+        var separator = File.separator;
+        var filePathAfterChangingSeparator = filePath.replaceAll(Matcher.quoteReplacement(separator), "/");
+        var regex = "^.*:";
+        var pattern = Pattern.compile(regex);
+        var matcher = pattern.matcher(filePathAfterChangingSeparator);
+        return matcher.replaceFirst("");
     }
 
     /**
