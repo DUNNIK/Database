@@ -4,6 +4,7 @@ import com.itmo.java.basics.DatabaseServer;
 import com.itmo.java.basics.config.ConfigLoader;
 import com.itmo.java.basics.config.DatabaseConfig;
 import com.itmo.java.basics.config.ServerConfig;
+import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
 import com.itmo.java.basics.initialization.impl.DatabaseInitializer;
 import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,10 +68,10 @@ public class JavaSocketServerConnector implements Closeable {
     @Override
     public void close() {
         System.out.println("Stopping socket connector");
-        clientIOWorkers.shutdown();
-        connectionAcceptorExecutor.shutdown();
         try {
             serverSocket.close();
+            clientIOWorkers.shutdown();
+            connectionAcceptorExecutor.shutdown();
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -101,7 +103,8 @@ public class JavaSocketServerConnector implements Closeable {
     static class ClientTask implements Runnable, Closeable {
         private final Socket client;
         private final DatabaseServer server;
-
+        private CommandReader reader;
+        private RespWriter writer;
         /**
          * @param client клиентский сокет
          * @param server сервер, на котором исполняется задача
@@ -109,6 +112,13 @@ public class JavaSocketServerConnector implements Closeable {
         public ClientTask(Socket client, DatabaseServer server) {
             this.client = client;
             this.server = server;
+            try {
+                this.writer = new RespWriter(client.getOutputStream());
+                this.reader = new CommandReader(new RespReader(client.getInputStream()), server.getEnv());
+            } catch (IOException e) {
+                System.out.println("Error while opening read/write streams");
+                e.printStackTrace();
+            }
         }
 
         /**
@@ -121,19 +131,14 @@ public class JavaSocketServerConnector implements Closeable {
         @Override
         public void run() {
             while (!client.isClosed()) {
-                try (var input = client.getInputStream(); var output = client.getOutputStream()) {
-                    var buffer = new byte[100_000];
-                    int readBytes = input.read(buffer);
-                    var commandReader = new CommandReader(new RespReader(new ByteArrayInputStream(buffer, 0, readBytes)), server.getEnv());
-                    var command = commandReader.readCommand();
+                try {
+                    var command = reader.readCommand();
                     var databaseCommandResult = server.executeNextCommand(command);
-                    var respWriter = new RespWriter(output);
-                    respWriter.write(databaseCommandResult.get().serialize());
-                    commandReader.close();
-                } catch (Exception e) {
+                    writer.write(databaseCommandResult.get().serialize());
+                } catch (IOException | InterruptedException | ExecutionException e) {
+                    Thread.currentThread().interrupt();
                     System.out.println("An error occurred while reading/writing from the socket");
-                    System.out.println(e);
-                    close();
+                    e.printStackTrace();
                 }
             }
         }
@@ -146,7 +151,9 @@ public class JavaSocketServerConnector implements Closeable {
             System.out.println("Stopping client socket");
             try {
                 client.close();
-            } catch (IOException e) {
+                writer.close();
+                reader.close();
+            } catch (Exception e) {
                 Thread.currentThread().interrupt();
                 System.out.println(e);
             }
