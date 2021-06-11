@@ -48,9 +48,11 @@ public class JavaSocketServerConnector implements Closeable {
     public void start() {
         connectionAcceptorExecutor.submit(() -> {
             try {
-                var socket = serverSocket.accept();
-                var clientTask = new ClientTask(socket, databaseServer);
-                clientIOWorkers.submit(clientTask);
+                if (!serverSocket.isClosed()) {
+                    var socket = serverSocket.accept();
+                    var clientTask = new ClientTask(socket, databaseServer);
+                    clientIOWorkers.submit(clientTask);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -67,7 +69,6 @@ public class JavaSocketServerConnector implements Closeable {
             serverSocket.close();
             clientIOWorkers.shutdown();
             connectionAcceptorExecutor.shutdown();
-            Thread.currentThread().interrupt();
         } catch (IOException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
@@ -92,6 +93,7 @@ public class JavaSocketServerConnector implements Closeable {
         JavaSocketServerConnector connector = null;
         connector = new JavaSocketServerConnector(server, config.getServerConfig());
         connector.start();
+        connector.close();
     }
 
     /**
@@ -143,7 +145,6 @@ public class JavaSocketServerConnector implements Closeable {
             System.out.println("Stopping client socket");
             try {
                 client.close();
-                Thread.currentThread().interrupt();
             } catch (IOException e) {
                 e.printStackTrace();
             }
