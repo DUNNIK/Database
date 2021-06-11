@@ -32,9 +32,8 @@ public class RespReader implements AutoCloseable {
     }
 
     private byte readCodeOfNextObjectAndReset() throws IOException {
-        inputStream.mark(1);
         var oneByte = (byte) inputStream.read();
-        inputStream.reset();
+        inputStream.skipNBytes(-1);
         return oneByte;
     }
 
@@ -46,8 +45,8 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespObject readObject() throws IOException {
-        exceptionIfStreamEmpty();
-        var code = readCodeOfNextObject();
+        var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
         return readCorrectObject(code);
     }
 
@@ -68,29 +67,14 @@ public class RespReader implements AutoCloseable {
         return buffer.toByteArray();
     }
 
-    private void exceptionIfStreamEmpty() throws IOException {
-        if (isInputStreamEmpty()) {
+    private void exceptionIfStreamEmpty(byte readByte) throws IOException {
+        if (isInputStreamEmpty(readByte)) {
             throw new EOFException("The input stream is empty");
         }
     }
 
-    private byte readCodeOfNextObject() throws IOException {
-        try {
-            return (byte) inputStream.read();
-        } catch (IOException e) {
-            throw new IOException("An error occurred while reading", e);
-        }
-    }
-
-    private boolean isInputStreamEmpty() throws IOException {
-        try {
-            inputStream.mark(1);
-            var oneByte = (byte) inputStream.read();
-            inputStream.reset();
-            return oneByte == -1;
-        } catch (Exception e) {
-            throw new IOException("An error occurred while checking the file for emptiness");
-        }
+    private boolean isInputStreamEmpty(byte oneByte) {
+        return oneByte == -1;
     }
 
     private RespObject readCorrectObject(byte code) throws IOException {
@@ -114,8 +98,8 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespError readError() throws IOException {
-        exceptionIfStreamEmpty();
         var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespError.CODE);
         return readErrorWithCode();
     }
@@ -138,8 +122,8 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespBulkString readBulkString() throws IOException {
-        exceptionIfStreamEmpty();
         var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespBulkString.CODE);
         return readBulkStringWithCode();
     }
@@ -163,8 +147,8 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespArray readArray() throws IOException {
-        exceptionIfStreamEmpty();
         var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespArray.CODE);
         return readArrayWithCode();
     }
@@ -185,7 +169,7 @@ public class RespReader implements AutoCloseable {
     private List<RespObject> readArrayObjects(int arrayLength) throws IOException {
         var respList = new ArrayList<RespObject>();
         for (var i = 0; i < arrayLength; i++) {
-            respList.add(readCorrectObject(readCodeOfNextObject()));
+            respList.add(readCorrectObject((byte) inputStream.read()));
         }
         return respList;
     }
@@ -203,8 +187,8 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespCommandId readCommandId() throws IOException {
-        exceptionIfStreamEmpty();
         var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespCommandId.CODE);
         return readCommandIdWithCode();
     }

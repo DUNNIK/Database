@@ -4,7 +4,6 @@ import com.itmo.java.basics.DatabaseServer;
 import com.itmo.java.basics.config.ConfigLoader;
 import com.itmo.java.basics.config.DatabaseConfig;
 import com.itmo.java.basics.config.ServerConfig;
-import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
 import com.itmo.java.basics.initialization.impl.DatabaseInitializer;
 import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
@@ -14,7 +13,6 @@ import com.itmo.java.basics.resp.CommandReader;
 import com.itmo.java.protocol.RespReader;
 import com.itmo.java.protocol.RespWriter;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -130,17 +128,20 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            while (!client.isClosed()) {
-                try {
-                    var command = reader.readCommand();
-                    var databaseCommandResult = server.executeNextCommand(command);
-                    writer.write(databaseCommandResult.get().serialize());
-                } catch (IOException | InterruptedException | ExecutionException e) {
-                    Thread.currentThread().interrupt();
-                    System.out.println("An error occurred while reading/writing from the socket");
-                    e.printStackTrace();
+            try {
+                while (!client.isClosed()) {
+                    if (reader.hasNextCommand()) {
+                        var command = reader.readCommand();
+                        var databaseCommandResult = server.executeNextCommand(command);
+                        writer.write(databaseCommandResult.get().serialize());
+                    }
                 }
+            } catch (IOException | InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("An error occurred while reading/writing from the socket");
+                e.printStackTrace();
             }
+
         }
 
         /**
