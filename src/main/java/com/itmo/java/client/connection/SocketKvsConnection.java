@@ -19,8 +19,9 @@ public class SocketKvsConnection implements KvsConnection {
     public SocketKvsConnection(ConnectionConfig config) {
         try {
             clientSocket = new Socket(config.getHost(), config.getPort());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            close();
         }
     }
 
@@ -54,9 +55,11 @@ public class SocketKvsConnection implements KvsConnection {
     @Override
     public void close() {
         try {
+            if (clientSocket == null) {
+                throw new ConnectionException("Error. Connection does not exist");
+            }
             clientSocket.close();
-        } catch (IOException e) {
-            Thread.currentThread().interrupt();
+        } catch (IOException | ConnectionException e) {
             e.printStackTrace();
         }
     }

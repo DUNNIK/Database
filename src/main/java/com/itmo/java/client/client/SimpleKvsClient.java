@@ -20,6 +20,9 @@ public class SimpleKvsClient implements KvsClient {
      * @param connectionSupplier метод создания подключения к базе
      */
     public SimpleKvsClient(String databaseName, Supplier<KvsConnection> connectionSupplier) {
+        if (databaseName == null || connectionSupplier == null) {
+            throw new IllegalArgumentException("Exception when creating a SimpleKvsClient object. The passed arguments cannot be null.");
+        }
         this.databaseName = databaseName;
         this.connectionSupplier = connectionSupplier;
     }
