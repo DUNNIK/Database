@@ -120,21 +120,26 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            try (var input = client.getInputStream(); var output = client.getOutputStream()) {
-                var buffer = new byte[100_000];
-                int readBytes = input.read(buffer);
-                var commandReader = new CommandReader(new RespReader(new ByteArrayInputStream(buffer, 0, readBytes)), server.getEnv());
-                if (commandReader.hasNextCommand()) {
-                    var command = commandReader.readCommand();
-                    var databaseCommandResult = command.execute();
-                    var respWriter = new RespWriter(output);
-                    respWriter.write(databaseCommandResult.serialize());
-                } else {
-                    throw new IllegalStateException("No command");
+            while (!client.isClosed()) {
+                try (var input = client.getInputStream(); var output = client.getOutputStream()) {
+                    var buffer = new byte[100_000];
+                    int readBytes = input.read(buffer);
+                    var commandReader = new CommandReader(new RespReader(new ByteArrayInputStream(buffer, 0, readBytes)), server.getEnv());
+                    if (commandReader.hasNextCommand()) {
+                        var command = commandReader.readCommand();
+                        var databaseCommandResult = server.executeNextCommand(command);
+                        var respWriter = new RespWriter(output);
+                        respWriter.write(databaseCommandResult.get().serialize());
+                    } else {
+                        throw new IllegalStateException("No command");
+                    }
+                    commandReader.close();
+                } catch (IOException e) {
+                    System.out.println("An error occurred while reading/writing from the socket");
+                    System.out.println(e);
+                } catch (Exception e) {
+                    System.out.println(e);
                 }
-            } catch (IOException e) {
-                System.out.println("An error occurred while reading/writing from the socket");
-                e.printStackTrace();
             }
         }
 
@@ -148,7 +153,7 @@ public class JavaSocketServerConnector implements Closeable {
                 client.close();
             } catch (IOException e) {
                 Thread.currentThread().interrupt();
-                e.printStackTrace();
+                System.out.println(e);
             }
         }
     }
