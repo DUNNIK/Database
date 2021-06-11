@@ -81,21 +81,13 @@ public class RespArray implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
-            writeInt(bytes, respObjects.size());
-            //bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
+            bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespArray with that objects: " + convertToString(), e);
         }
         return bytes;
     }
-
-    private void writeInt(OutputStream os, int intValue) throws IOException {
-        var byteInt = ByteBuffer.allocate(4);
-        byteInt.putInt(intValue);
-        os.write(byteInt.array());
-    }
-
     public List<RespObject> getObjects() {
         return respObjects;
     }
