@@ -24,18 +24,23 @@ public class ConfigLoader {
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
+        inputStream = getClass().getResourceAsStream("server.properties");
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        try {
-            inputStream = new BufferedInputStream(new FileInputStream(name));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        inputStream = getClass().getResourceAsStream(clearFilePath(name));
+    }
+
+    private String clearFilePath(String filePath) {
+        var separator = File.separator;
+        var filePathAfterChangingSeparator = filePath.replaceAll(Matcher.quoteReplacement(separator), "/");
+        var regex = "^.*:";
+        var pattern = Pattern.compile(regex);
+        var matcher = pattern.matcher(filePathAfterChangingSeparator);
+        return matcher.replaceFirst("");
     }
     /**
      * Считывает конфиг из указанного в конструкторе файла.
