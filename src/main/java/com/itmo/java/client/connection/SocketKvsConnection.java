@@ -42,14 +42,12 @@ public class SocketKvsConnection implements KvsConnection {
         try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
             var writer = new RespWriter(output);
             writer.write(command);
-            var data = new byte[Integer.MAX_VALUE];
+            var data = new byte[100_000];
             var readBytes = input.read(data);
             var reader = new RespReader(new ByteArrayInputStream(data, 0, readBytes));
             return reader.readObject();
         } catch (Exception e) {
             throw new ConnectionException("An error occurred while connecting to the server", e);
-        } finally {
-            close();
         }
     }
 

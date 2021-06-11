@@ -55,8 +55,6 @@ public class JavaSocketServerConnector implements Closeable {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                close();
             }
         });
     }
@@ -92,7 +90,7 @@ public class JavaSocketServerConnector implements Closeable {
         var server = DatabaseServer.initialize(executionEnvironment, initializer);
         var loader = new ConfigLoader();
         var config = loader.readConfig();
-        JavaSocketServerConnector connector = null;
+        JavaSocketServerConnector connector;
         connector = new JavaSocketServerConnector(server, config.getServerConfig());
         connector.start();
     }
