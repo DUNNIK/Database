@@ -18,7 +18,11 @@ public class RespReader implements AutoCloseable {
     private static final byte LF = '\n';
 
     public RespReader(InputStream is) {
-        this.reader = new BufferedReader(new InputStreamReader(new DataInputStream(new BufferedInputStream(is))));
+        if (is.markSupported()) {
+            this.reader = new BufferedReader(new InputStreamReader(is));
+        } else {
+            this.reader = new BufferedReader(new InputStreamReader(new DataInputStream(new BufferedInputStream(is))));
+        }
         offset = 0;
     }
 
@@ -45,7 +49,9 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespObject readObject() throws IOException {
-        exceptionIfStreamEmpty();
+        if (isInputStreamEmpty()) {
+            return new RespError("The input stream is empty".getBytes());
+        }
         var code = readCodeOfNextObject();
         return readCorrectObject(code);
     }
