@@ -29,7 +29,7 @@ public class ConfigLoader {
      */
     public ConfigLoader(String name) {
         try {
-            inputStream = new FileInputStream(name);
+            inputStream = new BufferedInputStream(new FileInputStream(name));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
