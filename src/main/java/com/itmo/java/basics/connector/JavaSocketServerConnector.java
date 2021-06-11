@@ -47,15 +47,18 @@ public class JavaSocketServerConnector implements Closeable {
      */
     public void start() {
         connectionAcceptorExecutor.submit(() -> {
-            try {
-                while (!serverSocket.isClosed()) {
+            while (!serverSocket.isClosed()) {
+                try {
+
                     var socket = serverSocket.accept();
                     var clientTask = new ClientTask(socket, databaseServer);
                     clientIOWorkers.submit(clientTask);
+
+                } catch (IOException e) {
+                    System.out.println("An error occurred while accepting client sockets");
+                    e.printStackTrace();
+                    break;
                 }
-            } catch (IOException e) {
-                Thread.currentThread().interrupt();
-                e.printStackTrace();
             }
         });
     }
@@ -128,18 +131,20 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            try {
-                while (!client.isClosed()) {
+            while (!client.isClosed()) {
+                try {
                     if (reader.hasNextCommand()) {
                         var command = reader.readCommand();
                         var databaseCommandResult = server.executeNextCommand(command);
                         writer.write(databaseCommandResult.get().serialize());
                     }
+
+                } catch (IOException | InterruptedException | ExecutionException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("An error occurred while reading/writing from the socket");
+                    e.printStackTrace();
+                    break;
                 }
-            } catch (IOException | InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("An error occurred while reading/writing from the socket");
-                e.printStackTrace();
             }
 
         }
