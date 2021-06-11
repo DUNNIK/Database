@@ -72,18 +72,22 @@ public class RespReader implements AutoCloseable {
     }
 
     private byte readCodeOfNextObject() throws IOException {
-        offset++;
-        return (byte) reader.read();
+        try {
+            offset++;
+            return (byte) reader.read();
+        } catch (IOException e) {
+            throw new IOException("An error occurred while reading", e);
+        }
     }
 
     private boolean isInputStreamEmpty() throws IOException {
-        if (reader.markSupported()) {
+        try {
             reader.mark(1);
             var oneByte = (byte) reader.read();
             reader.reset();
             return oneByte == -1;
-        } else {
-            throw new EOFException("Error marking Stream");
+        } catch (Exception e) {
+            throw new IOException("An error occurred while checking the file for emptiness");
         }
     }
 
