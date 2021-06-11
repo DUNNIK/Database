@@ -66,12 +66,12 @@ public class JavaSocketServerConnector implements Closeable {
     @Override
     public void close() {
         System.out.println("Stopping socket connector");
+        clientIOWorkers.shutdown();
+        connectionAcceptorExecutor.shutdown();
         try {
             serverSocket.close();
-            clientIOWorkers.shutdown();
-            connectionAcceptorExecutor.shutdown();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("An error occurred when closing the socket", e);
         }
     }
 
