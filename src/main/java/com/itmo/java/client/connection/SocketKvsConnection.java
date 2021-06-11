@@ -35,7 +35,7 @@ public class SocketKvsConnection implements KvsConnection {
      */
     @Override
     public synchronized RespObject send(int commandId, RespArray command) throws ConnectionException {
-        if (!clientSocket.isConnected()) {
+        if (clientSocket.isClosed()) {
             throw new ConnectionException("An error occurred while connecting to the server");
         }
         try (var input = clientSocket.getInputStream(); var output = clientSocket.getOutputStream()) {
