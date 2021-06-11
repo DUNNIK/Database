@@ -125,14 +125,10 @@ public class JavaSocketServerConnector implements Closeable {
                     var buffer = new byte[100_000];
                     int readBytes = input.read(buffer);
                     var commandReader = new CommandReader(new RespReader(new ByteArrayInputStream(buffer, 0, readBytes)), server.getEnv());
-                    if (commandReader.hasNextCommand()) {
-                        var command = commandReader.readCommand();
-                        var databaseCommandResult = server.executeNextCommand(command);
-                        var respWriter = new RespWriter(output);
-                        respWriter.write(databaseCommandResult.get().serialize());
-                    } else {
-                        throw new IllegalStateException("No command");
-                    }
+                    var command = commandReader.readCommand();
+                    var databaseCommandResult = server.executeNextCommand(command);
+                    var respWriter = new RespWriter(output);
+                    respWriter.write(databaseCommandResult.get().serialize());
                     commandReader.close();
                 } catch (Exception e) {
                     System.out.println("An error occurred while reading/writing from the socket");
