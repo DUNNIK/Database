@@ -59,6 +59,9 @@ public class RespReader implements AutoCloseable {
             byteForWrite = previousByte;
             previousByte = currentByte;
             currentByte = (byte) reader.read();
+            if (byteForWrite == -1) {
+                throw new IOException("Mistake. The buffer has run out. CLRF was not detected");
+            }
             buffer.write(byteForWrite);
         }
         return buffer.toByteArray();
