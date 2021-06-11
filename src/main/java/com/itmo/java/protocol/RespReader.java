@@ -13,6 +13,8 @@ import java.util.List;
 public class RespReader implements AutoCloseable {
 
     private final InputStream inputStream;
+    private boolean firstByteWasRead = false;
+    private byte currentByteFromHasArray;
     /**
      * Специальные символы окончания элемента
      */
@@ -27,14 +29,9 @@ public class RespReader implements AutoCloseable {
      * Есть ли следующий массив в стриме?
      */
     public boolean hasArray() throws IOException {
-        var code = readCodeOfNextObjectAndReset();
-        return code == RespArray.CODE;
-    }
-
-    private byte readCodeOfNextObjectAndReset() throws IOException {
-        var oneByte = (byte) inputStream.read();
-        inputStream.skipNBytes(-1);
-        return oneByte;
+        currentByteFromHasArray = (byte) inputStream.read();
+        firstByteWasRead = true;
+        return currentByteFromHasArray == RespArray.CODE;
     }
 
     /**
@@ -45,6 +42,10 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespObject readObject() throws IOException {
+        if (firstByteWasRead) {
+            firstByteWasRead = false;
+            return readCorrectObject(currentByteFromHasArray);
+        }
         var code = (byte) inputStream.read();
         exceptionIfStreamEmpty(code);
         return readCorrectObject(code);
@@ -98,6 +99,13 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespError readError() throws IOException {
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespError.CODE)) {
+                throw new IOException("Exception. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readErrorWithCode();
+        }
         var code = (byte) inputStream.read();
         exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespError.CODE);
@@ -110,11 +118,14 @@ public class RespReader implements AutoCloseable {
     }
 
     private void exceptionIfNotCorrectCode(byte currentCode, byte correctCode) throws IOException {
-        if (currentCode != correctCode) {
+        if (isNotCorrectCode(currentCode, correctCode)) {
             throw new IOException("Read error. Expected object with code:" + correctCode + "received object with code:" + currentCode);
         }
     }
 
+    private boolean isNotCorrectCode(byte currentCode, byte correctCode) {
+        return currentCode != correctCode;
+    }
     /**
      * Читает bulk строку
      *
@@ -122,6 +133,13 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespBulkString readBulkString() throws IOException {
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespBulkString.CODE)) {
+                throw new IOException("Exception. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readBulkStringWithCode();
+        }
         var code = (byte) inputStream.read();
         exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespBulkString.CODE);
@@ -147,6 +165,13 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespArray readArray() throws IOException {
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespArray.CODE)) {
+                throw new IOException("Exception. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readArrayWithCode();
+        }
         var code = (byte) inputStream.read();
         exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespArray.CODE);
@@ -187,6 +212,13 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespCommandId readCommandId() throws IOException {
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespCommandId.CODE)) {
+                throw new IOException("Exception. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readCommandIdWithCode();
+        }
         var code = (byte) inputStream.read();
         exceptionIfStreamEmpty(code);
         exceptionIfNotCorrectCode(code, RespCommandId.CODE);
