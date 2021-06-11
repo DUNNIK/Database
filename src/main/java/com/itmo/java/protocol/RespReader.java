@@ -91,13 +91,6 @@ public class RespReader implements AutoCloseable {
         }
     }
 
-    private boolean isNotInputStreamEmpty() throws IOException {
-        reader.mark(1);
-        var oneByte = (byte) reader.read();
-        reader.reset();
-        return oneByte != -1;
-    }
-
     private RespObject readCorrectObject(byte code) throws IOException {
         switch (code) {
             case RespArray.CODE:
@@ -160,24 +153,6 @@ public class RespReader implements AutoCloseable {
             throw new IOException("An error occurred while reading the Bulk String");
         }
         return new RespBulkString(message);
-    }
-
-    private byte[] convertToIntBytes(byte[] array) {
-        var byteBuffer = ByteBuffer.allocate(4);
-        byteBuffer.put(3, array[0]);
-        return byteBuffer.array();
-    }
-    private void checkCRLF() throws IOException {
-        var cr = (byte) reader.read();
-        offset++;
-        if (cr != CR) {
-            throw new IOException("Read error. Expected byte:" + CR + "received byte:" + cr);
-        }
-        var lf = (byte) reader.read();
-        offset++;
-        if (lf != LF) {
-            throw new IOException("Read error. Expected byte:" + CR + "received byte:" + cr);
-        }
     }
 
     /**
