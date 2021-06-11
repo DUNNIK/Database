@@ -1,8 +1,12 @@
 package com.itmo.java.protocol.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +15,8 @@ import java.util.List;
 /**
  * Массив RESP объектов
  */
+@Builder
+@AllArgsConstructor
 public class RespArray implements RespObject {
 
     /**
@@ -75,12 +81,19 @@ public class RespArray implements RespObject {
         var bytes = new ByteArrayOutputStream();
         try {
             bytes.write(CODE);
-            bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
+            writeInt(bytes, respObjects.size());
+            //bytes.write(Integer.toString(respObjects.size()).getBytes(StandardCharsets.UTF_8));
             bytes.write(CRLF);
         } catch (IOException e) {
             throw new IOException("Error creating a byte record RESP RespArray with that objects: " + convertToString(), e);
         }
         return bytes;
+    }
+
+    private void writeInt(OutputStream os, int intValue) throws IOException {
+        var byteInt = ByteBuffer.allocate(4);
+        byteInt.putInt(intValue);
+        os.write(byteInt.array());
     }
 
     public List<RespObject> getObjects() {
