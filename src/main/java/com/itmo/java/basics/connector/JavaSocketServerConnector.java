@@ -54,6 +54,7 @@ public class JavaSocketServerConnector implements Closeable {
                     clientIOWorkers.submit(clientTask);
                 }
             } catch (IOException e) {
+                Thread.currentThread().interrupt();
                 e.printStackTrace();
             }
         });
@@ -146,6 +147,7 @@ public class JavaSocketServerConnector implements Closeable {
             try {
                 client.close();
             } catch (IOException e) {
+                Thread.currentThread().interrupt();
                 e.printStackTrace();
             }
         }

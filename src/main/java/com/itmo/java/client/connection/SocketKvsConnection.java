@@ -46,6 +46,7 @@ public class SocketKvsConnection implements KvsConnection {
             var reader = new RespReader(new ByteArrayInputStream(data, 0, readBytes));
             return reader.readObject();
         } catch (Exception e) {
+            Thread.currentThread().interrupt();
             throw new ConnectionException("An error occurred while connecting to the server", e);
         }
     }
@@ -58,6 +59,7 @@ public class SocketKvsConnection implements KvsConnection {
         try {
             clientSocket.close();
         } catch (IOException e) {
+            Thread.currentThread().interrupt();
             e.printStackTrace();
         }
     }
