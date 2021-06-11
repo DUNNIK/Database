@@ -10,7 +10,7 @@ import java.util.List;
 
 public class RespReader implements AutoCloseable {
 
-    private final InputStream inputStream;
+    private final DataInputStream inputStream;
     private int offset;
     /**
      * Специальные символы окончания элемента
@@ -19,7 +19,7 @@ public class RespReader implements AutoCloseable {
     private static final byte LF = '\n';
 
     public RespReader(InputStream is) {
-        this.inputStream = is;
+        this.inputStream = new DataInputStream(new BufferedInputStream(is));
         offset = 0;
     }
 
