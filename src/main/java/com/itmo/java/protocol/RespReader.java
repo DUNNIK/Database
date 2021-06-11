@@ -59,7 +59,7 @@ public class RespReader implements AutoCloseable {
             byteForWrite = previousByte;
             previousByte = currentByte;
             currentByte = (byte) reader.read();
-            if (byteForWrite == -1) {
+            if (previousByte == -1 && currentByte == -1) {
                 throw new IOException("Mistake. The buffer has run out. CLRF was not detected");
             }
             buffer.write(byteForWrite);
@@ -145,6 +145,9 @@ public class RespReader implements AutoCloseable {
 
     private RespBulkString readBulkStringWithCode() throws IOException {
         var messageLength = Integer.parseInt(reader.readLine());
+        if (messageLength == -1) {
+            return RespBulkString.NULL_STRING;
+        }
         var message = readBeforeCRLF();
         if (message.length != messageLength) {
             throw new IOException("An error occurred while reading the Bulk String");
