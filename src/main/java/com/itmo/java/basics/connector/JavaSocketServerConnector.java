@@ -21,7 +21,6 @@ import java.net.Socket;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Класс, который предоставляет доступ к серверу через сокеты
@@ -68,6 +67,7 @@ public class JavaSocketServerConnector implements Closeable {
             serverSocket.close();
             clientIOWorkers.shutdown();
             connectionAcceptorExecutor.shutdown();
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
@@ -143,6 +143,7 @@ public class JavaSocketServerConnector implements Closeable {
             System.out.println("Stopping client socket");
             try {
                 client.close();
+                Thread.currentThread().interrupt();
             } catch (IOException e) {
                 e.printStackTrace();
             }
