@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class ConfigLoader {
 
-    private final String fileName;
+    private final String filePath;
     private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
     private static final String HOST_REGEX = "\\S+\\.host=";
     private static final String PORT_REGEX = "\\S+\\.port=";
@@ -21,14 +21,14 @@ public class ConfigLoader {
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        fileName = "server.properties";
+        filePath = String.valueOf(this.getClass().getClassLoader().getResource("server.properties"));
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
-    public ConfigLoader(String name) {
-        fileName = name;
+    public ConfigLoader(String path) {
+        filePath = path;
     }
 
     /**
@@ -39,6 +39,7 @@ public class ConfigLoader {
      * Читаются: "kvs.workingPath", "kvs.host", "kvs.port" (но в конфигурационном файле допустимы и другие проперти)
      */
     public DatabaseServerConfig readConfig() {
+
         var databaseServerConfig = new DatabaseServerConfig(
                 new ServerConfig(ServerConfig.DEFAULT_HOST, ServerConfig.DEFAULT_PORT),
                 new DatabaseConfig(DatabaseConfig.DEFAULT_WORKING_PATH)
@@ -101,10 +102,7 @@ public class ConfigLoader {
     }
 
     private List<String> readAllFile() throws IOException {
-        var inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);
-        if (inputStream == null) {
-            return new ArrayList<>();
-        }
+        var inputStream = new FileInputStream(filePath);
         var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8));
         var line = bufferedReader.readLine();
         var allLines = new ArrayList<String>();
