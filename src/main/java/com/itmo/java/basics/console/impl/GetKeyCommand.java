@@ -56,10 +56,10 @@ public class GetKeyCommand implements DatabaseCommand {
             }
             var database = databaseOptional.get();
             var readOptionalValue = database.read(tableName, key);
-            if (readOptionalValue.isEmpty()) {
-                return DatabaseCommandResult.error("There is no value to delete");
+            byte[] readValue = null;
+            if (readOptionalValue.isPresent()) {
+                readValue = readOptionalValue.get();
             }
-            var readValue = readOptionalValue.get();
             return DatabaseCommandResult.success(readValue);
         } catch (DatabaseException e) {
             return DatabaseCommandResult.error(e);
