@@ -71,7 +71,7 @@ public class JavaSocketServerConnector implements Closeable {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            throw new RuntimeException("An error occurred when closing the socket", e);
+            System.out.println(e);
         }
     }
 
@@ -134,11 +134,10 @@ public class JavaSocketServerConnector implements Closeable {
                         throw new IllegalStateException("No command");
                     }
                     commandReader.close();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("An error occurred while reading/writing from the socket");
                     System.out.println(e);
-                } catch (Exception e) {
-                    System.out.println(e);
+                    close();
                 }
             }
         }
