@@ -2,15 +2,17 @@ package com.itmo.java.protocol;
 
 import com.itmo.java.protocol.model.*;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RespReader implements AutoCloseable {
 
-    private final BufferedReader reader;
+    private final InputStream inputStream;
     /**
      * Специальные символы окончания элемента
      */
@@ -18,8 +20,7 @@ public class RespReader implements AutoCloseable {
     private static final byte LF = '\n';
 
     public RespReader(InputStream is) {
-
-        this.reader = new BufferedReader(new InputStreamReader(new DataInputStream(new BufferedInputStream(is)), StandardCharsets.UTF_8));
+        this.inputStream = is;
     }
 
     /**
@@ -31,9 +32,9 @@ public class RespReader implements AutoCloseable {
     }
 
     private byte readCodeOfNextObjectAndReset() throws IOException {
-        reader.mark(1);
-        var oneByte = (byte) reader.read();
-        reader.reset();
+        inputStream.mark(1);
+        var oneByte = (byte) inputStream.read();
+        inputStream.reset();
         return oneByte;
     }
 
@@ -51,14 +52,14 @@ public class RespReader implements AutoCloseable {
     }
 
     private byte[] readBeforeCRLF() throws IOException {
-        var previousByte = (byte) reader.read();
-        var currentByte = (byte) reader.read();
+        var previousByte = (byte) inputStream.read();
+        var currentByte = (byte) inputStream.read();
         byte byteForWrite;
         var buffer = new ByteArrayOutputStream();
         while (previousByte != CR || currentByte != LF) {
             byteForWrite = previousByte;
             previousByte = currentByte;
-            currentByte = (byte) reader.read();
+            currentByte = (byte) inputStream.read();
             if (previousByte == -1 && currentByte == -1) {
                 throw new IOException("Mistake. The buffer has run out. CLRF was not detected");
             }
@@ -75,7 +76,7 @@ public class RespReader implements AutoCloseable {
 
     private byte readCodeOfNextObject() throws IOException {
         try {
-            return (byte) reader.read();
+            return (byte) inputStream.read();
         } catch (IOException e) {
             throw new IOException("An error occurred while reading", e);
         }
@@ -83,9 +84,9 @@ public class RespReader implements AutoCloseable {
 
     private boolean isInputStreamEmpty() throws IOException {
         try {
-            reader.mark(1);
-            var oneByte = (byte) reader.read();
-            reader.reset();
+            inputStream.mark(1);
+            var oneByte = (byte) inputStream.read();
+            inputStream.reset();
             return oneByte == -1;
         } catch (Exception e) {
             throw new IOException("An error occurred while checking the file for emptiness");
@@ -114,7 +115,7 @@ public class RespReader implements AutoCloseable {
      */
     public RespError readError() throws IOException {
         exceptionIfStreamEmpty();
-        var code = (byte) reader.read();
+        var code = (byte) inputStream.read();
         exceptionIfNotCorrectCode(code, RespError.CODE);
         return readErrorWithCode();
     }
@@ -138,13 +139,13 @@ public class RespReader implements AutoCloseable {
      */
     public RespBulkString readBulkString() throws IOException {
         exceptionIfStreamEmpty();
-        var code = (byte) reader.read();
+        var code = (byte) inputStream.read();
         exceptionIfNotCorrectCode(code, RespBulkString.CODE);
         return readBulkStringWithCode();
     }
 
     private RespBulkString readBulkStringWithCode() throws IOException {
-        var messageLength = Integer.parseInt(reader.readLine());
+        var messageLength = readLength();
         if (messageLength == -1) {
             return RespBulkString.NULL_STRING;
         }
@@ -163,18 +164,23 @@ public class RespReader implements AutoCloseable {
      */
     public RespArray readArray() throws IOException {
         exceptionIfStreamEmpty();
-        var code = (byte) reader.read();
+        var code = (byte) inputStream.read();
         exceptionIfNotCorrectCode(code, RespArray.CODE);
         return readArrayWithCode();
     }
 
     private RespArray readArrayWithCode() throws IOException {
-        var arrayLength = Integer.parseInt(reader.readLine());
+        var arrayLength = readLength();
         var respList = readArrayObjects(arrayLength);
         return RespArray.builder()
                 .respObjects(respList)
                 .respObjectStrings(parseStringsFromRespObjects(respList))
                 .build();
+    }
+
+    private int readLength() throws IOException {
+        var byteNumber = readBeforeCRLF();
+        return Integer.parseInt(new String(byteNumber));
     }
     private List<RespObject> readArrayObjects(int arrayLength) throws IOException {
         var respList = new ArrayList<RespObject>();
@@ -198,7 +204,7 @@ public class RespReader implements AutoCloseable {
      */
     public RespCommandId readCommandId() throws IOException {
         exceptionIfStreamEmpty();
-        var code = (byte) reader.read();
+        var code = (byte) inputStream.read();
         exceptionIfNotCorrectCode(code, RespCommandId.CODE);
         return readCommandIdWithCode();
     }
@@ -215,6 +221,6 @@ public class RespReader implements AutoCloseable {
     }
     @Override
     public void close() throws IOException {
-        reader.close();
+        inputStream.close();
     }
 }
