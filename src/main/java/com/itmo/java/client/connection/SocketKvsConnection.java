@@ -14,7 +14,7 @@ import java.net.Socket;
  * С помощью {@link RespWriter} и {@link RespReader} читает/пишет в сокет
  */
 public class SocketKvsConnection implements KvsConnection {
-    private Socket clientSocket = new Socket();
+    private Socket clientSocket;
 
     public SocketKvsConnection(ConnectionConfig config) {
         try {
