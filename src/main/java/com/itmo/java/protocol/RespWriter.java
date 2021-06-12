@@ -5,7 +5,7 @@ import com.itmo.java.protocol.model.RespObject;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class RespWriter implements AutoCloseable{
+public class RespWriter implements AutoCloseable {
     private final OutputStream outputStream;
 
     public RespWriter(OutputStream os) {

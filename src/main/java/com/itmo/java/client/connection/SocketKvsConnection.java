@@ -29,6 +29,7 @@ public class SocketKvsConnection implements KvsConnection {
 
     /**
      * Отправляет с помощью сокета команду и получает результат.
+     *
      * @param commandId id команды (номер)
      * @param command   команда
      * @throws ConnectionException если сокет закрыт или если произошла другая ошибка соединения

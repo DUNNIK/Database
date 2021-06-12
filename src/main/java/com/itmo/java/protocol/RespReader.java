@@ -88,7 +88,8 @@ public class RespReader implements AutoCloseable {
                 return readCommandIdWithCode();
             case RespError.CODE:
                 return readErrorWithCode();
-            default: throw new IOException("An incorrect object's RESP code was read");
+            default:
+                throw new IOException("An incorrect object's RESP code was read");
         }
     }
 
@@ -126,6 +127,7 @@ public class RespReader implements AutoCloseable {
     private boolean isNotCorrectCode(byte currentCode, byte correctCode) {
         return currentCode != correctCode;
     }
+
     /**
      * Читает bulk строку
      *
@@ -191,6 +193,7 @@ public class RespReader implements AutoCloseable {
         var byteNumber = readBeforeCRLF();
         return Integer.parseInt(new String(byteNumber));
     }
+
     private List<RespObject> readArrayObjects(int arrayLength) throws IOException {
         var respList = new ArrayList<RespObject>();
         for (var i = 0; i < arrayLength; i++) {
@@ -198,6 +201,7 @@ public class RespReader implements AutoCloseable {
         }
         return respList;
     }
+
     private List<String> parseStringsFromRespObjects(List<RespObject> objects) {
         var result = new ArrayList<String>();
         for (var respObject : objects) {
@@ -205,6 +209,7 @@ public class RespReader implements AutoCloseable {
         }
         return result;
     }
+
     /**
      * Считывает id команды
      *
@@ -235,6 +240,7 @@ public class RespReader implements AutoCloseable {
         var byteBuffer = ByteBuffer.wrap(bytes);
         return byteBuffer.getInt();
     }
+
     @Override
     public void close() throws IOException {
         inputStream.close();

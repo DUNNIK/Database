@@ -42,6 +42,7 @@ public class JavaSocketServerConnector implements Closeable {
         serverSocket = new ServerSocket(config.getPort());
         this.databaseServer = databaseServer;
     }
+
     /**
      * Начинает слушать заданный порт, начинает аксептить клиентские сокеты. На каждый из них начинает клиентскую таску
      */
@@ -103,6 +104,7 @@ public class JavaSocketServerConnector implements Closeable {
         private final DatabaseServer server;
         private CommandReader reader;
         private RespWriter writer;
+
         /**
          * @param client клиентский сокет
          * @param server сервер, на котором исполняется задача

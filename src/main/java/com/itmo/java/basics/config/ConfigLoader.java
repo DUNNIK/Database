@@ -99,6 +99,7 @@ public class ConfigLoader {
     private boolean isStringFit(String str) {
         return str != null && !str.trim().isEmpty();
     }
+
     private String getValueFromExpression(String expression, String regex) {
         var pattern = Pattern.compile(regex);
         var matcher1 = pattern.matcher(expression);
