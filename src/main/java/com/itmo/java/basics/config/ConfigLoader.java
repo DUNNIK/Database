@@ -1,10 +1,7 @@
 package com.itmo.java.basics.config;
 
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class ConfigLoader {
 
-    private final String filePath;
+    private InputStream inputStream;
     private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
     private static final String HOST_REGEX = "\\S+\\.host=";
     private static final String PORT_REGEX = "\\S+\\.port=";
@@ -24,21 +21,21 @@ public class ConfigLoader {
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        URL res = getClass().getClassLoader().getResource("server.properties");
-        File file = null;
-        try {
-            file = Paths.get(Objects.requireNonNull(res).toURI()).toFile();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        filePath = Objects.requireNonNull(file).getAbsolutePath();
+        inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        filePath = name;
+        inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
+        if (inputStream == null) {
+            try {
+                inputStream = new BufferedInputStream(new FileInputStream(name));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -112,7 +109,6 @@ public class ConfigLoader {
     }
 
     private List<String> readAllFile() throws IOException {
-        var inputStream = new BufferedInputStream(new FileInputStream(filePath));
         if (isEmpty(inputStream)) {
             return new ArrayList<>();
         }
@@ -126,6 +122,7 @@ public class ConfigLoader {
         bufferedReader.close();
         return allLines;
     }
+
     private boolean isEmpty(InputStream inputStream) throws IOException {
         inputStream.mark(1);
         var oneByte = (byte) inputStream.read();
