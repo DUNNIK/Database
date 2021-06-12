@@ -70,9 +70,9 @@ public class JavaSocketServerConnector implements Closeable {
     public void close() {
         System.out.println("Stopping socket connector");
         try {
+            clientIOWorkers.shutdownNow();
+            connectionAcceptorExecutor.shutdownNow();
             serverSocket.close();
-            clientIOWorkers.shutdown();
-            connectionAcceptorExecutor.shutdown();
         } catch (IOException e) {
             System.out.println(e);
         }
