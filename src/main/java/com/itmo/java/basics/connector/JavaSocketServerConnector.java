@@ -134,23 +134,22 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            try {
-                while (!client.isClosed()) {
+            while (!client.isClosed()) {
+                try {
                     if (reader.hasNextCommand()) {
                         var command = reader.readCommand();
                         var databaseCommandResult = server.executeNextCommand(command);
                         writer.write(databaseCommandResult.get().serialize());
-                    } else {
-                        throw new IOException("The next command is not in the stream");
                     }
-                }
-            } catch (IOException | InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt();
-                logger.log(Level.INFO,"An error occurred while reading/writing from the socket");
-                e.printStackTrace();
-                close();
-            }
 
+                } catch (IOException | InterruptedException | ExecutionException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("An error occurred while reading/writing from the socket");
+                    e.printStackTrace();
+                    close();
+                    break;
+                }
+            }
 
         }
 
