@@ -39,7 +39,6 @@ public class SocketKvsConnection implements KvsConnection {
             writer.write(command);
             return reader.readObject();
         } catch (Exception e) {
-            Thread.currentThread().interrupt();
             throw new ConnectionException("An error occurred while connecting to the server", e);
         }
     }
@@ -54,7 +53,7 @@ public class SocketKvsConnection implements KvsConnection {
             writer.close();
             clientSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Exception. Unable to close to the server " + e);
         }
     }
 }
