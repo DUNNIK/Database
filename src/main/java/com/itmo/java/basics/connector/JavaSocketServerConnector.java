@@ -144,7 +144,7 @@ public class JavaSocketServerConnector implements Closeable {
 
                 } catch (IOException | InterruptedException | ExecutionException e) {
                     Thread.currentThread().interrupt();
-                    System.out.println("An error occurred while reading/writing from the socket");
+                    logger.log(Level.INFO, "An error occurred while reading/writing from the socket");
                     e.printStackTrace();
                     close();
                     break;
