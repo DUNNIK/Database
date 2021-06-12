@@ -102,7 +102,7 @@ public class RespReader implements AutoCloseable {
     public RespError readError() throws IOException {
         if (firstByteWasRead) {
             if (isNotCorrectCode(currentByteFromHasArray, RespError.CODE)) {
-                throw new IOException("Exception. Incorrectly read code");
+                throw new IOException("An error occurred. Incorrectly read code");
             }
             firstByteWasRead = false;
             return readErrorWithCode();
@@ -137,7 +137,7 @@ public class RespReader implements AutoCloseable {
     public RespBulkString readBulkString() throws IOException {
         if (firstByteWasRead) {
             if (isNotCorrectCode(currentByteFromHasArray, RespBulkString.CODE)) {
-                throw new IOException("Exception. Incorrectly read code");
+                throw new IOException("An error occurred. Incorrectly read code");
             }
             firstByteWasRead = false;
             return readBulkStringWithCode();

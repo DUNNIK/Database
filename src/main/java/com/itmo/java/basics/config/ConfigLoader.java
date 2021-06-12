@@ -5,12 +5,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
  */
 public class ConfigLoader {
+    private Logger logger;
 
     private InputStream inputStream;
     private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
@@ -63,7 +66,7 @@ public class ConfigLoader {
             var serverConfig = new ServerConfig(host, port);
             databaseServerConfig = new DatabaseServerConfig(serverConfig, databaseConfig);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.INFO, e.getMessage());
         }
         return databaseServerConfig;
     }
