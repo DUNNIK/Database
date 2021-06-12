@@ -31,7 +31,11 @@ public class ConfigLoader {
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        inputStream = getClass().getResourceAsStream(name);
+        try {
+            inputStream = new BufferedInputStream(new FileInputStream(name));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private String clearFilePath(String filePath) {
