@@ -109,7 +109,7 @@ public class ConfigLoader {
     }
 
     private List<String> readAllFile() throws IOException {
-        if (isEmpty(inputStream)) {
+        if (isEmpty(inputStream) || inputStream == null) {
             return new ArrayList<>();
         }
         var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8));
