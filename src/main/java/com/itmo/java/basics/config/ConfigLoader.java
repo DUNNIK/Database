@@ -33,7 +33,7 @@ public class ConfigLoader {
             try {
                 inputStream = new BufferedInputStream(new FileInputStream(name));
             } catch (FileNotFoundException e) {
-                new ConfigLoader();
+                inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
             }
         }
     }
