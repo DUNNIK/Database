@@ -21,11 +21,15 @@ import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Класс, который предоставляет доступ к серверу через сокеты
  */
 public class JavaSocketServerConnector implements Closeable {
+
+    static Logger logger;
 
     /**
      * Экзекьютор для выполнения ClientTask
@@ -42,6 +46,7 @@ public class JavaSocketServerConnector implements Closeable {
         serverSocket = new ServerSocket(config.getPort());
         this.databaseServer = databaseServer;
     }
+
     /**
      * Начинает слушать заданный порт, начинает аксептить клиентские сокеты. На каждый из них начинает клиентскую таску
      */
@@ -54,7 +59,7 @@ public class JavaSocketServerConnector implements Closeable {
                     clientIOWorkers.submit(clientTask);
                 }
             } catch (IOException e) {
-                System.out.println("An error occurred while accepting client sockets");
+                logger.log(Level.INFO,"An error occurred while accepting client sockets");
                 e.printStackTrace();
             }
         });
@@ -65,13 +70,13 @@ public class JavaSocketServerConnector implements Closeable {
      */
     @Override
     public void close() {
-        System.out.println("Stopping socket connector");
+        logger.log(Level.INFO,"Stopping socket connector");
         try {
             clientIOWorkers.shutdownNow();
             connectionAcceptorExecutor.shutdownNow();
             serverSocket.close();
         } catch (IOException e) {
-            System.out.println(e);
+            logger.log(Level.INFO, e.getMessage());
         }
     }
 
@@ -103,6 +108,7 @@ public class JavaSocketServerConnector implements Closeable {
         private final DatabaseServer server;
         private CommandReader reader;
         private RespWriter writer;
+
         /**
          * @param client клиентский сокет
          * @param server сервер, на котором исполняется задача
@@ -114,7 +120,7 @@ public class JavaSocketServerConnector implements Closeable {
                 this.writer = new RespWriter(client.getOutputStream());
                 this.reader = new CommandReader(new RespReader(client.getInputStream()), server.getEnv());
             } catch (IOException e) {
-                System.out.println("Error while opening read/write streams");
+                logger.log(Level.INFO,"Error while opening read/write streams");
                 e.printStackTrace();
             }
         }
@@ -128,22 +134,23 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            while (!client.isClosed()) {
-                try {
+            try {
+                while (!client.isClosed()) {
                     if (reader.hasNextCommand()) {
                         var command = reader.readCommand();
                         var databaseCommandResult = server.executeNextCommand(command);
                         writer.write(databaseCommandResult.get().serialize());
+                    } else {
+                        throw new IOException("The next command is not in the stream");
                     }
-
-                } catch (IOException | InterruptedException | ExecutionException e) {
-                    Thread.currentThread().interrupt();
-                    System.out.println("An error occurred while reading/writing from the socket");
-                    e.printStackTrace();
-                    close();
-                    break;
                 }
+            } catch (IOException | InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                logger.log(Level.INFO,"An error occurred while reading/writing from the socket");
+                e.printStackTrace();
+                close();
             }
+
 
         }
 
@@ -152,13 +159,13 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void close() {
-            System.out.println("Stopping client socket");
+            logger.log(Level.INFO,"Stopping client socket");
             try {
                 reader.close();
                 writer.close();
                 client.close();
             } catch (Exception e) {
-                System.out.println(e);
+                logger.log(Level.INFO, e.getMessage());
             }
         }
     }
