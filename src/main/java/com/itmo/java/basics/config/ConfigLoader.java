@@ -1,8 +1,6 @@
 package com.itmo.java.basics.config;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class ConfigLoader {
 
-    private InputStream inputStream;
+    private final String fileName;
     private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
     private static final String HOST_REGEX = "\\S+\\.host=";
     private static final String PORT_REGEX = "\\S+\\.port=";
@@ -24,28 +22,16 @@ public class ConfigLoader {
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        inputStream = getClass().getResourceAsStream("server.properties");
+        fileName = "server.properties";
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        try {
-            inputStream = new BufferedInputStream(new FileInputStream(name));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        fileName = name;
     }
 
-    private String clearFilePath(String filePath) {
-        var separator = File.separator;
-        var filePathAfterChangingSeparator = filePath.replaceAll(Matcher.quoteReplacement(separator), "/");
-        var regex = "^.*:";
-        var pattern = Pattern.compile(regex);
-        var matcher = pattern.matcher(filePathAfterChangingSeparator);
-        return matcher.replaceFirst("");
-    }
     /**
      * Считывает конфиг из указанного в конструкторе файла.
      * Если не удалось считать из заданного файла, или какого-то конкретно значения не оказалось,
@@ -117,6 +103,7 @@ public class ConfigLoader {
     }
 
     private List<String> readAllFile() throws IOException {
+        var inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);
         if (inputStream == null) {
             return new ArrayList<>();
         }
