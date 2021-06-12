@@ -143,6 +143,7 @@ public class JavaSocketServerConnector implements Closeable {
                     Thread.currentThread().interrupt();
                     System.out.println("An error occurred while reading/writing from the socket");
                     e.printStackTrace();
+                    close();
                     break;
                 }
             }
@@ -156,9 +157,9 @@ public class JavaSocketServerConnector implements Closeable {
         public void close() {
             System.out.println("Stopping client socket");
             try {
-                client.close();
-                writer.close();
                 reader.close();
+                writer.close();
+                client.close();
             } catch (Exception e) {
                 Thread.currentThread().interrupt();
                 System.out.println(e);
