@@ -149,7 +149,7 @@ public class RespReader implements AutoCloseable {
     private RespBulkString readBulkStringWithCode() throws IOException {
         var messageLength = readLength();
         if (messageLength == -1) {
-            return RespBulkString.NULL_STRING;
+            return null;
         }
         var message = readBeforeCRLF();
         if (message.length != messageLength) {
