@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  */
 public class JavaSocketServerConnector implements Closeable {
 
-    static Logger logger;
+    static Logger logger = Logger.getLogger("MyLogger");
 
     /**
      * Экзекьютор для выполнения ClientTask

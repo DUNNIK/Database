@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
  */
 public class ConfigLoader {
-    private Logger logger;
+    private final Logger logger = Logger.getLogger("MyLogger");
 
     private InputStream inputStream;
     private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
