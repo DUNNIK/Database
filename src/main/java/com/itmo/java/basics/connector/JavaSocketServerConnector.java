@@ -66,7 +66,7 @@ public class JavaSocketServerConnector implements Closeable {
     }
 
     private boolean threadIsNotInterrupted() {
-        return !Thread.currentThread().isInterrupted();
+        return !clientIOWorkers.isShutdown() || !connectionAcceptorExecutor.isShutdown();
     }
 
     /**
