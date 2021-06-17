@@ -53,7 +53,7 @@ public class JavaSocketServerConnector implements Closeable {
     public void start() {
         connectionAcceptorExecutor.submit(() -> {
             try {
-                while (!serverSocket.isClosed() || threadIsNotInterrupted()) {
+                while (!serverSocket.isClosed() && threadIsNotInterrupted()) {
                     var socket = serverSocket.accept();
                     var clientTask = new ClientTask(socket, databaseServer);
                     clientIOWorkers.submit(clientTask);
@@ -138,7 +138,7 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            while (!client.isClosed() || threadIsNotInterrupted()) {
+            while (!client.isClosed() && threadIsNotInterrupted()) {
                 try {
                     if (reader.hasNextCommand()) {
                         var command = reader.readCommand();
