@@ -7,6 +7,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,7 +192,7 @@ public class RespReader implements AutoCloseable {
 
     private int readLength() throws IOException {
         byte[] byteNumber = readBeforeCRLF();
-        return Integer.parseInt(new String(byteNumber));
+        return Integer.parseInt(new String(byteNumber, StandardCharsets.UTF_8));
     }
 
     private List<RespObject> readArrayObjects(int arrayLength) throws IOException {
