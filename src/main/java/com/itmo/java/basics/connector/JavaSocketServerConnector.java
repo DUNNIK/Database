@@ -53,7 +53,7 @@ public class JavaSocketServerConnector implements Closeable {
     public void start() {
         connectionAcceptorExecutor.submit(() -> {
             try {
-                while (!serverSocket.isClosed()) {
+                while (!serverSocket.isClosed() || threadIsNotInterrupted()) {
                     var socket = serverSocket.accept();
                     var clientTask = new ClientTask(socket, databaseServer);
                     clientIOWorkers.submit(clientTask);
@@ -63,6 +63,10 @@ public class JavaSocketServerConnector implements Closeable {
                 e.printStackTrace();
             }
         });
+    }
+
+    private boolean threadIsNotInterrupted() {
+        return !Thread.currentThread().isInterrupted();
     }
 
     /**
@@ -134,14 +138,13 @@ public class JavaSocketServerConnector implements Closeable {
          */
         @Override
         public void run() {
-            while (!client.isClosed()) {
+            while (!client.isClosed() || threadIsNotInterrupted()) {
                 try {
                     if (reader.hasNextCommand()) {
                         var command = reader.readCommand();
                         var databaseCommandResult = server.executeNextCommand(command);
                         writer.write(databaseCommandResult.get().serialize());
                     }
-
                 } catch (IOException | InterruptedException | ExecutionException e) {
                     Thread.currentThread().interrupt();
                     logger.log(Level.INFO, "An error occurred while reading/writing from the socket");
@@ -151,6 +154,10 @@ public class JavaSocketServerConnector implements Closeable {
                 }
             }
 
+        }
+
+        private boolean threadIsNotInterrupted() {
+            return !Thread.currentThread().isInterrupted();
         }
 
         /**
