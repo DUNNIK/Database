@@ -56,6 +56,18 @@ public class ConfigLoader {
     }
 
     private Properties loadPropertiesFile() throws IOException {
+        try (InputStream inputStream = openInputStream()) {
+            var properties = new Properties();
+            try (var reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                properties.load(reader);
+            }
+            return properties;
+        } catch (IOException e) {
+            throw new IOException("An error occurred while reading the properties file: " + name);
+        }
+    }
+
+    private InputStream openInputStream() {
         var inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
         if (inputStream == null) {
             try {
@@ -64,14 +76,6 @@ public class ConfigLoader {
                 inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
             }
         }
-        var properties = new Properties();
-        if (inputStream != null) {
-            try (var reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                properties.load(reader);
-                inputStream.close();
-            }
-        }
-        return properties;
+        return inputStream;
     }
-
 }
