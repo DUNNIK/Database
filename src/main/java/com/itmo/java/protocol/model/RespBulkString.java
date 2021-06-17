@@ -97,6 +97,9 @@ public class RespBulkString implements RespObject {
     }
 
     private String convertToString() {
+        if (data == NULL_STRING.data) {
+            return null;
+        }
         return new String(data, StandardCharsets.UTF_8);
     }
 

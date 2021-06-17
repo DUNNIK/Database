@@ -56,7 +56,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
         } catch (DatabaseException e) {
             return DatabaseCommandResult.error(e);
         }
-        var message = "Database" + dbName + "was created";
+        var message = "Database " + dbName + " was created";
         return DatabaseCommandResult.success(message.getBytes(StandardCharsets.UTF_8));
     }
 

@@ -1,17 +1,21 @@
 package com.itmo.java.protocol;
 
-import com.itmo.java.protocol.model.RespArray;
-import com.itmo.java.protocol.model.RespBulkString;
-import com.itmo.java.protocol.model.RespCommandId;
-import com.itmo.java.protocol.model.RespError;
-import com.itmo.java.protocol.model.RespObject;
+import com.itmo.java.protocol.model.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RespReader implements AutoCloseable {
 
+    private final InputStream inputStream;
+    private boolean firstByteWasRead = false;
+    private byte currentByteFromHasArray;
     /**
      * Специальные символы окончания элемента
      */
@@ -19,15 +23,16 @@ public class RespReader implements AutoCloseable {
     private static final byte LF = '\n';
 
     public RespReader(InputStream is) {
-        //TODO implement
+        this.inputStream = is;
     }
 
     /**
      * Есть ли следующий массив в стриме?
      */
     public boolean hasArray() throws IOException {
-        //TODO implement
-        return false;
+        currentByteFromHasArray = (byte) inputStream.read();
+        firstByteWasRead = true;
+        return currentByteFromHasArray == RespArray.CODE;
     }
 
     /**
@@ -38,8 +43,55 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespObject readObject() throws IOException {
-        //TODO implement
-        return null;
+        if (firstByteWasRead) {
+            firstByteWasRead = false;
+            return readCorrectObject(currentByteFromHasArray);
+        }
+        var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
+        return readCorrectObject(code);
+    }
+
+    private byte[] readBeforeCRLF() throws IOException {
+        var previousByte = (byte) inputStream.read();
+        var currentByte = (byte) inputStream.read();
+        byte byteForWrite;
+        var buffer = new ByteArrayOutputStream();
+        while (previousByte != CR || currentByte != LF) {
+            byteForWrite = previousByte;
+            previousByte = currentByte;
+            currentByte = (byte) inputStream.read();
+            if (previousByte == -1 && currentByte == -1) {
+                throw new IOException("Mistake. The buffer has run out. CLRF was not detected");
+            }
+            buffer.write(byteForWrite);
+        }
+        return buffer.toByteArray();
+    }
+
+    private void exceptionIfStreamEmpty(byte readByte) throws IOException {
+        if (isInputStreamEmpty(readByte)) {
+            throw new EOFException("The input stream is empty");
+        }
+    }
+
+    private boolean isInputStreamEmpty(byte oneByte) {
+        return oneByte == -1;
+    }
+
+    private RespObject readCorrectObject(byte code) throws IOException {
+        switch (code) {
+            case RespArray.CODE:
+                return readArrayWithCode();
+            case RespBulkString.CODE:
+                return readBulkStringWithCode();
+            case RespCommandId.CODE:
+                return readCommandIdWithCode();
+            case RespError.CODE:
+                return readErrorWithCode();
+            default:
+                throw new IOException("An incorrect object's RESP code was read");
+        }
     }
 
     /**
@@ -49,8 +101,32 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespError readError() throws IOException {
-        //TODO implement
-        return null;
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespError.CODE)) {
+                throw new IOException("An error occurred. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readErrorWithCode();
+        }
+        var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
+        exceptionIfNotCorrectCode(code, RespError.CODE);
+        return readErrorWithCode();
+    }
+
+    private RespError readErrorWithCode() throws IOException {
+        byte[] message = readBeforeCRLF();
+        return new RespError(message);
+    }
+
+    private void exceptionIfNotCorrectCode(byte currentCode, byte correctCode) throws IOException {
+        if (isNotCorrectCode(currentCode, correctCode)) {
+            throw new IOException("Read error. Expected object with code:" + correctCode + "received object with code:" + currentCode);
+        }
+    }
+
+    private boolean isNotCorrectCode(byte currentCode, byte correctCode) {
+        return currentCode != correctCode;
     }
 
     /**
@@ -60,8 +136,29 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespBulkString readBulkString() throws IOException {
-        //TODO implement
-        return null;
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespBulkString.CODE)) {
+                throw new IOException("An error occurred. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readBulkStringWithCode();
+        }
+        var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
+        exceptionIfNotCorrectCode(code, RespBulkString.CODE);
+        return readBulkStringWithCode();
+    }
+
+    private RespBulkString readBulkStringWithCode() throws IOException {
+        int messageLength = readLength();
+        if (messageLength == -1) {
+            return RespBulkString.NULL_STRING;
+        }
+        byte[] message = readBeforeCRLF();
+        if (message.length != messageLength) {
+            throw new IOException("An error occurred while reading the Bulk String");
+        }
+        return new RespBulkString(message);
     }
 
     /**
@@ -71,8 +168,47 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespArray readArray() throws IOException {
-        //TODO implement
-        return null;
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespArray.CODE)) {
+                throw new IOException("Exception. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readArrayWithCode();
+        }
+        var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
+        exceptionIfNotCorrectCode(code, RespArray.CODE);
+        return readArrayWithCode();
+    }
+
+    private RespArray readArrayWithCode() throws IOException {
+        int arrayLength = readLength();
+        List<RespObject> respList = readArrayObjects(arrayLength);
+        return RespArray.builder()
+                .respObjects(respList)
+                .respObjectStrings(parseStringsFromRespObjects(respList))
+                .build();
+    }
+
+    private int readLength() throws IOException {
+        byte[] byteNumber = readBeforeCRLF();
+        return Integer.parseInt(new String(byteNumber, StandardCharsets.UTF_8));
+    }
+
+    private List<RespObject> readArrayObjects(int arrayLength) throws IOException {
+        var respList = new ArrayList<RespObject>();
+        for (var i = 0; i < arrayLength; i++) {
+            respList.add(readCorrectObject((byte) inputStream.read()));
+        }
+        return respList;
+    }
+
+    private List<String> parseStringsFromRespObjects(List<RespObject> objects) {
+        var result = new ArrayList<String>();
+        for (var respObject : objects) {
+            result.add(respObject.asString());
+        }
+        return result;
     }
 
     /**
@@ -82,13 +218,32 @@ public class RespReader implements AutoCloseable {
      * @throws IOException  при ошибке чтения
      */
     public RespCommandId readCommandId() throws IOException {
-        //TODO implement
-        return null;
+        if (firstByteWasRead) {
+            if (isNotCorrectCode(currentByteFromHasArray, RespCommandId.CODE)) {
+                throw new IOException("Exception. Incorrectly read code");
+            }
+            firstByteWasRead = false;
+            return readCommandIdWithCode();
+        }
+        var code = (byte) inputStream.read();
+        exceptionIfStreamEmpty(code);
+        exceptionIfNotCorrectCode(code, RespCommandId.CODE);
+        return readCommandIdWithCode();
     }
 
+    private RespCommandId readCommandIdWithCode() throws IOException {
+        byte[] commandIdBytes = readBeforeCRLF();
+        Integer commandId = getInt(commandIdBytes);
+        return new RespCommandId(commandId);
+    }
+
+    private Integer getInt(byte[] bytes) {
+        var byteBuffer = ByteBuffer.wrap(bytes);
+        return byteBuffer.getInt();
+    }
 
     @Override
     public void close() throws IOException {
-        //TODO implement
+        inputStream.close();
     }
 }

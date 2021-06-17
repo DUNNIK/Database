@@ -57,11 +57,10 @@ public class SetKeyCommand implements DatabaseCommand {
             }
             var database = databaseOptional.get();
             var readOptionalValue = database.read(tableName, key);
-            if (readOptionalValue.isEmpty()) {
-                return DatabaseCommandResult.error("There is no value to delete");
+            byte[] previousValue = null;
+            if (readOptionalValue.isPresent()) {
+                previousValue = readOptionalValue.get();
             }
-            var previousValue = readOptionalValue.get();
-
             database.write(tableName, key, value.getBytes(StandardCharsets.UTF_8));
             return DatabaseCommandResult.success(previousValue);
         } catch (DatabaseException e) {
