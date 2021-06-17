@@ -2,12 +2,9 @@ package com.itmo.java.basics.config;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * Класс, отвечающий за подгрузку данных из конфигурационного файла формата .properties
@@ -15,30 +12,20 @@ import java.util.regex.Pattern;
 public class ConfigLoader {
     private final Logger logger = Logger.getLogger("MyLogger");
 
-    private InputStream inputStream;
-    private static final String WORKING_PATH_REGEX = "\\S+\\.workingPath=";
-    private static final String HOST_REGEX = "\\S+\\.host=";
-    private static final String PORT_REGEX = "\\S+\\.port=";
+    private final String name;
 
     /**
      * По умолчанию читает из server.properties
      */
     public ConfigLoader() {
-        inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
+        name = "server.properties";
     }
 
     /**
      * @param name Имя конфикурационного файла, откуда читать
      */
     public ConfigLoader(String name) {
-        inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
-        if (inputStream == null) {
-            try {
-                inputStream = new BufferedInputStream(new FileInputStream(name));
-            } catch (FileNotFoundException e) {
-                inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
-            }
-        }
+        this.name = name;
     }
 
     /**
@@ -55,13 +42,10 @@ public class ConfigLoader {
                 new DatabaseConfig(DatabaseConfig.DEFAULT_WORKING_PATH)
         );
         try {
-            var allLines = readAllFile();
-            var workingPath = searchWithRegex(allLines, WORKING_PATH_REGEX);
-            workingPath = ifNullThenDefault(workingPath, DatabaseConfig.DEFAULT_WORKING_PATH);
-            var host = searchWithRegex(allLines, HOST_REGEX);
-            host = ifNullThenDefault(host, ServerConfig.DEFAULT_HOST);
-            var portStr = searchWithRegex(allLines, PORT_REGEX);
-            var port = ifNullThenDefault(portStr);
+            Properties properties = loadPropertiesFile();
+            String workingPath = properties.getProperty("kvs.workingPath", DatabaseConfig.DEFAULT_WORKING_PATH);
+            String host = properties.getProperty("kvs.host", ServerConfig.DEFAULT_HOST);
+            var port = Integer.parseInt(properties.getProperty("kvs.port", String.valueOf(ServerConfig.DEFAULT_PORT)));
             var databaseConfig = new DatabaseConfig(workingPath);
             var serverConfig = new ServerConfig(host, port);
             databaseServerConfig = new DatabaseServerConfig(serverConfig, databaseConfig);
@@ -71,66 +55,22 @@ public class ConfigLoader {
         return databaseServerConfig;
     }
 
-    private String ifNullThenDefault(String value, String defaultValue) {
-        if (value == null) {
-            return defaultValue;
-        }
-        return value;
-    }
-
-    private Integer ifNullThenDefault(String value) {
-        if (value == null) {
-            return ServerConfig.DEFAULT_PORT;
-        }
-        return Integer.parseInt(value);
-    }
-
-    private String searchWithRegex(List<String> allLines, String regex) {
-        String value = null;
-        for (var line : allLines) {
-            var expressions = line.split(" ");
-            for (String expression : expressions) {
-                var receivedValue = getValueFromExpression(expression.trim(), regex);
-                if (isStringFit(receivedValue)) {
-                    value = receivedValue.trim();
-                }
+    private Properties loadPropertiesFile() throws IOException {
+        var inputStream = this.getClass().getClassLoader().getResourceAsStream(name);
+        if (inputStream == null) {
+            try {
+                inputStream = new BufferedInputStream(new FileInputStream(name));
+            } catch (FileNotFoundException e) {
+                inputStream = this.getClass().getClassLoader().getResourceAsStream("server.properties");
             }
         }
-        return value;
-    }
-
-    private boolean isStringFit(String str) {
-        return str != null && !str.trim().isEmpty();
-    }
-
-    private String getValueFromExpression(String expression, String regex) {
-        var pattern = Pattern.compile(regex);
-        var matcher1 = pattern.matcher(expression);
-        if (matcher1.find()) {
-            return matcher1.replaceFirst("");
+        var properties = new Properties();
+        if (inputStream != null) {
+            try(var reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                properties.load(reader);
+            }
         }
-        return null;
+        return properties;
     }
 
-    private List<String> readAllFile() throws IOException {
-        if (isEmpty(inputStream) || inputStream == null) {
-            return new ArrayList<>();
-        }
-        var bufferedReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8));
-        var line = bufferedReader.readLine();
-        var allLines = new ArrayList<String>();
-        while (line != null) {
-            allLines.add(line.trim());
-            line = bufferedReader.readLine();
-        }
-        bufferedReader.close();
-        return allLines;
-    }
-
-    private boolean isEmpty(InputStream inputStream) throws IOException {
-        inputStream.mark(1);
-        var oneByte = (byte) inputStream.read();
-        inputStream.reset();
-        return oneByte == -1;
-    }
 }
