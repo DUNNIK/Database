@@ -114,7 +114,7 @@ public class RespReader implements AutoCloseable {
     }
 
     private RespError readErrorWithCode() throws IOException {
-        var message = readBeforeCRLF();
+        byte[] message = readBeforeCRLF();
         return new RespError(message);
     }
 
@@ -149,11 +149,11 @@ public class RespReader implements AutoCloseable {
     }
 
     private RespBulkString readBulkStringWithCode() throws IOException {
-        var messageLength = readLength();
+        int messageLength = readLength();
         if (messageLength == -1) {
             return RespBulkString.NULL_STRING;
         }
-        var message = readBeforeCRLF();
+        byte[] message = readBeforeCRLF();
         if (message.length != messageLength) {
             throw new IOException("An error occurred while reading the Bulk String");
         }
@@ -181,8 +181,8 @@ public class RespReader implements AutoCloseable {
     }
 
     private RespArray readArrayWithCode() throws IOException {
-        var arrayLength = readLength();
-        var respList = readArrayObjects(arrayLength);
+        int arrayLength = readLength();
+        List<RespObject> respList = readArrayObjects(arrayLength);
         return RespArray.builder()
                 .respObjects(respList)
                 .respObjectStrings(parseStringsFromRespObjects(respList))
@@ -190,7 +190,7 @@ public class RespReader implements AutoCloseable {
     }
 
     private int readLength() throws IOException {
-        var byteNumber = readBeforeCRLF();
+        byte[] byteNumber = readBeforeCRLF();
         return Integer.parseInt(new String(byteNumber));
     }
 
@@ -231,8 +231,8 @@ public class RespReader implements AutoCloseable {
     }
 
     private RespCommandId readCommandIdWithCode() throws IOException {
-        var commandIdBytes = readBeforeCRLF();
-        var commandId = getInt(commandIdBytes);
+        byte[] commandIdBytes = readBeforeCRLF();
+        Integer commandId = getInt(commandIdBytes);
         return new RespCommandId(commandId);
     }
 

@@ -4,6 +4,9 @@ import com.itmo.java.basics.DatabaseServer;
 import com.itmo.java.basics.config.ConfigLoader;
 import com.itmo.java.basics.config.DatabaseConfig;
 import com.itmo.java.basics.config.ServerConfig;
+import com.itmo.java.basics.console.DatabaseCommand;
+import com.itmo.java.basics.console.DatabaseCommandResult;
+import com.itmo.java.basics.console.DatabaseCommands;
 import com.itmo.java.basics.console.impl.ExecutionEnvironmentImpl;
 import com.itmo.java.basics.initialization.impl.DatabaseInitializer;
 import com.itmo.java.basics.initialization.impl.DatabaseServerInitializer;
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +58,7 @@ public class JavaSocketServerConnector implements Closeable {
         connectionAcceptorExecutor.submit(() -> {
             try {
                 while (!serverSocket.isClosed() && threadIsNotInterrupted()) {
-                    var socket = serverSocket.accept();
+                    Socket socket = serverSocket.accept();
                     var clientTask = new ClientTask(socket, databaseServer);
                     clientIOWorkers.submit(clientTask);
                 }
@@ -141,8 +145,8 @@ public class JavaSocketServerConnector implements Closeable {
             while (!client.isClosed() && threadIsNotInterrupted()) {
                 try {
                     if (reader.hasNextCommand()) {
-                        var command = reader.readCommand();
-                        var databaseCommandResult = server.executeNextCommand(command);
+                        DatabaseCommand command = reader.readCommand();
+                        CompletableFuture<DatabaseCommandResult> databaseCommandResult = server.executeNextCommand(command);
                         writer.write(databaseCommandResult.get().serialize());
                     }
                 } catch (IOException | InterruptedException | ExecutionException e) {
