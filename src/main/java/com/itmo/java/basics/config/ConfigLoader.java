@@ -68,6 +68,7 @@ public class ConfigLoader {
         if (inputStream != null) {
             try(var reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 properties.load(reader);
+                inputStream.close();
             }
         }
         return properties;
